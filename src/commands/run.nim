@@ -2,8 +2,8 @@
 ## Copyright (C) 2024 Trayambak Rai
 import std/[os, logging, strutils, json, times]
 import discord_rpc
-import ../api/[games, thumbnails]
-import ../[config, flatpak, common, meta, sugar]
+import ../api/[games, thumbnails, ipinfo]
+import ../[config, flatpak, common, meta, sugar, notifications]
 
 const
   FFlagsFile* = "$1/.var/app/$2/data/sober/exe/ClientSettings/ClientAppSettings.json"
@@ -118,6 +118,14 @@ proc onGameJoin*(config: Config, data: string, discord: Option[DiscordRPC], star
       data = &gameData
       icon = &thumbnail
 
+    info "lucem: Joined game!"
+    info "Name: " & data.name & '"'
+    info "Description: " & data.description
+    info "Price: " & $data.price & " robux"
+    info "Developer: "
+    info "  Name: " & data.creator.name
+    info "  Verified: " & $data.creator.hasVerifiedBadge
+
     client.setActivity(Activity(
       details: data.name,
       state: "In-Game",
@@ -132,7 +140,40 @@ proc onGameJoin*(config: Config, data: string, discord: Option[DiscordRPC], star
       )
     ))
 
+proc onServerIpRevealed*(config: Config, line: string) =
+  if not config.lucem.notifyServerRegion:
+    return
+
+  var
+    buffer: string
+    pos = -1
+  
+  debug "lucem: server IP line buffer: " & line
+
+  while pos < line.len - 1:
+    inc pos
+
+    if buffer.endsWith("UDMUX server "):
+      break
+
+    buffer &= line[pos]
+  
+  debug "lucem: server IP line buffer stopped before splitting at: " & $pos
+  let serverIp = line[pos ..< line.len].split(',')[0].split(':')[0] # discard port, we don't need it.
+  debug "lucem: server IP is: " & serverIp
+
+  if (let ipinfo = getIpInfo(serverIp); *ipinfo):
+    let data = &ipinfo
+    notify(
+      "Server Location",
+      "This server is located in $1, $2, $3" % [data.city, data.region, data.country]
+    )
+  else:
+    warn "lucem: failed to get server location data!"
+    notify("Server Location", "Failed to fetch server location data.")
+
 proc runRoblox*(config: Config) =
+  var startingTime = epochTime()
   info "lucem: running Roblox via Sober"
 
   writeFile("/tmp/sober.log", newString(0))
@@ -142,6 +183,14 @@ proc runRoblox*(config: Config) =
     info "lucem: connecting to Discord RPC"
     var client = newDiscordRPC(DiscordRpcId.int64)
     discard client.connect()
+
+    client.setActivity(Activity(
+      details: "Playing Roblox with Lucem (Sober)",
+      state: "In the Roblox app",
+      timestamps: ActivityTimestamps(
+        start: startingTime.int64
+      )
+    ))
 
     discord = some(move(client))
 
@@ -153,7 +202,6 @@ proc runRoblox*(config: Config) =
     hasntStarted = true
 
   while hasntStarted or flatpakRunning(SOBER_APP_ID):
-    debug "lucem: Sober is running. Polling log file."
     let logFile = readFile("/tmp/sober.log").splitLines()
 
     if logFile.len - 1 < line:
@@ -168,7 +216,12 @@ proc runRoblox*(config: Config) =
 
     if data.contains("[FLog::GameJoinUtil] GameJoinUtil::joinGamePostStandard: URL: https://gamejoin.roblox.com/v1/join-game BODY:"):
       startedPlayingAt = epochTime()
+      startingTime = startedPlayingAt
+
       onGameJoin(config, data, discord, startedPlayingAt)
+
+    if data.contains("[FLog::Output] Connecting to UDMUX server"):
+      onServerIpRevealed(config, data)
 
     hasntStarted = false
     inc line

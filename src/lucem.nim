@@ -2,10 +2,10 @@
 ##
 ## Copyright (C) 2024 Trayambak Rai
 
-import std/[logging, strutils]
+import std/[os, osproc, logging, strutils]
 import colored_logger
 import ./[meta, argparser, config]
-import ./commands/[init, run]
+import ./commands/[init, run, edit_config]
 
 proc showHelp(exitCode: int = 1) {.inline, noReturn.} =
   echo """
@@ -71,6 +71,24 @@ proc main {.inline.} =
     initializeRoblox(input, config)
   of "install-sober":
     initializeSober(input)
+  of "edit-config":
+    if existsEnv("EDITOR"):
+      let editor = getEnv("EDITOR")
+      debug "lucem: editor is `" & editor & '`'
+
+      editConfiguration(editor, false)
+    else:
+      warn "lucem: you have not specified an editor in your environment variables."
+
+      for editor in [
+        "nano",
+        "vim",
+        "nvim",
+        "emacs",
+        "vi"
+      ]:
+        warn "lucem: trying editor `" & editor & '`'
+        editConfiguration(editor)
   of "run":
     updateFFlags(config)
     runRoblox(config)
