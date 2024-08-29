@@ -3,7 +3,7 @@ Lucem is a small wrapper over [Sober](https://sober.vinegarhq.org) to provide so
 Please keep in mind that while Lucem is fully open source software, Sober is proprietary for a very good reason, that being to preserve RoL from 9-year-old skiddies.
 
 # Disclaimer, in big bold letters.
-Lucem only automates downloading the Roblox APK from `apkpure.net`. It does not allow you to bypass the (reasonable and justified) restrictions the Vinegar team has put on Sober's ability to load APKs that are modified.
+Lucem only automates downloading the Roblox APK from `apkmirror.com`. It does not allow you to bypass the (reasonable and justified) restrictions the Vinegar team has put on Sober's ability to load APKs that are modified.
 
 The previous instance of Roblox on Linux via WINE was banned because skids found out about the lax anticheat on Linux and began developing cheats that targetted RoL. We do *NOT* want to get it banned again.
 
