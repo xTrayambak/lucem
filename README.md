@@ -16,6 +16,11 @@ If you really cheat on Roblox, I'd say you should reconsider your life decisions
 - Managing Sober
 
 # Installation
+1. Get the latest build artifact in the Actions section
+2. Make the lucem binary executable
+3. Move to a folder added to path like `/usr/bin`
+
+# Building from source
 Lucem requires a working Nim toolchain which can be installed via [choosenim](https://nim-lang.org/install_unix.html)
 
 Run the following commands to compile Lucem.
@@ -44,5 +49,5 @@ This will open the configuration file in your preferred editor.
 
 ## Launching Roblox
 ```command
-# lucem run
+$ lucem run
 ```
