@@ -18,6 +18,7 @@ Commands:
   run             Run Sober
   meta            Get build metadata
   edit-config     Edit the configuration file
+  reset           Reset the configuration file to the defaults
   help            Show this message"""
   quit(exitCode)
 
@@ -89,8 +90,10 @@ proc main {.inline.} =
       ]:
         warn "lucem: trying editor `" & editor & '`'
         editConfiguration(editor)
+
+    updateConfig(config)
   of "run":
-    updateFFlags(config)
+    updateConfig(config)
     runRoblox(config)
   else:
     error "lucem: invalid command `" & input.command & "`; run `lucem help` for more information."

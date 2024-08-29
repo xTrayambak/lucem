@@ -22,7 +22,7 @@ Run the following commands to compile Lucem.
 ```command
 $ git clone https://github.com/xTrayambak/lucem.git
 $ cd lucem
-$ nimble install -d:release
+$ nimble installLucem
 ```
 
 # Usage
