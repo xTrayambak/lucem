@@ -11,13 +11,17 @@ type
     notify_server_region*: bool
 
   ClientConfig* = object
-    targetFps*: int
-    disableTelemetry*: bool
+    fps*: int = 60
+    telemetry*: bool
     fflags*: string
+
+  Tweaks* = object
+    oldOof*: bool = false
 
   Config* = object
     apk*: APKConfig
     lucem*: LucemConfig
+    tweaks*: Tweaks
     client*: ClientConfig
 
 const
@@ -29,15 +33,17 @@ version = "2.639.688"
 discord_rpc = true
 notify_server_region = true
 
+[tweaks]
+oldOof = false
+
 [client]
-target_fps = 144
-disable_telemetry = true
 fflags = """ & "\"\"\"\"\"\""
 
   ConfigLocation* {.strdefine: "LucemConfigLocation".} = "$1/.config/lucem/"
 
 proc parseConfig*(input: Input): Config {.inline.} =
   discard existsOrCreateDir(ConfigLocation % [getHomeDir()])
+
   let 
     inputFile = input.flag("config-file")
     config = readFile(
@@ -50,5 +56,5 @@ proc parseConfig*(input: Input): Config {.inline.} =
         writeFile(ConfigLocation % [getHomeDir()] / "config.toml", DefaultConfig)
         ConfigLocation % [getHomeDir()] / "config.toml"
     )
-
+  
   Toml.decode(config, Config)

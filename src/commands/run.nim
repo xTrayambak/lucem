@@ -3,6 +3,7 @@
 import std/[os, logging, strutils, json, times]
 import discord_rpc
 import ../api/[games, thumbnails, ipinfo]
+import ../patches/[bring_back_oof]
 import ../[config, flatpak, common, meta, sugar, notifications]
 
 const
@@ -10,21 +11,23 @@ const
 
 let fflagsFile = FFlagsFile % [getHomeDir(), SOBER_APP_ID]
 
-proc updateFFlags*(config: Config) =
-  info "lucem: updating FFlags"
+proc updateConfig*(config: Config) =
+  info "lucem: updating config"
   if not fileExists(fflagsFile):
     error "lucem: could not open pre-existing FFlags file. Run `lucem init` first."
     quit(1)
   
   var fflags = readFile(fflagsFile).parseJson()
 
-  info "lucem: target FPS is set to: " & $config.client.targetFps
-  fflags["DFIntTaskSchedulerService"] = newJInt(int(config.client.targetFps))
+  info "lucem: target FPS is set to: " & $config.client.fps
+  fflags["DFIntTaskSchedulerService"] = newJInt(int(config.client.fps))
 
-  if config.client.disableTelemetry:
+  if not config.client.telemetry:
     info "lucem: disabling telemetry FFlags"
   else:
     warn "lucem: enabling telemetry FFlags. This is not recommended!"
+
+  enableOldOofSound(config.tweaks.oldOof)
 
   for flag in [
     "FFlagDebugDisableTelemetryEphemeralCounter",
@@ -35,8 +38,8 @@ proc updateFFlags*(config: Config) =
     "FFlagDebugDisableTelemetryV2Event",
     "FFlagDebugDisableTelemetryV2Stat"
   ]:
-    debug "lucem: set flag `" & flag & "` to " & $config.client.disableTelemetry
-    fflags[flag] = newJBool(config.client.disableTelemetry)
+    debug "lucem: set flag `" & flag & "` to " & $(not config.client.telemetry)
+    fflags[flag] = newJBool(not config.client.telemetry)
 
   if config.client.fflags.len > 0:
     for flag in config.client.fflags.split('\n'):
