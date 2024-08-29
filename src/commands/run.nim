@@ -175,6 +175,20 @@ proc onServerIpRevealed*(config: Config, line: string) =
     warn "lucem: failed to get server location data!"
     notify("Server Location", "Failed to fetch server location data.")
 
+proc onGameLeave*(config: Config, discord: Option[DiscordRPC]) =
+  if !discord:
+    return
+
+  let client = &discord
+
+  client.setActivity(Activity(
+    details: "Playing Roblox with Lucem (Sober)",
+    state: "In the Roblox app",
+    timestamps: ActivityTimestamps(
+      start: epochTime().int64
+    )
+  ))
+
 proc runRoblox*(config: Config) =
   var startingTime = epochTime()
   info "lucem: running Roblox via Sober"
@@ -225,6 +239,9 @@ proc runRoblox*(config: Config) =
 
     if data.contains("[FLog::Output] Connecting to UDMUX server"):
       onServerIpRevealed(config, data)
+
+    if data.contains("NetworkClient:Remove"):
+      onGameLeave(config, discord)
 
     hasntStarted = false
     inc line
