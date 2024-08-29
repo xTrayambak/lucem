@@ -1,0 +1,27 @@
+# This workflow will build a Nimble project
+
+name: Build
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+      
+      
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    # ⚠️ This setups the latest stable Nim version
+    - name: Install Nim
+      uses: iffy/install-nim@v5
+    - name: Install dependencies
+      run: nimble install -y
+    - name: Build
+      run: nimble build
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: Build
+        path: lucem
