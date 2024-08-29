@@ -12,6 +12,7 @@ If you really cheat on Roblox, I'd say you should reconsider your life decisions
 
 # Features
 - Rich presence
+- Server region notifier
 - Providing a nifty configuration file (located at `~/.config/lucem/config.toml`)
 - (Semi-automatically) downloading and managing the Roblox APK
 - Managing Sober
@@ -34,4 +35,16 @@ Run this command:
 # lucem init
 ```
 
-You will be guided as to how you can download the latest Roblox APK
+You will be guided as to how you can download the latest Roblox APK.
+
+## Configuring Lucem
+```command
+# lucem edit-config
+```
+
+This will open the configuration file in your preferred editor.
+
+## Launching Roblox
+```command
+# lucem run
+```

@@ -17,8 +17,8 @@ Commands:
   install-sober   Install Sober
   run             Run Sober
   meta            Get build metadata
-  help            Show this message
-"""
+  edit-config     Edit the configuration file
+  help            Show this message"""
   quit(exitCode)
 
 proc showMeta {.inline, noReturn.} =
