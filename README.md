@@ -15,6 +15,14 @@ If you really cheat on Roblox, I'd say you should reconsider your life decisions
 - (Semi-automatically) downloading and managing the Roblox APK
 - Managing Sober
 
+## Patches
+Lucem provides the following optional patches. All of them go under the `tweaks` section in your configuration.
+
+### Bring back the old Oof sound
+```toml
+oldOof = true
+```
+
 # Installation
 Lucem requires a working Nim toolchain which can be installed via [choosenim](https://nim-lang.org/install_unix.html)
 
