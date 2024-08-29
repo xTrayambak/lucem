@@ -10,7 +10,7 @@ bin           = @["lucem"]
 
 # Dependencies
 
-requires "nim >= 2.0.8"
+requires "nim >= 2.0.0"
 requires "colored_logger >= 0.1.0"
 
 requires "jsony >= 1.1.5"
