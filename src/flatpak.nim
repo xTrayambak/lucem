@@ -1,0 +1,37 @@
+## Flatpak helper
+## Copyright (C) 2024 Trayambak Rai
+
+import std/[os, osproc, posix, logging, strutils]
+
+proc flatpakInstall*(id: string, user: bool = true): bool {.inline, discardable.} =
+  if findExe("flatpak").len < 1:
+    error "flatpak: could not find flatpak executable! Are you sure that you have flatpak installed?"
+
+  info "flatpak: install package \"" & id & '"'
+  let (output, exitCode) = execCmdEx("flatpak install " & id & (if user: " --user" else: ""))
+
+  if exitCode != 0 and not output.contains("is already installed"):
+    error "flatpak: failed to install package \"" & id & "\"; flatpak process exited with abnormal exit code " & $exitCode
+    error "flatpak: it also outputted the following:"
+    error output
+    false
+  else:
+    info "flatpak: successfully installed \"" & id & "\"!"
+    true
+
+proc flatpakRunning*(id: string): bool {.inline.} =
+  execCmdEx("flatpak ps --columns=application").output.contains(id)
+
+proc flatpakRun*(id: string, path: string = "/dev/stdout") {.inline.} =
+  info "flatpak: launching flatpak app \"" & id & '"'
+
+  if fork() == 0:
+    debug "flatpak: we are the child - launching \"" & id & '"'
+    discard execCmd("flatpak run " & id & " > " & path)
+    quit(0)
+  else:
+    debug "flatpak: we are the parent - continuing"
+
+proc flatpakKill*(id: string): bool {.inline, discardable.} =
+  info "flatpak: killing flatpak app \"" & id & '"'
+  bool(execCmd("flatpak kill " & id))

@@ -1,0 +1,80 @@
+## Lucem - a QoL wrapper over Sober
+##
+## Copyright (C) 2024 Trayambak Rai
+
+import std/[logging, strutils]
+import colored_logger
+import ./[meta, argparser, config]
+import ./commands/[init, run]
+
+proc showHelp(exitCode: int = 1) {.inline, noReturn.} =
+  echo """
+lucem [command] [arguments]
+
+Commands:
+  init            Install Sober and fetch the Roblox APK
+  fetch-apk       Fetch the Roblox APK
+  install-sober   Install Sober
+  run             Run Sober
+  meta            Get build metadata
+  help            Show this message
+"""
+  quit(exitCode)
+
+proc showMeta {.inline, noReturn.} =
+  echo """
+Lucem $1
+Copyright (C) 2024 Trayambak Rai
+This software is licensed under the MIT license.
+
+* Compiled with Nim $2
+* Compiled on $3
+
+[ $4 ]
+
+==== LEGAL DISCLAIMER ====
+Lucem is a free unofficial application that wraps around Sober, a runtime for Roblox on Linux. Lucem does not generate any revenue for its authors whatsoever.
+Lucem is NOT affiliated with Roblox or its partners, nor is it endorsed by them. The Lucem developers do not support misuse of the Roblox platform and there are restrictions
+in place to prevent such abuse. The Lucem developers or anyone involved with the project is NOT responsible for any damages caused by this software as it comes with NO WARRANTY.
+""" % [
+  Version,
+  NimVersion,
+  CompileDate & ' ' & CompileTime,
+
+  when defined(release): 
+    "Release Build" 
+  else: 
+    "Development Build",
+  ]
+
+proc main {.inline.} =
+  addHandler(newColoredLogger())
+  setLogFilter(lvlInfo)
+
+  let input = parseInput()
+  info "lucem@" & Version & " is now starting up!"
+
+  if input.enabled("verbose", "v"):
+    setLogFilter(lvlAll)
+
+  let config = parseConfig(input)
+
+  case input.command
+  of "meta":
+    showMeta()
+  of "help":
+    showHelp(0)
+  of "init":
+    initializeSober(input)
+    initializeRoblox(input, config)
+  of "fetch-apk":
+    initializeRoblox(input, config)
+  of "install-sober":
+    initializeSober(input)
+  of "run":
+    updateFFlags(config)
+    runRoblox(config)
+  else:
+    error "lucem: invalid command `" & input.command & "`; run `lucem help` for more information."
+
+when isMainModule: main()
