@@ -5,8 +5,6 @@ Please keep in mind that while Lucem is fully open source software, Sober is pro
 # Disclaimer, in big bold letters.
 Lucem only automates downloading the Roblox APK from `apkpure.net`. It does not allow you to bypass the (reasonable and justified) restrictions the Vinegar team has put on Sober's ability to load APKs that are modified.
 
-The previous instance of Roblox on Linux via WINE was banned because skids found out about the lax anticheat on Linux and began developing cheats that targetted RoL. We do *NOT* want to get it banned again.
-
 If you really cheat on Roblox, I'd say you should reconsider your life decisions than anything. \
 **Lucem is not associated with the VinegarHQ team or Roblox, nor is it endorsed by them!**
 
@@ -22,9 +20,9 @@ Lucem requires a working Nim toolchain which can be installed via [choosenim](ht
 
 Run the following commands to compile Lucem.
 ```command
-# git clone https://github.com/xTrayambak/lucem.git
-# cd lucem
-# nimble install -d:release
+$ git clone https://github.com/xTrayambak/lucem.git
+$ cd lucem
+$ nimble install -d:release
 ```
 
 # Usage
@@ -32,19 +30,19 @@ Run the following commands to compile Lucem.
 Run this command:
 
 ```command
-# lucem init
+$ lucem init
 ```
 
 You will be guided as to how you can download the latest Roblox APK.
 
 ## Configuring Lucem
 ```command
-# lucem edit-config
+$ lucem edit-config
 ```
 
 This will open the configuration file in your preferred editor.
 
 ## Launching Roblox
 ```command
-# lucem run
+$ lucem run
 ```
