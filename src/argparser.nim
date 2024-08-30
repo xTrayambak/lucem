@@ -3,12 +3,11 @@
 import std/[os, parseopt, logging, tables]
 import ./[sugar]
 
-type
-  Input* = object
-    command*: string
-    arguments*: seq[string]
-    flags: Table[string, string]
-    switches: seq[string]
+type Input* = object
+  command*: string
+  arguments*: seq[string]
+  flags: Table[string, string]
+  switches: seq[string]
 
 proc enabled*(input: Input, switch: string): bool {.inline.} =
   input.switches.contains(switch)
@@ -20,7 +19,7 @@ proc flag*(input: Input, value: string): Option[string] {.inline.} =
   if input.flags.contains(value):
     return some(input.flags[value])
 
-proc parseInput*: Input {.inline.} =
+proc parseInput*(): Input {.inline.} =
   var
     foundCmd = false
     input: Input
@@ -39,8 +38,7 @@ proc parseInput*: Input {.inline.} =
     of cmdShortOption, cmdLongOption:
       if parser.val.len < 1:
         debug "argparser: found switch: " & parser.key
-        input.switches &=
-          parser.key
+        input.switches &= parser.key
       else:
         debug "argparser: found flag: " & parser.key & '=' & parser.val
         input.flags[parser.key] = parser.val
@@ -51,8 +49,7 @@ proc parseInput*: Input {.inline.} =
         foundCmd = true
       else:
         debug "argparser: found argument: " & parser.key
-        input.arguments &=
-          parser.key
+        input.arguments &= parser.key
 
   if input.command.len < 1:
     error "lucem: expected command, got none. Run `lucem help` for more information."

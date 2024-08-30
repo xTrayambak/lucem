@@ -20,7 +20,7 @@ type
     MorphToR6 = "MorphToR6"
     PlayerChoice = "PlayerChoice"
     MorphToR15 = "MorphToR15"
-  
+
   StubData*[T] = object
     data*: seq[T]
 
@@ -53,22 +53,34 @@ type
     imageToken*: string
 
 proc getUniverseFromPlace*(placeId: string): UniverseID {.inline.} =
-  if (let cached = findCacheSingleParam[UniverseID]("roblox.getUniverseFromPlace", placeId, 8765'u64); *cached):
+  if (
+    let cached =
+      findCacheSingleParam[UniverseID]("roblox.getUniverseFromPlace", placeId, 8765'u64)
+    *cached
+  ):
     return &cached
 
-  let payload = httpGet("https://apis.roblox.com/universes/v1/places/$1/universe" % [placeId]).parseJson()["universeId"].getInt().UniverseID()
+  let payload = httpGet(
+      "https://apis.roblox.com/universes/v1/places/$1/universe" % [placeId]
+    )
+    .parseJson()["universeId"]
+    .getInt()
+    .UniverseID()
   cacheSingleParam("roblox.getUniverseFromPlace", placeId, payload)
 
   payload
 
 proc getGameDetail*(id: UniverseID): Option[GameDetail] =
-  if (let cached = findCacheSingleParam[GameDetail]("roblox.getGameDetail", $id, 2); *cached):
+  if (
+    let cached = findCacheSingleParam[GameDetail]("roblox.getGameDetail", $id, 2)
+    *cached
+  ):
     return cached
 
   let
     url = "https://games.roblox.com/v1/games/?universeIds=" & $id
     resp = httpGet(url)
-  
+
   info "getGameDetail($1): $2" % [$id, resp]
   let payload = fromJson(resp, StubData[GameDetail]).data[0]
   cacheSingleParam("roblox.getGameDetail", $id, payload)

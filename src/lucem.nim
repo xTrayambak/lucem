@@ -4,7 +4,7 @@
 
 import std/[os, logging, strutils]
 import colored_logger
-import ./[meta, argparser, config]
+import ./[meta, argparser, config, cache_calls]
 import ./commands/[init, run, edit_config]
 
 proc showHelp(exitCode: int = 1) {.inline, noReturn.} =
@@ -18,11 +18,11 @@ Commands:
   run             Run Sober
   meta            Get build metadata
   edit-config     Edit the configuration file
-  reset           Reset the configuration file to the defaults
+  clear-cache     Clear the API caches that Lucem maintains
   help            Show this message"""
   quit(exitCode)
 
-proc showMeta {.inline, noReturn.} =
+proc showMeta() {.inline, noReturn.} =
   echo """
 Lucem $1
 Copyright (C) 2024 Trayambak Rai
@@ -33,22 +33,22 @@ This software is licensed under the MIT license.
 
 [ $4 ]
 
+==== LICENSE ====
+$5
 ==== LEGAL DISCLAIMER ====
 Lucem is a free unofficial application that wraps around Sober, a runtime for Roblox on Linux. Lucem does not generate any revenue for its authors whatsoever.
 Lucem is NOT affiliated with Roblox or its partners, nor is it endorsed by them. The Lucem developers do not support misuse of the Roblox platform and there are restrictions
 in place to prevent such abuse. The Lucem developers or anyone involved with the project is NOT responsible for any damages caused by this software as it comes with NO WARRANTY.
-""" % [
-  Version,
-  NimVersion,
-  CompileDate & ' ' & CompileTime,
-
-  when defined(release): 
-    "Release Build" 
-  else: 
-    "Development Build",
+""" %
+  [
+    Version,
+    NimVersion,
+    CompileDate & ' ' & CompileTime,
+    when defined(release): "Release Build" else: "Development Build",
+    LicenseString,
   ]
 
-proc main {.inline.} =
+proc main() {.inline.} =
   addHandler(newColoredLogger())
   setLogFilter(lvlInfo)
 
@@ -81,13 +81,7 @@ proc main {.inline.} =
     else:
       warn "lucem: you have not specified an editor in your environment variables."
 
-      for editor in [
-        "nano",
-        "vim",
-        "nvim",
-        "emacs",
-        "vi"
-      ]:
+      for editor in ["nano", "vim", "nvim", "emacs", "vi"]:
         warn "lucem: trying editor `" & editor & '`'
         editConfiguration(editor)
 
@@ -95,7 +89,12 @@ proc main {.inline.} =
   of "run":
     updateConfig(config)
     runRoblox(config)
+  of "clear-cache":
+    let savedMb = clearCache()
+    info "lucem: cleared cache calls to reclaim " & $savedMb & " MB of space"
   else:
-    error "lucem: invalid command `" & input.command & "`; run `lucem help` for more information."
+    error "lucem: invalid command `" & input.command &
+      "`; run `lucem help` for more information."
 
-when isMainModule: main()
+when isMainModule:
+  main()

@@ -6,8 +6,8 @@ import ../api/[games, thumbnails, ipinfo]
 import ../patches/[bring_back_oof]
 import ../[config, flatpak, common, meta, sugar, notifications]
 
-const
-  FFlagsFile* = "$1/.var/app/$2/data/sober/exe/ClientSettings/ClientAppSettings.json"
+const FFlagsFile* =
+  "$1/.var/app/$2/data/sober/exe/ClientSettings/ClientAppSettings.json"
 
 let fflagsFile = FFlagsFile % [getHomeDir(), SOBER_APP_ID]
 
@@ -16,11 +16,11 @@ proc updateConfig*(config: Config) =
   if not fileExists(fflagsFile):
     error "lucem: could not open pre-existing FFlags file. Run `lucem init` first."
     quit(1)
-  
+
   var fflags = readFile(fflagsFile).parseJson()
 
   info "lucem: target FPS is set to: " & $config.client.fps
-  fflags["DFIntTaskSchedulerService"] = newJInt(int(config.client.fps))
+  fflags["DFIntTaskSchedulerTargetFps"] = newJInt(int(config.client.fps))
 
   if not config.client.telemetry:
     info "lucem: disabling telemetry FFlags"
@@ -31,12 +31,9 @@ proc updateConfig*(config: Config) =
 
   for flag in [
     "FFlagDebugDisableTelemetryEphemeralCounter",
-    "FFlagDebugDisableTelemetryEphemeralStat",
-    "FFlagDebugDisableTelemetryEventIngest",
-    "FFlagDebugDisableTelemetryPoint",
-    "FFlagDebugDisableTelemetryV2Counter",
-    "FFlagDebugDisableTelemetryV2Event",
-    "FFlagDebugDisableTelemetryV2Stat"
+    "FFlagDebugDisableTelemetryEphemeralStat", "FFlagDebugDisableTelemetryEventIngest",
+    "FFlagDebugDisableTelemetryPoint", "FFlagDebugDisableTelemetryV2Counter",
+    "FFlagDebugDisableTelemetryV2Event", "FFlagDebugDisableTelemetryV2Stat",
   ]:
     debug "lucem: set flag `" & flag & "` to " & $(not config.client.telemetry)
     fflags[flag] = newJBool(not config.client.telemetry)
@@ -47,13 +44,15 @@ proc updateConfig*(config: Config) =
 
       if splitted.len < 2:
         if flag.len > 0:
-          error "lucem: error whilst parsing FFlag (" & flag & "): only got key, no value to complete the pair was found."
+          error "lucem: error whilst parsing FFlag (" & flag &
+            "): only got key, no value to complete the pair was found."
           quit(1)
         else:
           continue
 
       if splitted.len > 2:
-        error "lucem: error whilst parsing FFlag (" & flag & "): got more than two splits, key and value were already found."
+        error "lucem: error whilst parsing FFlag (" & flag &
+          "): got more than two splits, key and value were already found."
         quit(1)
 
       let
@@ -86,7 +85,9 @@ proc updateConfig*(config: Config) =
 
   writeFile(fflagsFile, serialized)
 
-proc onGameJoin*(config: Config, data: string, discord: Option[DiscordRPC], startedAt: float) =
+proc onGameJoin*(
+    config: Config, data: string, discord: Option[DiscordRPC], startedAt: float
+) =
   var
     foundBeginningOfJson = false
     jdata: string
@@ -102,16 +103,16 @@ proc onGameJoin*(config: Config, data: string, discord: Option[DiscordRPC], star
       jdata &= c
 
   debug "lucem: join metadata: " & jdata
-  
-  if config.lucem.discordRpc:
-    let 
+
+  if config.lucem.discordRpc and *discord:
+    let
       placeId = $parseJson(jdata)["placeId"].getInt()
       universeId = getUniverseFromPlace(placeId)
       client = &discord
-    
+
       gameData = getGameDetail(universeId)
       thumbnail = getGameIcon(universeId)
-  
+
     if !gameData:
       warn "lucem: failed to fetch game data; RPC will not be set."
       return
@@ -120,7 +121,7 @@ proc onGameJoin*(config: Config, data: string, discord: Option[DiscordRPC], star
       warn "lucem: failed to fetch game thumbnail; RPC will not be set."
       return
 
-    let 
+    let
       data = &gameData
       icon = &thumbnail
 
@@ -132,19 +133,18 @@ proc onGameJoin*(config: Config, data: string, discord: Option[DiscordRPC], star
     info "  Name: " & data.creator.name
     info "  Verified: " & $data.creator.hasVerifiedBadge
 
-    client.setActivity(Activity(
-      details: "Playing " & data.name,
-      state: "by " & data.creator.name,
-      assets: some(
-        ActivityAssets(
-          largeImage: icon.imageUrl,
-          largeText: "Sober + Lucem v" & Version
-        )
-      ),
-      timestamps: ActivityTimestamps(
-        start: startedAt.int64
+    client.setActivity(
+      Activity(
+        details: "Playing " & data.name,
+        state: "by " & data.creator.name,
+        assets: some(
+          ActivityAssets(
+            largeImage: icon.imageUrl, largeText: "Sober + Lucem v" & Version
+          )
+        ),
+        timestamps: ActivityTimestamps(start: startedAt.int64),
       )
-    ))
+    )
 
 proc onServerIpRevealed*(config: Config, line: string) =
   if not config.lucem.notifyServerRegion:
@@ -153,7 +153,7 @@ proc onServerIpRevealed*(config: Config, line: string) =
   var
     buffer: string
     pos = -1
-  
+
   debug "lucem: server IP line buffer: " & line
 
   while pos < line.len - 1:
@@ -163,16 +163,17 @@ proc onServerIpRevealed*(config: Config, line: string) =
       break
 
     buffer &= line[pos]
-  
+
   debug "lucem: server IP line buffer stopped before splitting at: " & $pos
-  let serverIp = line[pos ..< line.len].split(',')[0].split(':')[0] # discard port, we don't need it.
+  let serverIp = line[pos ..< line.len].split(',')[0].split(':')[0]
+    # discard port, we don't need it.
   debug "lucem: server IP is: " & serverIp
 
   if (let ipinfo = getIpInfo(serverIp); *ipinfo):
     let data = &ipinfo
     notify(
       "Server Location",
-      "This server is located in $1, $2, $3" % [data.city, data.region, data.country]
+      "This server is located in $1, $2, $3" % [data.city, data.region, data.country],
     )
   else:
     warn "lucem: failed to get server location data!"
@@ -186,13 +187,13 @@ proc onGameLeave*(config: Config, discord: Option[DiscordRPC]) =
 
   let client = &discord
 
-  client.setActivity(Activity(
-    details: "Playing Roblox with Lucem (Sober)",
-    state: "In the Roblox app",
-    timestamps: ActivityTimestamps(
-      start: epochTime().int64
+  client.setActivity(
+    Activity(
+      details: "Playing Roblox with Lucem (Sober)",
+      state: "In the Roblox app",
+      timestamps: ActivityTimestamps(start: epochTime().int64),
     )
-  ))
+  )
 
 proc runRoblox*(config: Config) =
   var startingTime = epochTime()
@@ -200,25 +201,31 @@ proc runRoblox*(config: Config) =
 
   writeFile("/tmp/sober.log", newString(0))
   var discord: Option[DiscordRPC]
-  
+
   if config.lucem.discordRpc:
     info "lucem: connecting to Discord RPC"
     var client = newDiscordRPC(DiscordRpcId.int64)
-    discard client.connect()
 
-    client.setActivity(Activity(
-      details: "Playing Roblox with Lucem (Sober)",
-      state: "In the Roblox app",
-      timestamps: ActivityTimestamps(
-        start: startingTime.int64
+    try:
+      discard client.connect()
+
+
+      client.setActivity(
+        Activity(
+          details: "Playing Roblox with Lucem (Sober)",
+          state: "In the Roblox app",
+          timestamps: ActivityTimestamps(start: startingTime.int64),
+        )
       )
-    ))
 
-    discord = some(move(client))
+      discord = some(move(client))
+    except CatchableError as exc:
+      warn "lucem: unable to connect to Discord RPC: " & exc.msg
 
-  flatpakRun(SOBER_APP_ID, "/tmp/sober.log", config.client.launcher) # point all logs to /tmp/sober.log
+  flatpakRun(SOBER_APP_ID, "/tmp/sober.log", config.client.launcher)
+    # point all logs to /tmp/sober.log
 
-  var 
+  var
     line = 0
     startedPlayingAt = 0.0
     hasntStarted = true
@@ -236,7 +243,9 @@ proc runRoblox*(config: Config) =
 
     # debug "$2" % [$line, data]
 
-    if data.contains("[FLog::GameJoinUtil] GameJoinUtil::joinGamePostStandard: URL: https://gamejoin.roblox.com/v1/join-game BODY:"):
+    if data.contains(
+      "[FLog::GameJoinUtil] GameJoinUtil::joinGamePostStandard: URL: https://gamejoin.roblox.com/v1/join-game BODY:"
+    ):
       startedPlayingAt = epochTime()
       startingTime = startedPlayingAt
 
@@ -245,7 +254,8 @@ proc runRoblox*(config: Config) =
     if data.contains("[FLog::Output] Connecting to UDMUX server"):
       onServerIpRevealed(config, data)
 
-    if data.contains("[FLog::Network] Client:Disconnect") or data.contains("[FLog::SingleSurfaceApp] handleGameWillClose"):
+    if data.contains("[FLog::Network] Client:Disconnect") or
+        data.contains("[FLog::SingleSurfaceApp] handleGameWillClose"):
       onGameLeave(config, discord)
 
     hasntStarted = false

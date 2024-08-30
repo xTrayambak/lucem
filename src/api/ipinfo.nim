@@ -4,22 +4,24 @@ import std/[logging]
 import ../[cache_calls, sugar, http]
 import jsony
 
-type
-  IPInfoResponse* = ref object
-    ip*: string
-    city*: string
-    country*: string
-    region*: string
-    loc*: string
-    org*: string
-    postal*: string
-    timezone*: string
-    readme*: string
+type IPInfoResponse* = ref object
+  ip*: string
+  city*: string
+  country*: string
+  region*: string
+  loc*: string
+  org*: string
+  postal*: string
+  timezone*: string
+  readme*: string
 
 proc getIPInfo*(ip: string): Option[IPInfoResponse] {.inline.} =
-  if (let cached = findCacheSingleParam[IPInfoResponse]("ipinfo.getIPInfo", ip, 8765'u64); *cached):
+  if (
+    let cached = findCacheSingleParam[IPInfoResponse]("ipinfo.getIPInfo", ip, 8765'u64)
+    *cached
+  ):
     return cached
-    
+
   try:
     info "ipinfo: fetching IP data for " & ip
     let body = httpGet("https://ipinfo.io/" & ip & "/json")

@@ -7,4 +7,5 @@ proc editConfiguration*(editor: string, quitOnSuccess: bool = true) =
     error "lucem: the editor (" & editor & ") exited with an unsuccessful exit code."
     quit(1)
   else:
-    if quitOnSuccess: quit(0)
+    if quitOnSuccess:
+      quit(0)

@@ -26,7 +26,8 @@ type
     client*: ClientConfig
 
 const
-  DefaultConfig* = """
+  DefaultConfig* =
+    """
 [apk]
 version = "2.639.688"
 
@@ -39,14 +40,15 @@ oldOof = false
 
 [client]
 fps = 60
-fflags = """ & "\"\"\"\"\"\""
+fflags = """ &
+    "\"\"\"\"\"\""
 
   ConfigLocation* {.strdefine: "LucemConfigLocation".} = "$1/.config/lucem/"
 
 proc parseConfig*(input: Input): Config {.inline.} =
   discard existsOrCreateDir(ConfigLocation % [getHomeDir()])
 
-  let 
+  let
     inputFile = input.flag("config-file")
     config = readFile(
       if *inputFile:
@@ -58,5 +60,5 @@ proc parseConfig*(input: Input): Config {.inline.} =
         writeFile(ConfigLocation % [getHomeDir()] / "config.toml", DefaultConfig)
         ConfigLocation % [getHomeDir()] / "config.toml"
     )
-  
+
   Toml.decode(config, Config)

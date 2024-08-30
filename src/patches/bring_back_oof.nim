@@ -4,8 +4,10 @@ import std/[os, logging, strutils]
 import ../http
 
 const
-  LucemPatchOofSoundUrl* {.strdefine.} = "https://github.com/pizzaboxer/bloxstrap/raw/main/Bloxstrap/Resources/Mods/Sounds/OldDeath.ogg"
-  SoberSoundResourcesPath* {.strdefine.} = "$1/.var/app/org.vinegarhq.Sober/data/sober/assets/content/sounds/"
+  LucemPatchOofSoundUrl* {.strdefine.} =
+    "https://github.com/pizzaboxer/bloxstrap/raw/main/Bloxstrap/Resources/Mods/Sounds/OldDeath.ogg"
+  SoberSoundResourcesPath* {.strdefine.} =
+    "$1/.var/app/org.vinegarhq.Sober/data/sober/assets/content/sounds/"
 
 proc enableOldOofSound*(enable: bool = true) =
   let
@@ -13,13 +15,13 @@ proc enableOldOofSound*(enable: bool = true) =
     newFp = basePath / "ouch.ogg.new"
     usedFp = basePath / "ouch.ogg"
     oldFp = basePath / "ouch.ogg.old"
-  
+
   if enable:
     if not fileExists(newFp):
       info "patches: bringing back old oof sound"
       debug "patches: moving new oof sound to separate file"
       moveFile(usedFp, newFp)
-      
+
       if not fileExists(oldFp):
         debug "patches: fetching old oof sound"
         let oldSound = httpGet(LucemPatchOofSoundUrl)

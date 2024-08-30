@@ -8,10 +8,12 @@ proc flatpakInstall*(id: string, user: bool = true): bool {.inline, discardable.
     error "flatpak: could not find flatpak executable! Are you sure that you have flatpak installed?"
 
   info "flatpak: install package \"" & id & '"'
-  let (output, exitCode) = execCmdEx("flatpak install " & id & (if user: " --user" else: ""))
+  let (output, exitCode) =
+    execCmdEx("flatpak install " & id & (if user: " --user" else: ""))
 
   if exitCode != 0 and not output.contains("is already installed"):
-    error "flatpak: failed to install package \"" & id & "\"; flatpak process exited with abnormal exit code " & $exitCode
+    error "flatpak: failed to install package \"" & id &
+      "\"; flatpak process exited with abnormal exit code " & $exitCode
     error "flatpak: it also outputted the following:"
     error output
     false
@@ -22,14 +24,17 @@ proc flatpakInstall*(id: string, user: bool = true): bool {.inline, discardable.
 proc flatpakRunning*(id: string): bool {.inline.} =
   execCmdEx("flatpak ps --columns=application").output.contains(id)
 
-proc flatpakRun*(id: string, path: string = "/dev/stdout", launcher: string = "") {.inline.} =
+proc flatpakRun*(
+    id: string, path: string = "/dev/stdout", launcher: string = ""
+) {.inline.} =
   info "flatpak: launching flatpak app \"" & id & '"'
   debug "flatpak: launcher = " & launcher
 
   let launcherExe = findExe(launcher)
 
   if launcherExe.len < 1 and launcher.len > 0:
-    warn "flatpak: failed to find launcher executable for `" & launcher & "`; are you sure that it's in your PATH?"
+    warn "flatpak: failed to find launcher executable for `" & launcher &
+      "`; are you sure that it's in your PATH?"
     warn "flatpak: ignoring for now."
 
   if fork() == 0:

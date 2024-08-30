@@ -30,18 +30,21 @@ type
     imageUrl*, version*: string
 
 proc getGameIcon*(id: UniverseID): Option[Thumbnail] =
-  if (let cached = findCacheSingleParam[Thumbnail]("roblox.getGameIcon", $id, 1); *cached):
+  if (
+    let cached = findCacheSingleParam[Thumbnail]("roblox.getGameIcon", $id, 1)
+    *cached
+  ):
     debug "getGameIcon($1): cache hit!" % [$id]
     return cached
 
   let
-    url = "https://thumbnails.roblox.com/v1/games/icons?universeIds=$1&returnPolicy=PlaceHolder&size=512x512&format=Png&isCircular=false" % [
-      $id
-    ]
+    url =
+      "https://thumbnails.roblox.com/v1/games/icons?universeIds=$1&returnPolicy=PlaceHolder&size=512x512&format=Png&isCircular=false" %
+      [$id]
     resp = httpGet(url)
-  
+
   debug "getGameIcon($1): $2 ($3)" % [$id, resp, url]
-  
+
   let payload = fromJson(resp, StubData[Thumbnail]).data[0]
   cacheSingleParam[Thumbnail]("roblox.getGameIcon", $id, payload)
 
