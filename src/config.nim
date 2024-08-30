@@ -12,6 +12,7 @@ type
 
   ClientConfig* = object
     fps*: int = 60
+    launcher*: string = ""
     telemetry*: bool
     fflags*: string
 
@@ -37,6 +38,7 @@ notify_server_region = true
 oldOof = false
 
 [client]
+fps = 60
 fflags = """ & "\"\"\"\"\"\""
 
   ConfigLocation* {.strdefine: "LucemConfigLocation".} = "$1/.config/lucem/"

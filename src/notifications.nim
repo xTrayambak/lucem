@@ -23,6 +23,7 @@ proc notify*(
   cmd &= '"' & heading & "\" "
   cmd &= '"' & description & "\" "
   cmd &= "--expire-time=" & $expireTime & ' '
+  cmd &= "--app-name=Lucem "
 
   if *icon:
     debug "notifications: icon was specified: " & &icon

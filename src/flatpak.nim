@@ -22,12 +22,19 @@ proc flatpakInstall*(id: string, user: bool = true): bool {.inline, discardable.
 proc flatpakRunning*(id: string): bool {.inline.} =
   execCmdEx("flatpak ps --columns=application").output.contains(id)
 
-proc flatpakRun*(id: string, path: string = "/dev/stdout") {.inline.} =
+proc flatpakRun*(id: string, path: string = "/dev/stdout", launcher: string = "") {.inline.} =
   info "flatpak: launching flatpak app \"" & id & '"'
+  debug "flatpak: launcher = " & launcher
+
+  let launcherExe = findExe(launcher)
+
+  if launcherExe.len < 1 and launcher.len > 0:
+    warn "flatpak: failed to find launcher executable for `" & launcher & "`; are you sure that it's in your PATH?"
+    warn "flatpak: ignoring for now."
 
   if fork() == 0:
     debug "flatpak: we are the child - launching \"" & id & '"'
-    discard execCmd("flatpak run " & id & " > " & path)
+    discard execCmd(launcherExe & " flatpak run " & id & " > " & path)
     quit(0)
   else:
     debug "flatpak: we are the parent - continuing"

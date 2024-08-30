@@ -176,6 +176,8 @@ proc onServerIpRevealed*(config: Config, line: string) =
     notify("Server Location", "Failed to fetch server location data.")
 
 proc onGameLeave*(config: Config, discord: Option[DiscordRPC]) =
+  debug "lucem: left experience"
+
   if !discord:
     return
 
@@ -211,7 +213,7 @@ proc runRoblox*(config: Config) =
 
     discord = some(move(client))
 
-  flatpakRun(SOBER_APP_ID, "/tmp/sober.log") # point all logs to /tmp/sober.log
+  flatpakRun(SOBER_APP_ID, "/tmp/sober.log", config.client.launcher) # point all logs to /tmp/sober.log
 
   var 
     line = 0
@@ -240,7 +242,7 @@ proc runRoblox*(config: Config) =
     if data.contains("[FLog::Output] Connecting to UDMUX server"):
       onServerIpRevealed(config, data)
 
-    if data.contains("NetworkClient:Remove"):
+    if data.contains("[FLog::Network] Client:Disconnect"):
       onGameLeave(config, discord)
 
     hasntStarted = false
