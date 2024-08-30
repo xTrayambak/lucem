@@ -1,7 +1,7 @@
 ## Roblox games/places ("experiences") API
 ## Copyright (C) 2024 Trayambak Rai
-import std/[httpclient, logging, strutils, json]
-import ../sugar
+import std/[logging, strutils, json]
+import ../[cache_calls, http, sugar]
 import jsony
 
 type
@@ -53,15 +53,18 @@ type
     imageToken*: string
 
 proc getUniverseFromPlace*(placeId: string): UniverseID {.inline.} =
-  newHttpClient(userAgent = "curl/8.8.0").get("https://apis.roblox.com/universes/v1/places/$1/universe" % [placeId]).body.parseJson()["universeId"].getInt().UniverseID()
+  httpGet("https://apis.roblox.com/universes/v1/places/$1/universe" % [placeId]).parseJson()["universeId"].getInt().UniverseID()
 
 proc getGameDetail*(id: UniverseID): Option[GameDetail] =
-  var detail: GameDetail
+  if (let cached = findCacheSingleParam[GameDetail]("roblox.getGameDetail", $id, 2); *cached):
+    return cached
 
   let
-    client = newHttpClient(userAgent = "curl/8.8.0")
     url = "https://games.roblox.com/v1/games/?universeIds=" & $id
-    resp = client.get(url)
+    resp = httpGet(url)
   
-  info "getGameDetail($1): $2" % [$id, resp.body]
-  fromJson(resp.body, StubData[GameDetail]).data[0].some()
+  info "getGameDetail($1): $2" % [$id, resp]
+  let payload = fromJson(resp, StubData[GameDetail]).data[0]
+  cacheSingleParam("roblox.getGameDetail", $id, payload)
+
+  payload.some()

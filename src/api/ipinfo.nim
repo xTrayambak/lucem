@@ -1,7 +1,7 @@
 ## ipinfo.io wrapper
 ## Copyright (C) 2024 Trayambak Rai
-import std/[logging, httpclient]
-import ../sugar
+import std/[logging]
+import ../[cache_calls, sugar, http]
 import jsony
 
 type
@@ -17,15 +17,19 @@ type
     readme*: string
 
 proc getIPInfo*(ip: string): Option[IPInfoResponse] {.inline.} =
+  if (let cached = findCacheSingleParam[IPInfoResponse]("ipinfo.getIPInfo", ip, 8765'u64); *cached):
+    return cached
+    
   try:
     info "ipinfo: fetching IP data for " & ip
-    let resp = newHttpClient(userAgent = "curl/8.8.0").get("https://ipinfo.io/" & ip & "/json")
-    debug "ipinfo: response length: " & $resp.body.len & "; parsing JSON"
-    debug resp.body
+    let body = httpGet("https://ipinfo.io/" & ip & "/json")
+    debug "ipinfo: response length: " & $body.len & "; parsing JSON"
+    debug body
 
-    return some(
-      fromJson(resp.body, IPInfoResponse)
-    )
+    let payload = fromJson(body, IPInfoResponse)
+    cacheSingleParam("ipinfo.getIPInfo", ip, payload)
+
+    return some(payload)
   except JsonError as exc:
     error "ipinfo: failed to parse JSON: " & exc.msg
   except CatchableError as exc:
