@@ -1,12 +1,11 @@
 # Package
 
-version       = "0.1.0"
-author        = "xTrayambak"
-description   = "A small wrapper over Sober"
-license       = "MIT"
-srcDir        = "src"
-bin           = @["lucem"]
-
+version = "1.0.0"
+author = "xTrayambak"
+description = "A small wrapper over Sober that provides quality of life improvements"
+license = "GPL-2.0-only"
+srcDir = "src"
+bin = @["lucem"]
 
 # Dependencies
 
