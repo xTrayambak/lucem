@@ -1,6 +1,7 @@
 ## Patch to bring back the old "Oof" sound
 ## Copyright (C) 2024 Trayambak Rai
-import std/[os, logging, httpclient, strutils]
+import std/[os, logging, strutils]
+import ../http
 
 const
   LucemPatchOofSoundUrl* {.strdefine.} = "https://github.com/pizzaboxer/bloxstrap/raw/main/Bloxstrap/Resources/Mods/Sounds/OldDeath.ogg"
@@ -21,8 +22,8 @@ proc enableOldOofSound*(enable: bool = true) =
       
       if not fileExists(oldFp):
         debug "patches: fetching old oof sound"
-        let oldSound = newHttpClient(userAgent = "curl/8.8.0").get(LucemPatchOofSoundUrl)
-        writeFile(usedFp, oldSound.body)
+        let oldSound = httpGet(LucemPatchOofSoundUrl)
+        writeFile(usedFp, oldSound)
       else:
         debug "patches: old sound is already downloaded, simply moving it instead."
         moveFile(oldFp, usedFp)
