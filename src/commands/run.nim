@@ -122,16 +122,16 @@ proc onGameJoin*(config: Config, data: string, discord: Option[DiscordRPC], star
       icon = &thumbnail
 
     info "lucem: Joined game!"
-    info "Name: " & data.name & '"'
+    info "Name: " & data.name
     info "Description: " & data.description
-    info "Price: " & $data.price & " robux"
+    info "Price: " & $(if *data.price: &data.price else: 0'i64) & " robux"
     info "Developer: "
     info "  Name: " & data.creator.name
     info "  Verified: " & $data.creator.hasVerifiedBadge
 
     client.setActivity(Activity(
-      details: data.name,
-      state: "In-Game",
+      details: "Playing " & data.name,
+      state: "by " & data.creator.name,
       assets: some(
         ActivityAssets(
           largeImage: icon.imageUrl,
@@ -242,7 +242,7 @@ proc runRoblox*(config: Config) =
     if data.contains("[FLog::Output] Connecting to UDMUX server"):
       onServerIpRevealed(config, data)
 
-    if data.contains("[FLog::Network] Client:Disconnect"):
+    if data.contains("[FLog::Network] Client:Disconnect") or data.contains("[FLog::SingleSurfaceApp] handleGameWillClose"):
       onGameLeave(config, discord)
 
     hasntStarted = false
