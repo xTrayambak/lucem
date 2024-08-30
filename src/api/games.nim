@@ -53,7 +53,13 @@ type
     imageToken*: string
 
 proc getUniverseFromPlace*(placeId: string): UniverseID {.inline.} =
-  httpGet("https://apis.roblox.com/universes/v1/places/$1/universe" % [placeId]).parseJson()["universeId"].getInt().UniverseID()
+  if (let cached = findCacheSingleParam[UniverseID]("roblox.getUniverseFromPlace", placeId, 8765'u64); *cached):
+    return &cached
+
+  let payload = httpGet("https://apis.roblox.com/universes/v1/places/$1/universe" % [placeId]).parseJson()["universeId"].getInt().UniverseID()
+  cacheSingleParam("roblox.getUniverseFromPlace", placeId, payload)
+
+  payload
 
 proc getGameDetail*(id: UniverseID): Option[GameDetail] =
   if (let cached = findCacheSingleParam[GameDetail]("roblox.getGameDetail", $id, 2); *cached):

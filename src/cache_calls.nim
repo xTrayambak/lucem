@@ -12,8 +12,8 @@ type
     payload*: string
 
 proc createCacheDir {.inline.} =
-  debug "cache_calls: creating cache directory"
-  discard existsOrCreateDir(getCacheDir() / "lucem")
+  if not existsOrCreateDir(getCacheDir() / "lucem"):
+    debug "cache_calls: creating cache directory"
 
 proc clearCache* =
   debug "cache_calls: clearing cache"
@@ -48,7 +48,7 @@ proc cacheSingleParam*[T](call: string, parameter: string, obj: T) =
   writeFile(path, $(%* entries))
 
 proc findCacheSingleParam*[T](call: string, parameter: string, expectsFreshness: uint64): Option[T] =
-  debug "cache_calls: finding cached data for param \"" & parameter & '"'
+  debug "cache_calls: finding cached data for param \"" & parameter & "\" for call \"" & call & '"'
   createCacheDir()
 
   let path = getCacheDir() / "lucem" / call & ".json"
