@@ -46,8 +46,11 @@ proc updateConfig*(config: Config) =
       let splitted = flag.split('=')
 
       if splitted.len < 2:
-        error "lucem: error whilst parsing FFlag (" & flag & "): only got key, no value to complete the pair was found."
-        quit(1)
+        if flag.len > 0:
+          error "lucem: error whilst parsing FFlag (" & flag & "): only got key, no value to complete the pair was found."
+          quit(1)
+        else:
+          continue
 
       if splitted.len > 2:
         error "lucem: error whilst parsing FFlag (" & flag & "): got more than two splits, key and value were already found."
@@ -231,7 +234,7 @@ proc runRoblox*(config: Config) =
       inc line
       continue
 
-    debug "$2" % [$line, data]
+    # debug "$2" % [$line, data]
 
     if data.contains("[FLog::GameJoinUtil] GameJoinUtil::joinGamePostStandard: URL: https://gamejoin.roblox.com/v1/join-game BODY:"):
       startedPlayingAt = epochTime()

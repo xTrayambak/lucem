@@ -2,7 +2,7 @@
 ##
 ## Copyright (C) 2024 Trayambak Rai
 
-import std/[os, osproc, logging, strutils]
+import std/[os, logging, strutils]
 import colored_logger
 import ./[meta, argparser, config]
 import ./commands/[init, run, edit_config]
