@@ -20,15 +20,9 @@ jobs:
       run: nimble install -y
     - name: Build
       run: nimble build --define:release --out:lucem
-    - name: Compress
-      run: tar -czvf lucem-amd64.tar.gz ./lucem
 
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: Build
         path: lucem
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./lucem
-        asset_name: lucem-amd64.tar.gz
-        asset_content_type: application/gzip
