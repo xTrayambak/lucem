@@ -18,6 +18,7 @@ type
 
   Tweaks* = object
     oldOof*: bool = false
+    font*: string = ""
 
   Config* = object
     apk*: APKConfig
@@ -37,6 +38,7 @@ notify_server_region = true
 
 [tweaks]
 oldOof = false
+font = ""
 
 [client]
 fps = 60

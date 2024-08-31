@@ -27,6 +27,12 @@ Lucem provides the following optional patches. All of them go under the `tweaks`
 oldOof = true
 ```
 
+### Use another font
+Both OTFs and TTFs are supported.
+```toml
+font = "/path/to/your/font.ttf"
+```
+
 # Installation
 ## Arch Linux
 We should have an AUR package sooner or later. Please wait!

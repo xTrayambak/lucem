@@ -3,7 +3,7 @@
 import std/[os, logging, strutils, json, times]
 import discord_rpc
 import ../api/[games, thumbnails, ipinfo]
-import ../patches/[bring_back_oof]
+import ../patches/[bring_back_oof, patch_fonts]
 import ../[config, flatpak, common, meta, sugar, notifications]
 
 const FFlagsFile* =
@@ -28,6 +28,7 @@ proc updateConfig*(config: Config) =
     warn "lucem: enabling telemetry FFlags. This is not recommended!"
 
   enableOldOofSound(config.tweaks.oldOof)
+  setClientFont(config.tweaks.font)
 
   for flag in [
     "FFlagDebugDisableTelemetryEphemeralCounter",

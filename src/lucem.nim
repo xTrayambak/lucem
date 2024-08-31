@@ -84,7 +84,8 @@ proc main() {.inline.} =
       for editor in ["nano", "vim", "nvim", "emacs", "vi"]:
         warn "lucem: trying editor `" & editor & '`'
         editConfiguration(editor)
-
+    
+    # validate the config on-the-go
     updateConfig(config)
   of "run":
     updateConfig(config)
