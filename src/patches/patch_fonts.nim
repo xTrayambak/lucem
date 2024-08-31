@@ -51,13 +51,17 @@ proc setClientFont*(fontPath: string) =
       error "lucem: the old Roblox fonts were somehow deleted!"
       error "lucem: you probably messed something up, run `lucem init` to fix it up."
       quit(1)
-
+    
+    var restored: int
     for kind, file in walkDir(basePath / "old_roblox_fonts"):
-      if kind == pcFile: continue
+      if kind != pcFile: continue
       let splitted = file.splitFile()
 
-      debug "lucem: " & file & " >> " & basePath
+      debug "lucem: " & file & " >> " & basePath / splitted.name & splitted.ext
       moveFile(file, basePath / splitted.name & splitted.ext)
+
+      inc restored
     
     removeFile(basePath / "lucem_patched")
-    info "lucem: restored patched fonts back to their defaults!"
+    removeDir(basePath / "old_roblox_fonts")
+    info "lucem: restored " & $restored & " fonts to their defaults!"
