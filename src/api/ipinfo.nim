@@ -26,7 +26,7 @@ proc getIPInfo*(ip: string): Option[IPInfoResponse] {.inline.} =
     info "ipinfo: fetching IP data for " & ip
     let body = httpGet("https://ipinfo.io/" & ip & "/json")
     debug "ipinfo: response length: " & $body.len & "; parsing JSON"
-    debug body
+    debug "ipinfo: " & body
 
     let payload = fromJson(body, IPInfoResponse)
     cacheSingleParam("ipinfo.getIPInfo", ip, payload)
