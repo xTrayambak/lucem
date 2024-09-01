@@ -15,6 +15,7 @@ requires "jsony >= 1.1.5"
 requires "toml_serialization >= 0.2.12"
 requires "pretty >= 0.1.0"
 requires "discord_rpc >= 0.2.0"
+requires "owlkettle >= 3.0.0"
 
 task installLucem, "Install Lucem (I love Nimble)":
   exec "nim c --define:release --out:lucem src/lucem.nim"
