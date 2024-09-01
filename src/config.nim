@@ -13,7 +13,7 @@ type
   ClientConfig* = object
     fps*: int = 60
     launcher*: string = ""
-    telemetry*: bool
+    telemetry*: bool = false
     fflags*: string
 
   Tweaks* = object
@@ -46,6 +46,9 @@ fflags = """ &
     "\"\"\"\"\"\""
 
   ConfigLocation* {.strdefine: "LucemConfigLocation".} = "$1/.config/lucem/"
+
+proc save*(config: Config) {.inline.} =
+  writeFile(ConfigLocation % [getHomeDir()] / "config.toml", Toml.encode(config))
 
 proc parseConfig*(input: Input): Config {.inline.} =
   discard existsOrCreateDir(ConfigLocation % [getHomeDir()])
