@@ -3,6 +3,10 @@ Lucem is a small wrapper over [Sober](https://sober.vinegarhq.org) to provide so
 Please keep in mind that while Lucem is fully open source software, Sober is proprietary for a very good reason, that being to preserve RoL from 9-year-old skiddies.
 
 ![A demo of Lucem demonstrating Discord rich presence and a notification saying where the server is located](screenshots/demo.jpg)
+![A demo of Lucem's nice looking GTK4 based settings menu](screenshots/settings_gui_1.jpg)
+![A demo of Lucem's nice looking GTK4 based FFlag editor](screenshots/settings_gui_2.jpg)
+![A demo of Lucem's nice looking GTK4 based settings menu](screenshots/settings_gui_3.jpg)
+![A demo of Lucem's nice looking GTK4 based settings menu](screenshots/settings_gui_4.jpg)
 
 # Disclaimer, in big bold letters.
 Lucem only automates downloading the Roblox APK from `apkmirror.com`. It does not allow you to bypass the (reasonable and justified) restrictions the Vinegar team has put on Sober's ability to load APKs that are modified.
@@ -11,9 +15,11 @@ If you really cheat on Roblox, I'd say you should reconsider your life decisions
 **Lucem is not associated with the VinegarHQ team or Roblox, nor is it endorsed by them!**
 
 # Features
+- GTK4 + Libadwaita GUI to modify settings
+- GTK4-based FFlag editor that is easy to use
 - Rich presence
 - Server region notifier
-- Providing a nifty configuration file (located at `~/.config/lucem/config.toml`)
+- If you're not a fan of GUIs, we provide a nifty configuration file that does the same thing! (located at `~/.config/lucem/config.toml`)
 - (Semi-automatically) downloading and managing the Roblox APK
 - Managing Sober
 

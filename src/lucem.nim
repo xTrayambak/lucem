@@ -5,6 +5,7 @@
 import std/[os, logging, strutils]
 import colored_logger
 import ./[meta, argparser, config, cache_calls]
+import ./shell/core
 import ./commands/[init, run, edit_config]
 
 proc showHelp(exitCode: int = 1) {.inline, noReturn.} =
@@ -93,6 +94,8 @@ proc main() {.inline.} =
   of "clear-cache":
     let savedMb = clearCache()
     info "lucem: cleared cache calls to reclaim " & $savedMb & " MB of space"
+  of "shell":
+    initLucemShell(input)
   else:
     error "lucem: invalid command `" & input.command &
       "`; run `lucem help` for more information."
