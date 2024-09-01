@@ -40,14 +40,6 @@ font = "/path/to/your/font.ttf"
 ```
 
 # Installation
-## Arch Linux
-We should have an AUR package sooner or later. Please wait!
-
-## Pre-Compiled Binary
-1. Get the latest build artifact in the Actions section
-2. Make the lucem binary executable
-3. Move to a directory that is in your PATH, like `/usr/bin`
-
 ## Building from source (for Nix users)
 Lucem requires a working Nim toolchain which can be installed via [choosenim](https://nim-lang.org/install_unix.html)
 
@@ -55,7 +47,7 @@ Run the following commands to compile Lucem.
 ```command
 $ git clone https://github.com/xTrayambak/lucem.git
 $ cd lucem
-$ nimble installLucem
+$ nimble install
 ```
 
 # Submitting bug reports
