@@ -20,6 +20,7 @@ Commands:
   meta            Get build metadata
   edit-config     Edit the configuration file
   clear-cache     Clear the API caches that Lucem maintains
+  shell           Launch the Lucem configuration GUI
   help            Show this message"""
   quit(exitCode)
 

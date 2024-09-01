@@ -58,6 +58,9 @@ $ cd lucem
 $ nimble installLucem
 ```
 
+# Submitting bug reports
+Please make sure to attach the logs that Lucem generates. Also, please run Lucem with the verbose flag (`lucem run -v`) and submit that log as it contains crucial debugging informationt.
+
 # Usage
 ## Initializing Sober and Roblox
 Run this command:
@@ -67,6 +70,11 @@ $ lucem init
 ```
 
 You will be guided as to how you can download the latest Roblox APK.
+
+## Launching the Lucem GUI
+```command
+$ lucem shell
+```
 
 ## Configuring Lucem
 ```command
