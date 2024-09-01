@@ -40,7 +40,7 @@ font = "/path/to/your/font.ttf"
 ```
 
 # Installation
-## Building from source (for Nix users)
+## Building from source
 Lucem requires a working Nim toolchain which can be installed via [choosenim](https://nim-lang.org/install_unix.html)
 
 Run the following commands to compile Lucem.
