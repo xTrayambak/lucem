@@ -1,10 +1,12 @@
 ## Run the Roblox client, update FFlags and optionally, provide Discord RPC.
 ## Copyright (C) 2024 Trayambak Rai
-import std/[os, logging, strutils, json, times]
+import std/[os, logging, strutils, json, times, locks]
 import discord_rpc
 import ../api/[games, thumbnails, ipinfo]
 import ../patches/[bring_back_oof, patch_fonts]
-import ../[config, flatpak, common, meta, sugar, notifications]
+import ../shell/loading_screen
+import ../[config, flatpak, common, meta, sugar, notifications, fflags]
+import colored_logger
 
 const FFlagsFile* =
   "$1/.var/app/$2/data/sober/exe/ClientSettings/ClientAppSettings.json"
@@ -39,46 +41,7 @@ proc updateConfig*(config: Config) =
     debug "lucem: set flag `" & flag & "` to " & $(not config.client.telemetry)
     fflags[flag] = newJBool(not config.client.telemetry)
 
-  if config.client.fflags.len > 0:
-    for flag in config.client.fflags.split('\n'):
-      let splitted = flag.split('=')
-
-      if splitted.len < 2:
-        if flag.len > 0:
-          error "lucem: error whilst parsing FFlag (" & flag &
-            "): only got key, no value to complete the pair was found."
-          quit(1)
-        else:
-          continue
-
-      if splitted.len > 2:
-        error "lucem: error whilst parsing FFlag (" & flag &
-          "): got more than two splits, key and value were already found."
-        quit(1)
-
-      let
-        key = splitted[0]
-        val = splitted[1]
-
-      if val.startsWith('"') and val.endsWith('"'):
-        fflags[key] = newJString(val)
-      elif val in ["true", "false"]:
-        fflags[key] = newJBool(parseBool(val))
-      else:
-        var allInt = false
-
-        for c in val:
-          if c in {'0' .. '9'}:
-            allInt = true
-          else:
-            allInt = false
-            break
-
-        if allInt:
-          fflags[key] = newJInt(parseInt(val))
-        else:
-          warn "lucem: cannot handle FFlag (key=$1, val=$2); ignoring." % [key, val]
-          continue
+  parseFFlags(config, fflags)
 
   let serialized = pretty(fflags)
   info "Writing FFlags JSON:"
@@ -196,39 +159,14 @@ proc onGameLeave*(config: Config, discord: Option[DiscordRPC]) =
     )
   )
 
-proc runRoblox*(config: Config) =
-  var startingTime = epochTime()
-  info "lucem: running Roblox via Sober"
-
-  writeFile("/tmp/sober.log", newString(0))
-  var discord: Option[DiscordRPC]
-
-  if config.lucem.discordRpc:
-    info "lucem: connecting to Discord RPC"
-    var client = newDiscordRPC(DiscordRpcId.int64)
-
-    try:
-      discard client.connect()
-
-
-      client.setActivity(
-        Activity(
-          details: "Playing Roblox with Lucem (Sober)",
-          state: "In the Roblox app",
-          timestamps: ActivityTimestamps(start: startingTime.int64),
-        )
-      )
-
-      discord = some(move(client))
-    except CatchableError as exc:
-      warn "lucem: unable to connect to Discord RPC: " & exc.msg
-
-  flatpakRun(SOBER_APP_ID, "/tmp/sober.log", config.client.launcher)
-    # point all logs to /tmp/sober.log
+proc eventWatcher*(args: tuple[state: ptr LoadingState, slock: ptr Lock, discord: Option[DiscordRPC], config: Config]) =
+  addHandler newColoredLogger()
+  debug "lucem: this is the event watcher thread, running at thread ID " & $getThreadId()
 
   var
     line = 0
     startedPlayingAt = 0.0
+    startingTime = 0.0
     hasntStarted = true
 
   while hasntStarted or flatpakRunning(SOBER_APP_ID):
@@ -243,6 +181,22 @@ proc runRoblox*(config: Config) =
       continue
 
     # debug "$2" % [$line, data]
+    
+    if data.contains("[JNI] OnLoad: ... Done"):
+      debug "lucem: this is the event watcher thread - Sober has been initialized! Acquiring lock to loading screen state pointer and setting it to `WaitingForRoblox`"
+
+      withLock args.slock[]:
+        args.state[] = WaitingForRoblox
+
+      debug "lucem: released loading screen state pointer lock"
+
+    if data.contains("[FLog::SingleSurfaceApp] setStage: (stage:LuaApp)"):
+      debug "lucem: this is the event watcher thread - Roblox has initialized a surface! Acquiring lock to loading screen state pointer and setting it to `Done`"
+
+      withLock args.slock[]:
+        args.state[] = Done
+
+      debug "lucem: released loading screen state pointer lock"
 
     if data.contains(
       "[FLog::GameJoinUtil] GameJoinUtil::joinGamePostStandard: URL: https://gamejoin.roblox.com/v1/join-game BODY:"
@@ -250,16 +204,68 @@ proc runRoblox*(config: Config) =
       startedPlayingAt = epochTime()
       startingTime = startedPlayingAt
 
-      onGameJoin(config, data, discord, startedPlayingAt)
+      onGameJoin(args.config, data, args.discord, startedPlayingAt)
 
     if data.contains("[FLog::Output] Connecting to UDMUX server"):
-      onServerIpRevealed(config, data)
+      onServerIpRevealed(args.config, data)
 
     if data.contains("[FLog::Network] Client:Disconnect") or
         data.contains("[FLog::SingleSurfaceApp] handleGameWillClose"):
-      onGameLeave(config, discord)
+      onGameLeave(args.config, args.discord)
 
     hasntStarted = false
     inc line
 
   info "lucem: Sober seems to have exited - we'll stop here too. Adios!"
+
+proc runRoblox*(config: Config) =
+  var startingTime = epochTime()
+  info "lucem: running Roblox via Sober"
+
+  writeFile("/tmp/sober.log", newString(0))
+  var discord: Option[DiscordRPC]
+
+  if config.lucem.discordRpc:
+    info "lucem: connecting to Discord RPC"
+    var client = newDiscordRPC(DiscordRpcId.int64)
+
+    try:
+      discard client.connect()
+
+      client.setActivity(
+        Activity(
+          details: "Playing Roblox with Lucem (Sober)",
+          state: "In the Roblox app",
+          timestamps: ActivityTimestamps(start: startingTime.int64),
+        )
+      )
+
+      discord = some(move(client))
+    except CatchableError as exc:
+      warn "lucem: unable to connect to Discord RPC: " & exc.msg 
+    
+  debug "lucem: initialize lock that guards `LoadingState` pointer"
+  var slock: Lock
+  initLock(slock)
+
+  var state {.guard: slock.} = WaitingForLaunch
+  writeFile("/tmp/sober.log", newString(0))
+
+  debug "lucem: creating event watcher thread"
+  var evThr: Thread[tuple[state: ptr LoadingState, slock: ptr Lock, discord: Option[DiscordRPC], config: Config]]
+  createThread(evThr, eventWatcher, (addr state, addr slock, discord, config))
+
+  flatpakRun(SOBER_APP_ID, "/tmp/sober.log", config.client.launcher)
+  
+  when defined(lucemExperimentalLoadingScreen):
+    warn "lucem: you are using an EXPERIMENTAL FEATURE (loading screens)! Please do not report any bugs that you encounter!"
+    warn "lucem: loading screens are VERY buggy right now, but they'll be gradually improved!"
+
+    debug "lucem: creating loading screen GTK4 surface"
+    initLoadingScreen(addr state, slock)
+
+  debug "lucem: loading screen has ended, waiting for event watcher thread to exit or die."
+  evThr.joinThread()
+
+  debug "lucem: event watcher thread has exited."
+  quit(0)
