@@ -17,29 +17,44 @@ type
     clientFpsLimit*: int
 
 viewable LucemShell:
-  state: ShellState = Client
-  sidebarCollapsed: bool
-  config: ptr Config
+  state:
+    ShellState = Client
+  sidebarCollapsed:
+    bool
+  config:
+    ptr Config
 
-  buffers: TempBuffers
+  buffers:
+    TempBuffers
 
-  showFpsCapOpt: bool
-  showFpsCapBuff: string
+  showFpsCapOpt:
+    bool
+  showFpsCapBuff:
+    string
 
-  telemetryOpt: bool
+  telemetryOpt:
+    bool
 
-  launcherBuff: string
+  launcherBuff:
+    string
 
-  discordRpcOpt: bool
-  serverLocationOpt: bool
+  discordRpcOpt:
+    bool
+  serverLocationOpt:
+    bool
 
-  oldOofSound: bool
-  customFontPath: string
+  oldOofSound:
+    bool
+  customFontPath:
+    string
 
-  apkVersionBuff: string
-  currFflagBuff: string
+  apkVersionBuff:
+    string
+  currFflagBuff:
+    string
 
-  discord: DiscordRPC
+  discord:
+    DiscordRPC
 
 method view(app: LucemShellState): Widget =
   var parsedFflags = newJObject()
@@ -57,24 +72,24 @@ method view(app: LucemShellState): Widget =
 
         Button {.addLeft.}:
           style = [ButtonFlat]
-          icon  = "sidebar-show-symbolic"
+          icon = "sidebar-show-symbolic"
 
-          proc clicked =
+          proc clicked() =
             app.sidebarCollapsed = not app.sidebarCollapsed
 
         Button {.addRight.}:
           style = [ButtonFlat]
-          icon  = "check-plain-symbolic" 
+          icon = "check-plain-symbolic"
 
-          proc clicked =
+          proc clicked() =
             debug "shell: save config"
             app.config[].save()
 
         Button {.addRight.}:
           style = [ButtonFlat]
-          icon  = "xbox-controller-symbolic"
+          icon = "xbox-controller-symbolic"
 
-          proc clicked =
+          proc clicked() =
             debug "shell: save config, exit config editor and launch lucem"
             app.config[].save()
 
@@ -84,7 +99,7 @@ method view(app: LucemShellState): Widget =
             else:
               debug "shell: we are the parent - quitting"
               quit(0)
-      
+
       Box:
         OverlaySplitView:
           collapsed = app.sidebarCollapsed
@@ -98,23 +113,23 @@ method view(app: LucemShellState): Widget =
           tooltip = ""
           sensitive = true
           sizeRequest = (-1, -1)
-          
+
           ScrolledWindow:
             Box(orient = OrientY):
               Button:
                 sensitive = true
                 text = "Features"
 
-                proc clicked =
+                proc clicked() =
                   app.state = ShellState.Lucem
-                  
+
                   if app.config[].lucem.discordRpc:
                     try:
                       app.discord.setActivity(
                         Activity(
                           details: "Configuring Lucem",
                           state: "In the Features Menu",
-                          timestamps: ActivityTimestamps(start: epochTime().int64)
+                          timestamps: ActivityTimestamps(start: epochTime().int64),
                         )
                       )
                     except CatchableError as exc:
@@ -124,7 +139,7 @@ method view(app: LucemShellState): Widget =
                 sensitive = true
                 text = "Client"
 
-                proc clicked =
+                proc clicked() =
                   app.state = ShellState.Client
 
                   if app.config[].lucem.discordRpc:
@@ -133,7 +148,7 @@ method view(app: LucemShellState): Widget =
                         Activity(
                           details: "Configuring Lucem",
                           state: "In the Client Settings Menu",
-                          timestamps: ActivityTimestamps(start: epochTime().int64)
+                          timestamps: ActivityTimestamps(start: epochTime().int64),
                         )
                       )
                     except CatchableError as exc:
@@ -143,7 +158,7 @@ method view(app: LucemShellState): Widget =
                 sensitive = true
                 text = "Tweaks & Patches"
 
-                proc clicked =
+                proc clicked() =
                   app.state = ShellState.Tweaks
 
                   if app.config[].lucem.discordRpc:
@@ -152,7 +167,7 @@ method view(app: LucemShellState): Widget =
                         Activity(
                           details: "Configuring Lucem",
                           state: "In the Tweaks & Patches Menu",
-                          timestamps: ActivityTimestamps(start: epochTime().int64)
+                          timestamps: ActivityTimestamps(start: epochTime().int64),
                         )
                       )
                     except CatchableError as exc:
@@ -162,7 +177,7 @@ method view(app: LucemShellState): Widget =
                 sensitive = true
                 text = "FFlags"
 
-                proc clicked =
+                proc clicked() =
                   app.state = ShellState.FflagEditor
 
                   if app.config[].lucem.discordRpc:
@@ -171,7 +186,7 @@ method view(app: LucemShellState): Widget =
                         Activity(
                           details: "Configuring Lucem",
                           state: "In the FFlag Editor",
-                          timestamps: ActivityTimestamps(start: epochTime().int64)
+                          timestamps: ActivityTimestamps(start: epochTime().int64),
                         )
                       )
                     except CatchableError as exc:
@@ -185,7 +200,8 @@ method view(app: LucemShellState): Widget =
 
             ActionRow:
               title = "Bring Back the Old \"Oof\" Sound"
-              subtitle = "This replaces the new \"Eugh\" death sound with the classic \"Oof\" sound."
+              subtitle =
+                "This replaces the new \"Eugh\" death sound with the classic \"Oof\" sound."
               CheckButton {.addSuffix.}:
                 state = app.oldOofSound
 
@@ -197,7 +213,8 @@ method view(app: LucemShellState): Widget =
 
             ActionRow:
               title = "Custom Client Font"
-              subtitle = "Force the Roblox client to use a particular font whenever possible."
+              subtitle =
+                "Force the Roblox client to use a particular font whenever possible."
 
               Entry {.addSuffix.}:
                 text = app.customFontPath
@@ -206,7 +223,7 @@ method view(app: LucemShellState): Widget =
                   debug "shell: custom font entry changed: " & text
                   app.customFontPath = text
 
-                proc activate =
+                proc activate() =
                   let home = getHomeDir()
                   let realPath = app.customFontPath.replace("~", home[0 ..< home.len])
                   app.config[].tweaks.font = realPath
@@ -215,21 +232,24 @@ method view(app: LucemShellState): Widget =
         of ShellState.Lucem:
           PreferencesGroup:
             title = "Lucem Settings"
-            description = "These are settings to tweak the features that Lucem provides."
+            description =
+              "These are settings to tweak the features that Lucem provides."
 
             ActionRow:
               title = "Discord Rich Presence"
-              subtitle = "This requires you to have either the official Discord client or an arRPC-based one."
+              subtitle =
+                "This requires you to have either the official Discord client or an arRPC-based one."
               CheckButton {.addSuffix.}:
                 state = app.discordRpcOpt
 
                 proc changed(state: bool) =
                   app.discordRpcOpt = not app.discordRpcOpt
                   app.config[].lucem.discordRpc = app.discordRpcOpt
-                  
+
                   if not app.discordRpcOpt:
                     try:
-                      app.discord.closeActivityRequest(DiscordRpcId.int64) # FIXME: no workie.
+                      app.discord.closeActivityRequest(DiscordRpcId.int64)
+                        # FIXME: no workie.
                     except CatchableError as exc:
                       debug "shell: discord.closeActivityRequest() failed: " & exc.msg
                   else:
@@ -237,12 +257,14 @@ method view(app: LucemShellState): Widget =
                       discard app.discord.connect()
                     except CatchableError as exc:
                       debug "shell: discord.connect() failed: " & exc.msg
-                  
-                  debug "shell: discord rpc option state: " & $app.config[].lucem.discordRpc
+
+                  debug "shell: discord rpc option state: " &
+                    $app.config[].lucem.discordRpc
 
             ActionRow:
               title = "Notify the Server Region"
-              subtitle = "When you join a game, a notification will be sent containing where the server is located."
+              subtitle =
+                "When you join a game, a notification will be sent containing where the server is located."
               CheckButton {.addSuffix.}:
                 state = app.serverLocationOpt
 
@@ -250,34 +272,38 @@ method view(app: LucemShellState): Widget =
                   app.serverLocationOpt = not app.serverLocationOpt
                   app.config[].lucem.notifyServerRegion = app.serverLocationOpt
 
-                  debug "shell: notify server region option state: " & $app.config[].lucem.notifyServerRegion
+                  debug "shell: notify server region option state: " &
+                    $app.config[].lucem.notifyServerRegion
 
             ActionRow:
               title = "Clear all API caches"
-              subtitle = "This will clear all the API call caches. Some features might be slower next time you run Lucem."
+              subtitle =
+                "This will clear all the API call caches. Some features might be slower next time you run Lucem."
               Button {.addSuffix.}:
                 style = [ButtonDestructive]
 
-                proc clicked =
+                proc clicked() =
                   let savedMb = clearCache()
-                  info "shell: cleared out caches and reclaimed " & $savedMb & " of space."
-        
+                  info "shell: cleared out caches and reclaimed " & $savedMb &
+                    " of space."
+
         of ShellState.FflagEditor:
           PreferencesGroup:
             title = "FFlag Editor"
-            description = "Please keep in mind that some games prohibit the modifications of FFlags. You might get banned from them due to modifying FFlags. Modifying FFlags can also make the Roblox client unstable in some cases. Do not touch these if you don't know what you're doing!"
+            description =
+              "Please keep in mind that some games prohibit the modifications of FFlags. You might get banned from them due to modifying FFlags. Modifying FFlags can also make the Roblox client unstable in some cases. Do not touch these if you don't know what you're doing!"
 
             Box(orient = OrientY, spacing = 6, margin = 12):
               Box(orient = OrientX, spacing = 6) {.expand: false.}:
                 Entry:
                   text = app.currFflagBuff
                   placeholder = "Key=Value"
-                
+
                   proc changed(text: string) =
                     app.currFflagBuff = text
                     debug "shell: fflag entry mutated: " & app.currFflagBuff
-                    
-                  proc activate =
+
+                  proc activate() =
                     debug "shell: fflag entry: " & app.currFflagBuff
 
                     # TODO: add validation
@@ -287,7 +313,7 @@ method view(app: LucemShellState): Widget =
                   icon = "list-add-symbolic"
                   style = [ButtonSuggested]
 
-                  proc clicked =
+                  proc clicked() =
                     # TODO: add validation
                     app.config[].client.fflags &= '\n' & app.currFflagBuff
 
@@ -295,46 +321,49 @@ method view(app: LucemShellState): Widget =
 
               Frame:
                 ScrolledWindow:
-                  ListBox: 
+                  ListBox:
                     for key, value in parsedFflags:
                       Box:
                         spacing = 6
                         Label:
                           xAlign = 0
-                          text = key & " = " & (
-                            if value.kind == JString: 
-                              value.getStr() 
-                            elif value.kind == JInt: 
-                              $value.getInt() 
-                            elif value.kind == JBool: 
-                              $value.getBool()
-                            elif value.kind == JFloat:
-                              $value.getFloat()
-                            else: "<invalid type>"
-                          )
+                          text =
+                            key & " = " & (
+                              if value.kind == JString:
+                                value.getStr()
+                              elif value.kind == JInt:
+                                $value.getInt()
+                              elif value.kind == JBool:
+                                $value.getBool()
+                              elif value.kind == JFloat:
+                                $value.getFloat()
+                              else: "<invalid type>"
+                            )
 
                         Button {.expand: false.}:
                           icon = "list-remove-symbolic"
                           style = [ButtonDestructive]
 
-                          proc clicked =
+                          proc clicked() =
                             # FIXME: move the line selection and deletion code to src/fflags.nim! this is a total mess!
                             debug "shell: deleting fflag: " & key
-                            var 
+                            var
                               i = -1
                               line = -1
-                              fflags = app.config[].client.fflags.splitLines().deepCopy()
-                            
+                              fflags =
+                                app.config[].client.fflags.splitLines().deepCopy()
+
                             for l in app.config[].client.fflags.splitLines():
                               inc i
                               if l.startsWith(key):
                                 line = i
                                 break
-                            
-                            assert line != -1, "Cannot find line at which key \"" & key & "\" is defined!"
+
+                            assert line != -1,
+                              "Cannot find line at which key \"" & key & "\" is defined!"
                             debug "shell: config key to delete is at line " & $line
                             fflags.del(line)
-                            
+
                             app.config[].client.fflags = newString(0)
                             for i, line in fflags:
                               app.config[].client.fflags &= line
@@ -357,13 +386,14 @@ method view(app: LucemShellState): Widget =
                   debug "shell: APK version entry changed: " & text
                   app.apkVersionBuff = text
 
-                proc activate =
+                proc activate() =
                   app.config[].client.launcher = app.launcherBuff
                   debug "shell: APK version is set to: " & app.apkVersionBuff
-            
+
             ActionRow:
               title = "Disable Telemetry"
-              subtitle = "Disable all* telemetry that the Roblox client exposes via FFlags."
+              subtitle =
+                "Disable all* telemetry that the Roblox client exposes via FFlags."
               CheckButton {.addSuffix.}:
                 state = app.telemetryOpt
 
@@ -383,9 +413,10 @@ method view(app: LucemShellState): Widget =
                   app.showFpsCapOpt = not app.showFpsCapOpt
                   app.config[].client.fps = if state: 9999 else: 60
 
-                  debug "shell: disable/enable fps cap button state: " & $app.showFpsCapOpt
+                  debug "shell: disable/enable fps cap button state: " &
+                    $app.showFpsCapOpt
                   debug "shell: fps is now set to: " & $app.config[].client.fps
-              
+
             if app.showFpsCapOpt:
               ActionRow:
                 title = "FPS Cap"
@@ -398,19 +429,22 @@ method view(app: LucemShellState): Widget =
                     debug "shell: fps cap entry changed: " & text
                     app.showFpsCapBuff = text
 
-                  proc activate =
+                  proc activate() =
                     try:
-                      debug "shell: parse fps cap buffer as integer: " & app.showFpsCapBuff
+                      debug "shell: parse fps cap buffer as integer: " &
+                        app.showFpsCapBuff
                       let val = parseInt(app.showFpsCapBuff)
                       app.config[].client.fps = val
                       debug "shell: fps cap is now set to: " & $app.config[].client.fps
                     except ValueError as exc:
-                      debug "shell: fps cap buffer has invalid value: " & app.showFpsCapBuff
+                      debug "shell: fps cap buffer has invalid value: " &
+                        app.showFpsCapBuff
                       debug "shell: " & exc.msg
 
               ActionRow:
                 title = "Launcher"
-                subtitle = "Lucem will launch Sober with a specified command. Leave this empty if you don't require it."
+                subtitle =
+                  "Lucem will launch Sober with a specified command. Leave this empty if you don't require it."
                 Entry {.addSuffix.}:
                   text = app.launcherBuff
                   placeholder = "Eg. gamemoderun"
@@ -419,10 +453,12 @@ method view(app: LucemShellState): Widget =
                     debug "shell: launcher entry changed: " & text
                     app.launcherBuff = text
 
-                  proc activate =
+                  proc activate() =
                     app.config[].client.launcher = app.launcherBuff
                     debug "shell: launcher is set to: " & app.launcherBuff
-        else: discard
+
+        else:
+          discard
 
 proc initLucemShell*(input: Input) {.inline.} =
   info "shell: initializing GTK4 shell"
@@ -451,7 +487,7 @@ proc initLucemShell*(input: Input) {.inline.} =
         customFontPath = config.tweaks.font,
         oldOofSound = config.tweaks.oldOof,
         apkVersionBuff = config.apk.version,
-        discord = rpc
+        discord = rpc,
       )
     )
   )

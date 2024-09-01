@@ -3,11 +3,10 @@
 import std/[os, logging, locks]
 import owlkettle, owlkettle/adw
 
-type
-  LoadingState* = enum
-    WaitingForLaunch
-    WaitingForRoblox
-    Done
+type LoadingState* = enum
+  WaitingForLaunch
+  WaitingForRoblox
+  Done
 
 func `$`*(state: LoadingState): string {.inline.} =
   case state
@@ -16,18 +15,21 @@ func `$`*(state: LoadingState): string {.inline.} =
   of Done: "Done!"
 
 viewable LoadingScreen:
-  state: ptr LoadingState
-  scheduledDeath: bool
-  slock: Lock
+  state:
+    ptr LoadingState
+  scheduledDeath:
+    bool
+  slock:
+    Lock
 
 method view*(app: LoadingScreenState): Widget =
   debug "shell: loading screen is being reupdated"
   debug "shell: app state: \"" & $app.state[] & '"'
 
-  proc die: bool =
+  proc die(): bool =
     app.closeWindow()
 
-  proc refresh: bool =
+  proc refresh(): bool =
     debug "shell: refresh: acquiring lock on `ptr LoadingState`"
     withLock app.slock:
       if app.state[] == Done and not app.scheduledDeath:
@@ -38,7 +40,7 @@ method view*(app: LoadingScreenState): Widget =
         return false
 
     true
-      
+
   discard addGlobalTimeout(100, refresh)
 
   result = gui:
@@ -54,12 +56,5 @@ method view*(app: LoadingScreenState): Widget =
           text = "<b>" & $app.state[] & "</b>"
           useMarkup = true
 
-proc initLoadingScreen*(
-  state: ptr LoadingState,
-  lock: Lock
-) {.inline.} =
-  adw.brew(
-    gui(
-      LoadingScreen(state = state, slock = lock, scheduledDeath = false)
-    )
-  )
+proc initLoadingScreen*(state: ptr LoadingState, lock: Lock) {.inline.} =
+  adw.brew(gui(LoadingScreen(state = state, slock = lock, scheduledDeath = false)))

@@ -159,7 +159,15 @@ proc onGameLeave*(config: Config, discord: Option[DiscordRPC]) =
     )
   )
 
-proc eventWatcher*(args: tuple[state: ptr LoadingState, slock: ptr Lock, discord: Option[DiscordRPC], config: Config]) =
+proc eventWatcher*(
+    args:
+      tuple[
+        state: ptr LoadingState,
+        slock: ptr Lock,
+        discord: Option[DiscordRPC],
+        config: Config,
+      ]
+) =
   addHandler newColoredLogger()
   debug "lucem: this is the event watcher thread, running at thread ID " & $getThreadId()
 
@@ -181,7 +189,7 @@ proc eventWatcher*(args: tuple[state: ptr LoadingState, slock: ptr Lock, discord
       continue
 
     # debug "$2" % [$line, data]
-    
+
     if data.contains("[JNI] OnLoad: ... Done"):
       debug "lucem: this is the event watcher thread - Sober has been initialized! Acquiring lock to loading screen state pointer and setting it to `WaitingForRoblox`"
 
@@ -242,8 +250,8 @@ proc runRoblox*(config: Config) =
 
       discord = some(move(client))
     except CatchableError as exc:
-      warn "lucem: unable to connect to Discord RPC: " & exc.msg 
-    
+      warn "lucem: unable to connect to Discord RPC: " & exc.msg
+
   debug "lucem: initialize lock that guards `LoadingState` pointer"
   var slock: Lock
   initLock(slock)
@@ -252,11 +260,18 @@ proc runRoblox*(config: Config) =
   writeFile("/tmp/sober.log", newString(0))
 
   debug "lucem: creating event watcher thread"
-  var evThr: Thread[tuple[state: ptr LoadingState, slock: ptr Lock, discord: Option[DiscordRPC], config: Config]]
+  var evThr: Thread[
+    tuple[
+      state: ptr LoadingState,
+      slock: ptr Lock,
+      discord: Option[DiscordRPC],
+      config: Config,
+    ]
+  ]
   createThread(evThr, eventWatcher, (addr state, addr slock, discord, config))
 
   flatpakRun(SOBER_APP_ID, "/tmp/sober.log", config.client.launcher)
-  
+
   when defined(lucemExperimentalLoadingScreen):
     warn "lucem: you are using an EXPERIMENTAL FEATURE (loading screens)! Please do not report any bugs that you encounter!"
     warn "lucem: loading screens are VERY buggy right now, but they'll be gradually improved!"
