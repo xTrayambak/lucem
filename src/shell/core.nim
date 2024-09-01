@@ -3,7 +3,7 @@
 ## Copyright (C) 2024 Trayambak Rai
 import std/[os, strutils, json, logging, posix, osproc, times]
 import owlkettle, owlkettle/adw
-import ../[config, argparser, cache_calls, fflags, meta]
+import ../[config, argparser, cache_calls, fflags, meta, notifications]
 import discord_rpc
 
 type
@@ -53,12 +53,22 @@ viewable LucemShell:
   currFflagBuff:
     string
 
+  prevFflagBuff:
+    string
+
   discord:
     DiscordRPC
 
 method view(app: LucemShellState): Widget =
   var parsedFflags = newJObject()
-  parseFflags(app.config[], parsedFflags)
+  try:
+    parseFflags(app.config[], parsedFflags)
+  except FFlagParseError as exc:
+    warn "shell: failed to parse fflags: " & exc.msg
+    notify("Failed to parse FFlags", exc.msg)
+    debug "shell: reverting to previous state"
+    app.config[].client.fflags = app.prevFflagBuff
+    app.currFflagBuff = app.prevFflagBuff
 
   result = gui:
     Window:
@@ -347,6 +357,8 @@ method view(app: LucemShellState): Widget =
                           proc clicked() =
                             # FIXME: move the line selection and deletion code to src/fflags.nim! this is a total mess!
                             debug "shell: deleting fflag: " & key
+                            app.prevFflagBuff = app.currFflagBuff
+
                             var
                               i = -1
                               line = -1
