@@ -4,7 +4,7 @@
 
 import std/[os, logging, strutils]
 import colored_logger
-import ./[meta, argparser, config, cache_calls]
+import ./[meta, argparser, config, cache_calls, desktop_files]
 import ./shell/core
 import ./commands/[init, run, edit_config]
 
@@ -70,6 +70,7 @@ proc main() {.inline.} =
   of "init":
     initializeSober(input)
     initializeRoblox(input, config)
+    createLucemDesktopFile()
   of "fetch-apk":
     initializeRoblox(input, config)
   of "install-sober":
@@ -83,7 +84,7 @@ proc main() {.inline.} =
     else:
       warn "lucem: you have not specified an editor in your environment variables."
 
-      for editor in ["nano", "vim", "nvim", "emacs", "vi"]:
+      for editor in ["nano", "vscode", "vim", "nvim", "emacs", "vi", "ed"]:
         warn "lucem: trying editor `" & editor & '`'
         editConfiguration(editor)
 
@@ -92,6 +93,8 @@ proc main() {.inline.} =
   of "run":
     updateConfig(config)
     runRoblox(config)
+  of "install-desktop-files":
+    createLucemDesktopFile()
   of "clear-cache":
     let savedMb = clearCache()
     info "lucem: cleared cache calls to reclaim " & $savedMb & " MB of space"
