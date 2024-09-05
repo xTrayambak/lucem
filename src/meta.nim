@@ -1,5 +1,5 @@
 const
-  Version* {.strdefine: "NimblePkgVersion".} = "<not defined during compile time>"
+  Version* {.strdefine: "NimblePkgVersion".} = "1.1.1"
   DiscordRpcId* {.intdefine: "DiscordRpcId".} = 1276893796679942195
   LicenseString* =
     """
