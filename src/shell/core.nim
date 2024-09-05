@@ -451,21 +451,6 @@ method view(app: LucemShellState): Widget =
             description = "These settings are mostly applied via FFlags."
 
             ActionRow:
-              title = "APK Version"
-              subtitle = "The version of the APK that Lucem should fetch."
-              Entry {.addSuffix.}:
-                text = app.apkVersionBuff
-                placeholder = "Eg. 2.639.688"
-
-                proc changed(text: string) =
-                  debug "shell: APK version entry changed: " & text
-                  app.apkVersionBuff = text
-
-                proc activate() =
-                  app.config[].client.launcher = app.launcherBuff
-                  debug "shell: APK version is set to: " & app.apkVersionBuff
-
-            ActionRow:
               title = "Disable Telemetry"
               subtitle =
                 "Disable all* telemetry that the Roblox client exposes via FFlags."
@@ -558,7 +543,6 @@ proc initLucemShell*(input: Input) {.inline.} =
         serverLocationOpt = config.lucem.notifyServerRegion,
         customFontPath = config.tweaks.font,
         oldOofSound = config.tweaks.oldOof,
-        apkVersionBuff = config.apk.version,
         sunImgPath = config.tweaks.sun,
         moonImgPath = config.tweaks.moon,
         discord = rpc,

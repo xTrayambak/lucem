@@ -13,9 +13,7 @@ proc showHelp(exitCode: int = 1) {.inline, noReturn.} =
 lucem [command] [arguments]
 
 Commands:
-  init            Install Sober and fetch the Roblox APK
-  fetch-apk       Fetch the Roblox APK
-  install-sober   Install Sober
+  init            Install Sober
   run             Run Sober
   meta            Get build metadata
   edit-config     Edit the configuration file
@@ -62,6 +60,10 @@ proc main() {.inline.} =
 
   let config = parseConfig(input)
 
+  if config.apk.version.len > 0:
+    warn "lucem: you have set up an APK version in the configuration - that feature is now deprecated as Sober now has a built-in APK fetcher."
+    warn "lucem: feel free to remove it."
+
   case input.command
   of "meta":
     showMeta()
@@ -69,12 +71,7 @@ proc main() {.inline.} =
     showHelp(0)
   of "init":
     initializeSober(input)
-    initializeRoblox(input, config)
     createLucemDesktopFile()
-  of "fetch-apk":
-    initializeRoblox(input, config)
-  of "install-sober":
-    initializeSober(input)
   of "edit-config":
     if existsEnv("EDITOR"):
       let editor = getEnv("EDITOR")

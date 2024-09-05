@@ -4,7 +4,7 @@ import ./[argparser, sugar]
 
 type
   APKConfig* = object
-    version*: string
+    version*: string = ""
 
   LucemConfig* = object
     discord_rpc*: bool = true
@@ -32,9 +32,6 @@ type
 const
   DefaultConfig* =
     """
-[apk]
-version = "2.639.688"
-
 [lucem]
 discord_rpc = true
 loading_screen = true

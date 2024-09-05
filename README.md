@@ -20,7 +20,6 @@ If you really cheat on Roblox, I'd say you should reconsider your life decisions
 - Rich presence
 - Server region notifier
 - If you're not a fan of GUIs, we provide a nifty configuration file that does the same thing! (located at `~/.config/lucem/config.toml`)
-- (Semi-automatically) downloading and managing the Roblox APK
 - Managing Sober
 
 Whilst not a feature you use directly, Lucem also caches API calls whenever it can in order to save bandwidth and resources.

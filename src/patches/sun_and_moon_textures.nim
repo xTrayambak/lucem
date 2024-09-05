@@ -18,13 +18,16 @@ proc setSunTexture*(path: string) =
     if not fileExists(path):
       error "lucem: cannot find file: " & path & " as a substitute for the sun texture!"
       quit(1)
-
+    
     moveFile(basePath / "sun.jpg", basePath / "sun.jpg.old")
     copyFile(path, basePath / "sun.jpg")
     writeFile(basePath / "lucem_patched_sun", path)
 
     info "lucem: patched sun texture successfully!"
   else:
+    if not fileExists(basePath / "lucem_patched_sun"):
+      return
+
     debug "lucem: reverting sun texture to default"
 
     if not fileExists(basePath / "sun.jpg.old"):
@@ -56,6 +59,9 @@ proc setMoonTexture*(path: string) =
 
     info "lucem: patched moon texture successfully!"
   else:
+    if not fileExists(basePath / "lucem_patched_moon"):
+      return
+
     debug "lucem: reverting moon texture to default"
 
     if not fileExists(basePath / "moon.jpg.old"):
