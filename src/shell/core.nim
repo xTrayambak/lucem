@@ -3,7 +3,8 @@
 ## Copyright (C) 2024 Trayambak Rai
 import std/[os, strutils, json, logging, posix, osproc, times]
 import owlkettle, owlkettle/adw
-import ../[config, argparser, cache_calls, fflags, meta, notifications]
+import
+  ../[config, argparser, cache_calls, fflags, meta, notifications, desktop_files, fs]
 import discord_rpc
 
 type
@@ -46,6 +47,11 @@ viewable LucemShell:
   oldOofSound:
     bool
   customFontPath:
+    string
+
+  sunImgPath:
+    string
+  moonImgPath:
     string
 
   apkVersionBuff:
@@ -97,11 +103,20 @@ method view(app: LucemShellState): Widget =
 
         Button {.addRight.}:
           style = [ButtonFlat]
+          icon = "document-text-symbolic"
+
+          proc clicked() =
+            debug "shell: create .desktop files"
+            createLucemDesktopFile()
+
+        Button {.addRight.}:
+          style = [ButtonFlat]
           icon = "xbox-controller-symbolic"
 
           proc clicked() =
             debug "shell: save config, exit config editor and launch lucem"
             app.config[].save()
+            app.scheduleCloseWindow()
 
             if fork() == 0:
               debug "shell: we are the child - launching `lucem run`"
@@ -234,10 +249,57 @@ method view(app: LucemShellState): Widget =
                   app.customFontPath = text
 
                 proc activate() =
-                  let home = getHomeDir()
-                  let realPath = app.customFontPath.replace("~", home[0 ..< home.len])
-                  app.config[].tweaks.font = realPath
-                  debug "shell: custom font path is set to: " & realPath
+                  let font = app.customFontPath.expandTilde()
+                  if font.len > 0 and not isAccessible(font):
+                    notify("Cannot set custom font", "File not accessible.")
+                    return
+
+                  app.config[].tweaks.font = font
+                  debug "shell: custom font path is set to: " & app.customFontPath
+
+            ActionRow:
+              title = "Custom Sun Texture"
+              subtitle =
+                "For games that do not set a custom sun texture, your specified texture will be shown instead."
+
+              Entry {.addSuffix.}:
+                text = app.sunImgPath
+                placeholder = ""
+
+                proc changed(text: string) =
+                  debug "shell: sun image entry changed: " & text
+                  app.sunImgPath = text
+
+                proc activate() =
+                  let path = app.sunImgPath.expandTilde()
+                  if path.len > 0 and not isAccessible(path):
+                    notify("Cannot set sun texture", "Texture file not accessible.")
+                    return
+
+                  app.config[].tweaks.sun = path
+                  debug "shell: custom sun texture path is set to: " & app.sunImgPath
+
+            ActionRow:
+              title = "Custom Moon Texture"
+              subtitle =
+                "For games that do not set a custom moon texture, your specified texture will be shown instead."
+
+              Entry {.addSuffix.}:
+                text = app.moonImgPath
+                placeholder = ""
+
+                proc changed(text: string) =
+                  debug "shell: moon image entry changed: " & text
+                  app.moonImgPath = text
+
+                proc activate() =
+                  let path = app.moonImgPath.expandTilde()
+                  if path.len > 0 and not isAccessible(path):
+                    notify("Cannot set moon texture", "Texture file not accessible.")
+                    return
+
+                  app.config[].tweaks.moon = path
+                  debug "shell: custom moon texture path is set to: " & app.sunImgPath
 
         of ShellState.Lucem:
           PreferencesGroup:
@@ -294,8 +356,9 @@ method view(app: LucemShellState): Widget =
 
                 proc clicked() =
                   let savedMb = clearCache()
-                  info "shell: cleared out caches and reclaimed " & $savedMb &
-                    " of space."
+                  info "shell: cleared out cache and reclaimed " & $savedMb &
+                    " MB of space."
+                  notify("Cleared API cache", $savedMb & " MB of space was freed.")
 
         of ShellState.FflagEditor:
           PreferencesGroup:
@@ -469,9 +532,6 @@ method view(app: LucemShellState): Widget =
                     app.config[].client.launcher = app.launcherBuff
                     debug "shell: launcher is set to: " & app.launcherBuff
 
-        else:
-          discard
-
 proc initLucemShell*(input: Input) {.inline.} =
   info "shell: initializing GTK4 shell"
   info "shell: libadwaita version: v" & $AdwVersion[0] & '.' & $AdwVersion[1]
@@ -499,6 +559,8 @@ proc initLucemShell*(input: Input) {.inline.} =
         customFontPath = config.tweaks.font,
         oldOofSound = config.tweaks.oldOof,
         apkVersionBuff = config.apk.version,
+        sunImgPath = config.tweaks.sun,
+        moonImgPath = config.tweaks.moon,
         discord = rpc,
       )
     )
