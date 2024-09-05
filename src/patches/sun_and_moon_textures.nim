@@ -8,10 +8,11 @@ const SoberSkyTexturesPath* {.strdefine.} =
 proc setSunTexture*(path: string) =
   let basePath = SoberSkyTexturesPath % [getHomeDir()]
 
-  if fileExists(basePath / "lucem_patched_sun") and readFile(basePath / "lucem_patched_sun") == path:
+  if fileExists(basePath / "lucem_patched_sun") and
+      readFile(basePath / "lucem_patched_sun") == path:
     debug "lucem: skipping patching sun texture - already marked as patched"
     return
-  
+
   if path.len > 0:
     debug "lucem: patching sun texture to: " & path
     if not fileExists(path):
@@ -30,18 +31,19 @@ proc setSunTexture*(path: string) =
       error "lucem: cannot restore sun texture to default as `sun.jpg.old` is missing!"
       error "lucem: you probably messed around with the files, run `lucem init` to fix everything."
       quit(1)
-    
+
     removeFile(basePath / "lucem_patched_sun")
     moveFile(basePath / "sun.jpg.old", basePath / "sun.jpg")
-    
+
     info "lucem: restored sun texture back to default successfully!"
 
 proc setMoonTexture*(path: string) =
   let basePath = SoberSkyTexturesPath % [getHomeDir()]
-  if fileExists(basePath / "lucem_patched_moon") and readFile(basePath / "lucem_patched_moon") == path:
+  if fileExists(basePath / "lucem_patched_moon") and
+      readFile(basePath / "lucem_patched_moon") == path:
     debug "lucem: skipping patching moon texture - already marked as patched"
     return
-  
+
   if path.len > 0:
     debug "lucem: patching moon texture to: " & path
     if not fileExists(path):
@@ -60,8 +62,8 @@ proc setMoonTexture*(path: string) =
       error "lucem: cannot restore sun texture to default as `moon.jpg.old` is missing!"
       error "lucem: you probably messed around with the files, run `lucem init` to fix everything."
       quit(1)
-    
+
     removeFile(basePath / "lucem_patched_moon")
     moveFile(basePath / "moon.jpg.old", basePath / "moon.jpg")
-    
+
     info "lucem: restored moon texture back to default successfully!"

@@ -140,10 +140,11 @@ proc onServerIpRevealed*(config: Config, line: string) =
     notify(
       "Server Location",
       "This server is located in $1, $2, $3" % [data.city, data.region, data.country],
+      10000
     )
   else:
     warn "lucem: failed to get server location data!"
-    notify("Server Location", "Failed to fetch server location data.")
+    notify("Server Location", "Failed to fetch server location data.", 10000)
 
 proc onGameLeave*(config: Config, discord: Option[DiscordRPC]) =
   debug "lucem: left experience"
@@ -201,7 +202,7 @@ proc eventWatcher*(
       continue
 
     # debug "$2" % [$line, data]
-    
+
     if data.contains("OnLoad: ... Done"):
       debug "lucem: this is the event watcher thread - Sober has been initialized! Acquiring lock to loading screen state pointer and setting it to `WaitingForRoblox`"
 
@@ -228,7 +229,7 @@ proc eventWatcher*(
 
     if data.contains("[FLog::Output] Connecting to UDMUX server"):
       onServerIpRevealed(args.config, data)
-    
+
     if data.contains("[FLog::Output] [BloxstrapRPC]"):
       onBloxstrapRpc(args.config, args.discord, data)
 
@@ -238,7 +239,7 @@ proc eventWatcher*(
 
     hasntStarted = false
     inc line
-  
+
   withLock args.slock[]:
     args.state[] = Exited
 
@@ -289,7 +290,7 @@ proc runRoblox*(config: Config) =
   createThread(evThr, eventWatcher, (addr state, addr slock, discord, config))
 
   flatpakRun(SOBER_APP_ID, "/tmp/sober.log", config.client.launcher)
-  
+
   if config.lucem.loadingScreen:
     debug "lucem: creating loading screen GTK4 surface"
     initLoadingScreen(addr state, slock)
