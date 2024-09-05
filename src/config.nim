@@ -7,8 +7,9 @@ type
     version*: string
 
   LucemConfig* = object
-    discord_rpc*: bool
-    notify_server_region*: bool
+    discord_rpc*: bool = true
+    notify_server_region*: bool = true
+    loading_screen*: bool = true
 
   ClientConfig* = object
     fps*: int = 60
@@ -18,6 +19,8 @@ type
 
   Tweaks* = object
     oldOof*: bool = false
+    moon*: string = ""
+    sun*: string = ""
     font*: string = ""
 
   Config* = object
@@ -34,11 +37,14 @@ version = "2.639.688"
 
 [lucem]
 discord_rpc = true
+loading_screen = true
 notify_server_region = true
 
 [tweaks]
 oldOof = false
 font = ""
+moon = ""
+sun = ""
 
 [client]
 fps = 60

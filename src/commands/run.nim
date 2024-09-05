@@ -3,7 +3,7 @@
 import std/[os, logging, strutils, json, times, locks]
 import discord_rpc
 import ../api/[games, thumbnails, ipinfo]
-import ../patches/[bring_back_oof, patch_fonts]
+import ../patches/[bring_back_oof, patch_fonts, sun_and_moon_textures]
 import ../shell/loading_screen
 import ../[config, flatpak, common, meta, sugar, notifications, fflags]
 import colored_logger
@@ -31,6 +31,8 @@ proc updateConfig*(config: Config) =
 
   enableOldOofSound(config.tweaks.oldOof)
   setClientFont(config.tweaks.font)
+  setSunTexture(config.tweaks.sun)
+  setMoonTexture(config.tweaks.moon)
 
   for flag in [
     "FFlagDebugDisableTelemetryEphemeralCounter",
@@ -159,6 +161,16 @@ proc onGameLeave*(config: Config, discord: Option[DiscordRPC]) =
     )
   )
 
+proc onBloxstrapRpc*(config: Config, discord: Option[DiscordRPC], line: string) =
+  debug "lucem: trying to extract BloxstrapRPC payload from line"
+  debug "lucem: " & line
+  let payload = line.split("[FLog::Output] [BloxstrapRPC]")
+
+  if payload.len < 2:
+    warn "lucem: failed to obtain BloxstrapRPC JSON payload as split results in one or less element."
+    warn "lucem: " & line
+    return
+
 proc eventWatcher*(
     args:
       tuple[
@@ -189,8 +201,8 @@ proc eventWatcher*(
       continue
 
     # debug "$2" % [$line, data]
-
-    if data.contains("[JNI] OnLoad: ... Done"):
+    
+    if data.contains("OnLoad: ... Done"):
       debug "lucem: this is the event watcher thread - Sober has been initialized! Acquiring lock to loading screen state pointer and setting it to `WaitingForRoblox`"
 
       withLock args.slock[]:
@@ -198,7 +210,7 @@ proc eventWatcher*(
 
       debug "lucem: released loading screen state pointer lock"
 
-    if data.contains("[FLog::SingleSurfaceApp] setStage: (stage:LuaApp)"):
+    if data.contains("[FLog::Graphics] Vulkan: creating framebuffer"):
       debug "lucem: this is the event watcher thread - Roblox has initialized a surface! Acquiring lock to loading screen state pointer and setting it to `Done`"
 
       withLock args.slock[]:
@@ -216,6 +228,9 @@ proc eventWatcher*(
 
     if data.contains("[FLog::Output] Connecting to UDMUX server"):
       onServerIpRevealed(args.config, data)
+    
+    if data.contains("[FLog::Output] [BloxstrapRPC]"):
+      onBloxstrapRpc(args.config, args.discord, data)
 
     if data.contains("[FLog::Network] Client:Disconnect") or
         data.contains("[FLog::SingleSurfaceApp] handleGameWillClose"):
@@ -223,6 +238,9 @@ proc eventWatcher*(
 
     hasntStarted = false
     inc line
+  
+  withLock args.slock[]:
+    args.state[] = Exited
 
   info "lucem: Sober seems to have exited - we'll stop here too. Adios!"
 
@@ -271,11 +289,8 @@ proc runRoblox*(config: Config) =
   createThread(evThr, eventWatcher, (addr state, addr slock, discord, config))
 
   flatpakRun(SOBER_APP_ID, "/tmp/sober.log", config.client.launcher)
-
-  when defined(lucemExperimentalLoadingScreen):
-    warn "lucem: you are using an EXPERIMENTAL FEATURE (loading screens)! Please do not report any bugs that you encounter!"
-    warn "lucem: loading screens are VERY buggy right now, but they'll be gradually improved!"
-
+  
+  if config.lucem.loadingScreen:
     debug "lucem: creating loading screen GTK4 surface"
     initLoadingScreen(addr state, slock)
 
