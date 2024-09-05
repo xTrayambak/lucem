@@ -35,7 +35,8 @@ proc parseFFlags*(config: Config, fflags: JsonNode) =
         key = splitted[0]
         val = splitted[1]
 
-      if val.startsWith('"') and val.endsWith('"') or val.startsWith('\'') and val.endsWith('\''):
+      if val.startsWith('"') and val.endsWith('"') or
+          val.startsWith('\'') and val.endsWith('\''):
         fflags[key] = newJString(val)
       elif val in ["true", "false"]:
         fflags[key] = newJBool(parseBool(val))
@@ -52,8 +53,8 @@ proc parseFFlags*(config: Config, fflags: JsonNode) =
         if allInt:
           fflags[key] = newJInt(parseInt(val))
         else:
-          warn "lucem: cannot handle FFlag (key=$1, val=$2); ignoring." % [key, val]
           raise newException(
             FFlagParseError,
-            "Cannot handle FFlag pair of key (" & key & ") and value (" & val & "); did you mean " & key & '=' & '\'' & val & "'?",
+            "Cannot handle FFlag pair of key (" & key & ") and value (" & val &
+              "); did you mean " & key & '=' & '\'' & val & "'?",
           )
