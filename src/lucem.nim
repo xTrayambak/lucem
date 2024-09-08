@@ -14,8 +14,6 @@ lucem [command] [arguments]
 
 Commands:
   init            Install Sober and fetch the Roblox APK
-  fetch-apk       Fetch the Roblox APK
-  install-sober   Install Sober
   run             Run Sober
   meta            Get build metadata
   edit-config     Edit the configuration file
@@ -68,11 +66,6 @@ proc main() {.inline.} =
   of "help":
     showHelp(0)
   of "init":
-    initializeSober(input)
-    initializeRoblox(input, config)
-  of "fetch-apk":
-    initializeRoblox(input, config)
-  of "install-sober":
     initializeSober(input)
   of "edit-config":
     if existsEnv("EDITOR"):
