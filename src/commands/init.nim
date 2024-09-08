@@ -1,4 +1,4 @@
-## This file implements `lucem init` and `lucem install-sober`
+## This file implements `lucem init`
 ## Copyright (C) 2024 Trayambak Rai
 
 import std/[logging, strutils]
