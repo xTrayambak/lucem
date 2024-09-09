@@ -7,8 +7,6 @@ import ../[flatpak, argparser, common]
 const
   SOBER_FLATPAK_URL* {.strdefine: "SoberFlatpakUrl".} =
     "https://sober.vinegarhq.org/sober.flatpakref"
-  APKMIRROR_URL* {.strdefine: "ApkMirrorUrl".} =
-    "https://www.apkmirror.com/apk/roblox-corporation/roblox/roblox-$1-release/roblox-$1-android-apk-download"
 
 proc initializeSober*(input: Input) {.inline.} =
   info "lucem: initializing sober"
