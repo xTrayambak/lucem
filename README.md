@@ -9,7 +9,7 @@ Please keep in mind that while Lucem is fully open source software, Sober is pro
 ![A demo of Lucem's nice looking GTK4 based settings menu](screenshots/settings_gui_4.jpg)
 
 # Disclaimer, in big bold letters.
-Lucem only automates downloading the Roblox APK from `apkmirror.com`. It does not allow you to bypass the (reasonable and justified) restrictions the Vinegar team has put on Sober's ability to load APKs that are modified.
+Lucem does not allow you to bypass the (reasonable and justified) restrictions the Vinegar team has put on Sober's ability to load APKs that are modified.
 
 If you really cheat on Roblox, I'd say you should reconsider your life decisions than anything. \
 **Lucem is not associated with the VinegarHQ team or Roblox, nor is it endorsed by them!**
@@ -82,17 +82,6 @@ $ lucem run
 ## Check build metadata
 ```command
 $ lucem meta
-```
-
-## Fetching a new APK
-Edit your configuration with `lucem edit-config` to the version of the APK that you wish to install. **Make sure that Sober supports it! Check their Discord for information.**
-```command
-$ lucem fetch-apk
-```
-
-## Installing Sober
-```command
-$ lucem install-sober
 ```
 
 ## Clearing API caches
