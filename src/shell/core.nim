@@ -14,9 +14,6 @@ type
     Tweaks
     FflagEditor
 
-  TempBuffers = object
-    clientFpsLimit*: int
-
 viewable LucemShell:
   state:
     ShellState = Client
@@ -24,9 +21,6 @@ viewable LucemShell:
     bool
   config:
     ptr Config
-
-  buffers:
-    TempBuffers
 
   showFpsCapOpt:
     bool
@@ -64,6 +58,8 @@ viewable LucemShell:
 
   discord:
     DiscordRPC
+
+  pollingDelayBuff: string
 
 method view(app: LucemShellState): Widget =
   var parsedFflags = newJObject()
@@ -139,83 +135,82 @@ method view(app: LucemShellState): Widget =
           sensitive = true
           sizeRequest = (-1, -1)
 
-          ScrolledWindow:
-            Box(orient = OrientY):
-              Button:
-                sensitive = true
-                text = "Features"
+          Box(orient = OrientY):
+            Button:
+              sensitive = true
+              text = "Features"
 
-                proc clicked() =
-                  app.state = ShellState.Lucem
+              proc clicked() =
+                app.state = ShellState.Lucem
 
-                  if app.config[].lucem.discordRpc:
-                    try:
-                      app.discord.setActivity(
-                        Activity(
-                          details: "Configuring Lucem",
-                          state: "In the Features Menu",
-                          timestamps: ActivityTimestamps(start: epochTime().int64),
-                        )
+                if app.config[].lucem.discordRpc:
+                  try:
+                    app.discord.setActivity(
+                      Activity(
+                        details: "Configuring Lucem",
+                        state: "In the Features Menu",
+                        timestamps: ActivityTimestamps(start: epochTime().int64),
                       )
-                    except CatchableError as exc:
-                      warn "shell: failed to set activity: " & exc.msg
+                    )
+                  except CatchableError as exc:
+                     warn "shell: failed to set activity: " & exc.msg
 
-              Button:
-                sensitive = true
-                text = "Client"
+            Button:
+              sensitive = true
+              text = "Client"
 
-                proc clicked() =
-                  app.state = ShellState.Client
+              proc clicked() =
+                app.state = ShellState.Client
 
-                  if app.config[].lucem.discordRpc:
-                    try:
-                      app.discord.setActivity(
-                        Activity(
-                          details: "Configuring Lucem",
-                          state: "In the Client Settings Menu",
-                          timestamps: ActivityTimestamps(start: epochTime().int64),
-                        )
+                if app.config[].lucem.discordRpc:
+                  try:
+                    app.discord.setActivity(
+                      Activity(
+                        details: "Configuring Lucem",
+                        state: "In the Client Settings Menu",
+                        timestamps: ActivityTimestamps(start: epochTime().int64),
                       )
-                    except CatchableError as exc:
-                      warn "shell: failed to set activity: " & exc.msg
+                    )
+                  except CatchableError as exc:
+                    warn "shell: failed to set activity: " & exc.msg
 
-              Button:
-                sensitive = true
-                text = "Tweaks & Patches"
+            Button:
+              sensitive = true
+              text = "Tweaks & Patches"
 
-                proc clicked() =
-                  app.state = ShellState.Tweaks
+              proc clicked() =
+                app.state = ShellState.Tweaks
 
-                  if app.config[].lucem.discordRpc:
-                    try:
-                      app.discord.setActivity(
-                        Activity(
-                          details: "Configuring Lucem",
-                          state: "In the Tweaks & Patches Menu",
-                          timestamps: ActivityTimestamps(start: epochTime().int64),
-                        )
+                if app.config[].lucem.discordRpc:
+                  try:
+                    app.discord.setActivity(
+                      Activity(
+                        details: "Configuring Lucem",
+                        state: "In the Tweaks & Patches Menu",
+                        timestamps: ActivityTimestamps(start: epochTime().int64),
                       )
-                    except CatchableError as exc:
-                      warn "shell: failed to set activity: " & exc.msg
+                    )
+                  except CatchableError as exc:
+                    warn "shell: failed to set activity: " & exc.msg
 
-              Button:
-                sensitive = true
-                text = "FFlags"
+            Button:
+              sensitive = true
+              text = "FFlags"
 
-                proc clicked() =
-                  app.state = ShellState.FflagEditor
+              proc clicked() =
+                app.state = ShellState.FflagEditor
 
-                  if app.config[].lucem.discordRpc:
-                    try:
-                      app.discord.setActivity(
-                        Activity(
-                          details: "Configuring Lucem",
-                          state: "In the FFlag Editor",
-                          timestamps: ActivityTimestamps(start: epochTime().int64),
-                        )
+                if app.config[].lucem.discordRpc:
+                  try:
+                    app.discord.setActivity(
+                      Activity(
+                        details: "Configuring Lucem",
+                        state: "In the FFlag Editor",
+                        timestamps: ActivityTimestamps(start: epochTime().int64),
                       )
-                    except CatchableError as exc:
-                      warn "shell: failed to set activity: " & exc.msg
+                    )
+                  except CatchableError as exc:
+                    warn "shell: failed to set activity: " & exc.msg
 
         case app.state
         of ShellState.Tweaks:
@@ -517,6 +512,25 @@ method view(app: LucemShellState): Widget =
                   app.config[].client.launcher = app.launcherBuff
                   debug "shell: launcher is set to: " & app.launcherBuff
 
+            ActionRow:
+              title = "Polling Delay"
+              subtitle = "Add a tiny delay in milliseconds to the event watcher thread. This barely impacts performance on modern systems."
+
+              Entry {.addSuffix.}:
+                text = app.pollingDelayBuff
+                placeholder = "100 is sufficient for most modern systems"
+
+                proc changed(text: string) =
+                  debug "shell: polling delay entry changed: " & text
+                  app.pollingDelayBuff = text
+
+                proc activate =
+                  try:
+                    app.config[].lucem.pollingDelay = app.pollingDelayBuff.parseUint()
+                    debug "shell: polling delay is set to: " & app.pollingDelayBuff
+                  except ValueError as exc:
+                    warn "shell: failed to parse polling delay (" & app.pollingDelayBuff & "): " & exc.msg
+
 proc initLucemShell*(input: Input) {.inline.} =
   info "shell: initializing GTK4 shell"
   info "shell: libadwaita version: v" & $AdwVersion[0] & '.' & $AdwVersion[1]
@@ -535,6 +549,7 @@ proc initLucemShell*(input: Input) {.inline.} =
     gui(
       LucemShell(
         config = addr(config),
+        state = ShellState.Lucem,
         showFpsCapOpt = config.client.fps != 9999,
         showFpsCapBuff = $config.client.fps,
         discordRpcOpt = config.lucem.discordRpc,
@@ -545,6 +560,7 @@ proc initLucemShell*(input: Input) {.inline.} =
         oldOofSound = config.tweaks.oldOof,
         sunImgPath = config.tweaks.sun,
         moonImgPath = config.tweaks.moon,
+        pollingDelayBuff = $config.lucem.pollingDelay,
         discord = rpc,
       )
     )

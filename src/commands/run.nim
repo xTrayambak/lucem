@@ -200,6 +200,9 @@ proc eventWatcher*(
     if data.len < 1:
       inc line
       continue
+  
+    when not defined(release):
+      echo data
 
     # debug "$2" % [$line, data]
 
@@ -236,7 +239,8 @@ proc eventWatcher*(
     if data.contains("[FLog::Network] Client:Disconnect") or
         data.contains("[FLog::SingleSurfaceApp] handleGameWillClose"):
       onGameLeave(args.config, args.discord)
-
+    
+    sleep(args.config.lucem.pollingDelay.int)
     hasntStarted = false
     inc line
 

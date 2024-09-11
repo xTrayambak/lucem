@@ -10,6 +10,7 @@ type
     discord_rpc*: bool = true
     notify_server_region*: bool = true
     loading_screen*: bool = true
+    polling_delay*: uint = 100
 
   ClientConfig* = object
     fps*: int = 60
@@ -36,6 +37,7 @@ const
 discord_rpc = true
 loading_screen = true
 notify_server_region = true
+polling_delay = 100
 
 [tweaks]
 oldOof = false
