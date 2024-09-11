@@ -501,21 +501,21 @@ method view(app: LucemShellState): Widget =
                         app.showFpsCapBuff
                       debug "shell: " & exc.msg
 
-              ActionRow:
-                title = "Launcher"
-                subtitle =
-                  "Lucem will launch Sober with a specified command. Leave this empty if you don't require it."
-                Entry {.addSuffix.}:
-                  text = app.launcherBuff
-                  placeholder = "Eg. gamemoderun"
+            ActionRow:
+              title = "Launcher"
+              subtitle =
+                "Lucem will launch Sober with a specified command. Leave this empty if you don't require it."
+              Entry {.addSuffix.}:
+                text = app.launcherBuff
+                placeholder = "Eg. gamemoderun"
 
-                  proc changed(text: string) =
-                    debug "shell: launcher entry changed: " & text
-                    app.launcherBuff = text
+                proc changed(text: string) =
+                  debug "shell: launcher entry changed: " & text
+                  app.launcherBuff = text
 
-                  proc activate() =
-                    app.config[].client.launcher = app.launcherBuff
-                    debug "shell: launcher is set to: " & app.launcherBuff
+                proc activate() =
+                  app.config[].client.launcher = app.launcherBuff
+                  debug "shell: launcher is set to: " & app.launcherBuff
 
 proc initLucemShell*(input: Input) {.inline.} =
   info "shell: initializing GTK4 shell"
