@@ -5,7 +5,7 @@ import colored_logger, discord_rpc
 import ../api/[games, thumbnails, ipinfo]
 import ../patches/[bring_back_oof, patch_fonts, sun_and_moon_textures]
 import ../shell/loading_screen
-import ../[config, flatpak, common, meta, sugar, notifications, fflags]
+import ../[config, flatpak, common, meta, sugar, notifications, fflags, log_file]
 
 const FFlagsFile* =
   "$1/.var/app/$2/data/sober/exe/ClientSettings/ClientAppSettings.json"
@@ -190,7 +190,7 @@ proc eventWatcher*(
     hasntStarted = true
 
   while hasntStarted or flatpakRunning(SOBER_APP_ID):
-    let logFile = readFile("/tmp/sober.log").splitLines()
+    let logFile = readFile(getSoberLogPath()).splitLines()
 
     if logFile.len - 1 < line:
       continue
@@ -251,7 +251,7 @@ proc runRoblox*(config: Config) =
   var startingTime = epochTime()
   info "lucem: running Roblox via Sober"
 
-  writeFile("/tmp/sober.log", newString(0))
+  writeFile(getSoberLogPath(), newString(0))
   var discord: Option[DiscordRPC]
 
   if config.lucem.discordRpc:
@@ -278,7 +278,6 @@ proc runRoblox*(config: Config) =
   initLock(slock)
 
   var state {.guard: slock.} = WaitingForLaunch
-  writeFile("/tmp/sober.log", newString(0))
 
   debug "lucem: creating event watcher thread"
   var evThr: Thread[
@@ -290,8 +289,9 @@ proc runRoblox*(config: Config) =
     ]
   ]
   createThread(evThr, eventWatcher, (addr state, addr slock, discord, config))
-
-  flatpakRun(SOBER_APP_ID, "/tmp/sober.log", config.client.launcher)
+  
+  info "lucem: redirecting sober logs to: " & getSoberLogPath()
+  flatpakRun(SOBER_APP_ID, getSoberLogPath(), config.client.launcher)
 
   if config.lucem.loadingScreen:
     debug "lucem: creating loading screen GTK4 surface"
