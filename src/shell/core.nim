@@ -7,12 +7,11 @@ import
   ../[config, argparser, cache_calls, fflags, meta, notifications, desktop_files, fs]
 import discord_rpc
 
-type
-  ShellState* {.pure.} = enum
-    Client
-    Lucem
-    Tweaks
-    FflagEditor
+type ShellState* {.pure.} = enum
+  Client
+  Lucem
+  Tweaks
+  FflagEditor
 
 viewable LucemShell:
   state:
@@ -59,7 +58,8 @@ viewable LucemShell:
   discord:
     DiscordRPC
 
-  pollingDelayBuff: string
+  pollingDelayBuff:
+    string
 
 method view(app: LucemShellState): Widget =
   var parsedFflags = newJObject()
@@ -153,7 +153,7 @@ method view(app: LucemShellState): Widget =
                       )
                     )
                   except CatchableError as exc:
-                     warn "shell: failed to set activity: " & exc.msg
+                    warn "shell: failed to set activity: " & exc.msg
 
             Button:
               sensitive = true
@@ -514,7 +514,8 @@ method view(app: LucemShellState): Widget =
 
             ActionRow:
               title = "Polling Delay"
-              subtitle = "Add a tiny delay in milliseconds to the event watcher thread. This barely impacts performance on modern systems."
+              subtitle =
+                "Add a tiny delay in milliseconds to the event watcher thread. This barely impacts performance on modern systems."
 
               Entry {.addSuffix.}:
                 text = app.pollingDelayBuff
@@ -524,12 +525,13 @@ method view(app: LucemShellState): Widget =
                   debug "shell: polling delay entry changed: " & text
                   app.pollingDelayBuff = text
 
-                proc activate =
+                proc activate() =
                   try:
                     app.config[].lucem.pollingDelay = app.pollingDelayBuff.parseUint()
                     debug "shell: polling delay is set to: " & app.pollingDelayBuff
                   except ValueError as exc:
-                    warn "shell: failed to parse polling delay (" & app.pollingDelayBuff & "): " & exc.msg
+                    warn "shell: failed to parse polling delay (" & app.pollingDelayBuff &
+                      "): " & exc.msg
 
 proc initLucemShell*(input: Input) {.inline.} =
   info "shell: initializing GTK4 shell"

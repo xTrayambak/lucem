@@ -1,12 +1,11 @@
-## Run the Roblox client, update FFlags and optionally, provide Discord RPC.
+## Run the Roblox client, update FFlags and optionally, provide Discord RPC and other features.
 ## Copyright (C) 2024 Trayambak Rai
 import std/[os, logging, strutils, json, times, locks]
-import discord_rpc
+import colored_logger, discord_rpc
 import ../api/[games, thumbnails, ipinfo]
 import ../patches/[bring_back_oof, patch_fonts, sun_and_moon_textures]
 import ../shell/loading_screen
 import ../[config, flatpak, common, meta, sugar, notifications, fflags]
-import colored_logger
 
 const FFlagsFile* =
   "$1/.var/app/$2/data/sober/exe/ClientSettings/ClientAppSettings.json"
@@ -140,7 +139,7 @@ proc onServerIpRevealed*(config: Config, line: string) =
     notify(
       "Server Location",
       "This server is located in $1, $2, $3" % [data.city, data.region, data.country],
-      10000
+      10000,
     )
   else:
     warn "lucem: failed to get server location data!"
@@ -200,11 +199,9 @@ proc eventWatcher*(
     if data.len < 1:
       inc line
       continue
-  
+
     when not defined(release):
       echo data
-
-    # debug "$2" % [$line, data]
 
     if data.contains("OnLoad: ... Done"):
       debug "lucem: this is the event watcher thread - Sober has been initialized! Acquiring lock to loading screen state pointer and setting it to `WaitingForRoblox`"
@@ -237,9 +234,10 @@ proc eventWatcher*(
       onBloxstrapRpc(args.config, args.discord, data)
 
     if data.contains("[FLog::Network] Client:Disconnect") or
-        data.contains("[FLog::SingleSurfaceApp] handleGameWillClose"):
+        data.contains("[FLog::SingleSurfaceApp] handleGameWillClose") or
+        data.contains("[FLog::Network] Connection lost - Cannot contact server/client"):
       onGameLeave(args.config, args.discord)
-    
+
     sleep(args.config.lucem.pollingDelay.int)
     hasntStarted = false
     inc line

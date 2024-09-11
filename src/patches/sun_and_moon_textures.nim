@@ -18,7 +18,7 @@ proc setSunTexture*(path: string) =
     if not fileExists(path):
       error "lucem: cannot find file: " & path & " as a substitute for the sun texture!"
       quit(1)
-    
+
     moveFile(basePath / "sun.jpg", basePath / "sun.jpg.old")
     copyFile(path, basePath / "sun.jpg")
     writeFile(basePath / "lucem_patched_sun", path)

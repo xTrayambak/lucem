@@ -4,9 +4,8 @@
 import std/[logging, strutils]
 import ../[flatpak, argparser, common]
 
-const
-  SOBER_FLATPAK_URL* {.strdefine: "SoberFlatpakUrl".} =
-    "https://sober.vinegarhq.org/sober.flatpakref"
+const SOBER_FLATPAK_URL* {.strdefine: "SoberFlatpakUrl".} =
+  "https://sober.vinegarhq.org/sober.flatpakref"
 
 proc initializeSober*(input: Input) {.inline.} =
   info "lucem: initializing sober"
