@@ -5,14 +5,14 @@ import colored_logger, discord_rpc
 import ../api/[games, thumbnails, ipinfo]
 import ../patches/[bring_back_oof, patch_fonts, sun_and_moon_textures]
 import ../shell/loading_screen
-import ../[config, flatpak, common, meta, sugar, notifications, fflags, log_file]
+import ../[argparser, config, flatpak, common, meta, sugar, notifications, fflags, log_file, sober_state]
 
 const FFlagsFile* =
   "$1/.var/app/$2/data/sober/exe/ClientSettings/ClientAppSettings.json"
 
 let fflagsFile = FFlagsFile % [getHomeDir(), SOBER_APP_ID]
 
-proc updateConfig*(config: Config) =
+proc updateConfig*(input: Input, config: Config) =
   info "lucem: updating config"
   if not fileExists(fflagsFile):
     error "lucem: could not open pre-existing FFlags file. Run `lucem init` first."
@@ -27,11 +27,15 @@ proc updateConfig*(config: Config) =
     info "lucem: disabling telemetry FFlags"
   else:
     warn "lucem: enabling telemetry FFlags. This is not recommended!"
-
-  enableOldOofSound(config.tweaks.oldOof)
-  setClientFont(config.tweaks.font)
-  setSunTexture(config.tweaks.sun)
-  setMoonTexture(config.tweaks.moon)
+  
+  if not input.enabled("skip-patching", "S"):
+    enableOldOofSound(config.tweaks.oldOof)
+    patchSoberState(input)
+    setClientFont(config.tweaks.font)
+    setSunTexture(config.tweaks.sun)
+    setMoonTexture(config.tweaks.moon)
+  else:
+    info "lucem: skipping patching (--skip-patching or -S was provided)"
 
   for flag in [
     "FFlagDebugDisableTelemetryEphemeralCounter",
@@ -178,10 +182,18 @@ proc eventWatcher*(
         slock: ptr Lock,
         discord: Option[DiscordRPC],
         config: Config,
+        input: Input
       ]
 ) =
   addHandler newColoredLogger()
-  debug "lucem: this is the event watcher thread, running at thread ID " & $getThreadId()
+  setLogFilter(lvlInfo)
+  var verbose = false
+  
+  if args.input.enabled("verbose", "v"):
+    verbose = true
+    setLogFilter(lvlAll)
+
+  info "lucem: this is the event watcher thread, running at thread ID " & $getThreadId()
 
   var
     line = 0
@@ -199,8 +211,8 @@ proc eventWatcher*(
     if data.len < 1:
       inc line
       continue
-
-    when not defined(release):
+    
+    if verbose or not defined(release):
       echo data
 
     if data.contains("OnLoad: ... Done"):
@@ -247,7 +259,7 @@ proc eventWatcher*(
 
   info "lucem: Sober seems to have exited - we'll stop here too. Adios!"
 
-proc runRoblox*(config: Config) =
+proc runRoblox*(input: Input, config: Config) =
   var startingTime = epochTime()
   info "lucem: running Roblox via Sober"
 
@@ -291,7 +303,7 @@ proc runRoblox*(config: Config) =
   createThread(evThr, eventWatcher, (addr state, addr slock, discord, config))
   
   info "lucem: redirecting sober logs to: " & getSoberLogPath()
-  flatpakRun(SOBER_APP_ID, getSoberLogPath(), config.client.launcher)
+  discard flatpakRun(SOBER_APP_ID, getSoberLogPath(), config.client.launcher)
 
   if config.lucem.loadingScreen:
     debug "lucem: creating loading screen GTK4 surface"
