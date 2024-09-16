@@ -40,9 +40,28 @@ font = "/path/to/your/font.ttf"
 
 # Installation
 ## Building from source
-Lucem requires a working Nim toolchain which can be installed via [choosenim](https://nim-lang.org/install_unix.html)
+You will need the following dependencies to compile Lucem:
 
-Run the following commands to compile Lucem.
+### Arch
+```command
+# pacman -S gtk4 libadwaita nim git
+```
+
+### Fedora
+```command
+# dnf install gtk4-devel libadwaita-devel git
+```
+Fedora currently has no nim package, install Nim [here](https://nim-lang.org/install_unix.html)
+
+### Debian
+```command
+# apt install gtk4 libadwaita-1 git
+```
+Debian ships an old version of Nim that is not compatible with Lucem, install Nim [here](https://nim-lang.org/install_unix.html)
+
+The package names are similar for other distributions.
+
+Run the following command to compile Lucem.
 ```command
 $ nimble install https://github.com/xTrayambak/lucem
 ```
@@ -77,3 +96,12 @@ $ lucem meta
 ```command
 $ lucem clear-cache
 ```
+
+# Troubleshooting
+
+## It says `lucem: command not found` after compiling!
+The nimble binary folder is not in your PATH, you can run:
+```command
+$ export PATH=/home/your_username/.nimble/bin:$PATH
+```
+You will need to add this to your .bashrc to make this permanent.
