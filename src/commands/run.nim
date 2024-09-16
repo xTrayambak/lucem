@@ -28,7 +28,7 @@ proc updateConfig*(input: Input, config: Config) =
   else:
     warn "lucem: enabling telemetry FFlags. This is not recommended!"
   
-  if not input.enabled("skip-patching", "S"):
+  if not input.enabled("skip-patching", "N"):
     enableOldOofSound(config.tweaks.oldOof)
     patchSoberState(input)
     setClientFont(config.tweaks.font)
