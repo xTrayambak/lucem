@@ -60,7 +60,7 @@ Fedora currently has no nim package, install nim [here](https://nim-lang.org/ins
 
 The package names are similar for other distributions.
 
-Run the following commands to compile Lucem.
+Run the following command to compile Lucem.
 ```command
 $ nimble install https://github.com/xTrayambak/lucem
 ```
