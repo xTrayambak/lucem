@@ -4,11 +4,13 @@ import ./[argparser, sugar]
 
 type
   APKConfig* = object
-    version*: string
+    version*: string = ""
 
   LucemConfig* = object
-    discord_rpc*: bool
-    notify_server_region*: bool
+    discord_rpc*: bool = true
+    notify_server_region*: bool = true
+    loading_screen*: bool = true
+    polling_delay*: uint = 100
 
   ClientConfig* = object
     fps*: int = 60
@@ -18,6 +20,8 @@ type
 
   Tweaks* = object
     oldOof*: bool = false
+    moon*: string = ""
+    sun*: string = ""
     font*: string = ""
 
   Config* = object
@@ -29,16 +33,17 @@ type
 const
   DefaultConfig* =
     """
-[apk]
-version = "2.639.688"
-
 [lucem]
 discord_rpc = true
+loading_screen = true
 notify_server_region = true
+polling_delay = 100
 
 [tweaks]
 oldOof = false
 font = ""
+moon = ""
+sun = ""
 
 [client]
 fps = 60

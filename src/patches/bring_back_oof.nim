@@ -1,13 +1,13 @@
 ## Patch to bring back the old "Oof" sound
 ## Copyright (C) 2024 Trayambak Rai
 import std/[os, logging, strutils]
-import ../http
+import ../[http, common]
 
 const
   LucemPatchOofSoundUrl* {.strdefine.} =
     "https://github.com/pizzaboxer/bloxstrap/raw/main/Bloxstrap/Resources/Mods/Sounds/OldDeath.ogg"
   SoberSoundResourcesPath* {.strdefine.} =
-    "$1/.var/app/org.vinegarhq.Sober/data/sober/assets/content/sounds/"
+    "$1/.var/app/" & SOBER_APP_ID & "/data/sober/assets/content/sounds/"
 
 proc enableOldOofSound*(enable: bool = true) =
   let

@@ -1,9 +1,10 @@
 ## Patch for forcing a particular font on all text in the Roblox client
 ## Copyright (C) 2024 Trayambak Rai
 import std/[os, logging, strutils]
+import ../common
 
 const SoberFontsPath* {.strdefine.} =
-  "$1/.var/app/org.vinegarhq.Sober/data/sober/assets/content/fonts/"
+  "$1/.var/app/" & SOBER_APP_ID & "/data/sober/assets/content/fonts/"
 
 proc setClientFont*(fontPath: string) =
   let basePath = SoberFontsPath % [getHomeDir()]

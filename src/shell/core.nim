@@ -3,18 +3,15 @@
 ## Copyright (C) 2024 Trayambak Rai
 import std/[os, strutils, json, logging, posix, osproc, times]
 import owlkettle, owlkettle/adw
-import ../[config, argparser, cache_calls, fflags, meta]
+import
+  ../[config, argparser, cache_calls, fflags, meta, notifications, desktop_files, fs]
 import discord_rpc
 
-type
-  ShellState* {.pure.} = enum
-    Client
-    Lucem
-    Tweaks
-    FflagEditor
-
-  TempBuffers = object
-    clientFpsLimit*: int
+type ShellState* {.pure.} = enum
+  Client
+  Lucem
+  Tweaks
+  FflagEditor
 
 viewable LucemShell:
   state:
@@ -23,9 +20,6 @@ viewable LucemShell:
     bool
   config:
     ptr Config
-
-  buffers:
-    TempBuffers
 
   showFpsCapOpt:
     bool
@@ -48,17 +42,35 @@ viewable LucemShell:
   customFontPath:
     string
 
+  sunImgPath:
+    string
+  moonImgPath:
+    string
+
   apkVersionBuff:
     string
   currFflagBuff:
     string
 
+  prevFflagBuff:
+    string
+
   discord:
     DiscordRPC
 
+  pollingDelayBuff:
+    string
+
 method view(app: LucemShellState): Widget =
   var parsedFflags = newJObject()
-  parseFflags(app.config[], parsedFflags)
+  try:
+    parseFflags(app.config[], parsedFflags)
+  except FFlagParseError as exc:
+    warn "shell: failed to parse fflags: " & exc.msg
+    notify("Failed to parse FFlags", exc.msg)
+    debug "shell: reverting to previous state"
+    app.config[].client.fflags = app.prevFflagBuff
+    app.currFflagBuff = app.prevFflagBuff
 
   result = gui:
     Window:
@@ -87,11 +99,20 @@ method view(app: LucemShellState): Widget =
 
         Button {.addRight.}:
           style = [ButtonFlat]
+          icon = "document-text-symbolic"
+
+          proc clicked() =
+            debug "shell: create .desktop files"
+            createLucemDesktopFile()
+
+        Button {.addRight.}:
+          style = [ButtonFlat]
           icon = "xbox-controller-symbolic"
 
           proc clicked() =
             debug "shell: save config, exit config editor and launch lucem"
             app.config[].save()
+            app.scheduleCloseWindow()
 
             if fork() == 0:
               debug "shell: we are the child - launching `lucem run`"
@@ -114,83 +135,82 @@ method view(app: LucemShellState): Widget =
           sensitive = true
           sizeRequest = (-1, -1)
 
-          ScrolledWindow:
-            Box(orient = OrientY):
-              Button:
-                sensitive = true
-                text = "Features"
+          Box(orient = OrientY):
+            Button:
+              sensitive = true
+              text = "Features"
 
-                proc clicked() =
-                  app.state = ShellState.Lucem
+              proc clicked() =
+                app.state = ShellState.Lucem
 
-                  if app.config[].lucem.discordRpc:
-                    try:
-                      app.discord.setActivity(
-                        Activity(
-                          details: "Configuring Lucem",
-                          state: "In the Features Menu",
-                          timestamps: ActivityTimestamps(start: epochTime().int64),
-                        )
+                if app.config[].lucem.discordRpc:
+                  try:
+                    app.discord.setActivity(
+                      Activity(
+                        details: "Configuring Lucem",
+                        state: "In the Features Menu",
+                        timestamps: ActivityTimestamps(start: epochTime().int64),
                       )
-                    except CatchableError as exc:
-                      warn "shell: failed to set activity: " & exc.msg
+                    )
+                  except CatchableError as exc:
+                    warn "shell: failed to set activity: " & exc.msg
 
-              Button:
-                sensitive = true
-                text = "Client"
+            Button:
+              sensitive = true
+              text = "Client"
 
-                proc clicked() =
-                  app.state = ShellState.Client
+              proc clicked() =
+                app.state = ShellState.Client
 
-                  if app.config[].lucem.discordRpc:
-                    try:
-                      app.discord.setActivity(
-                        Activity(
-                          details: "Configuring Lucem",
-                          state: "In the Client Settings Menu",
-                          timestamps: ActivityTimestamps(start: epochTime().int64),
-                        )
+                if app.config[].lucem.discordRpc:
+                  try:
+                    app.discord.setActivity(
+                      Activity(
+                        details: "Configuring Lucem",
+                        state: "In the Client Settings Menu",
+                        timestamps: ActivityTimestamps(start: epochTime().int64),
                       )
-                    except CatchableError as exc:
-                      warn "shell: failed to set activity: " & exc.msg
+                    )
+                  except CatchableError as exc:
+                    warn "shell: failed to set activity: " & exc.msg
 
-              Button:
-                sensitive = true
-                text = "Tweaks & Patches"
+            Button:
+              sensitive = true
+              text = "Tweaks & Patches"
 
-                proc clicked() =
-                  app.state = ShellState.Tweaks
+              proc clicked() =
+                app.state = ShellState.Tweaks
 
-                  if app.config[].lucem.discordRpc:
-                    try:
-                      app.discord.setActivity(
-                        Activity(
-                          details: "Configuring Lucem",
-                          state: "In the Tweaks & Patches Menu",
-                          timestamps: ActivityTimestamps(start: epochTime().int64),
-                        )
+                if app.config[].lucem.discordRpc:
+                  try:
+                    app.discord.setActivity(
+                      Activity(
+                        details: "Configuring Lucem",
+                        state: "In the Tweaks & Patches Menu",
+                        timestamps: ActivityTimestamps(start: epochTime().int64),
                       )
-                    except CatchableError as exc:
-                      warn "shell: failed to set activity: " & exc.msg
+                    )
+                  except CatchableError as exc:
+                    warn "shell: failed to set activity: " & exc.msg
 
-              Button:
-                sensitive = true
-                text = "FFlags"
+            Button:
+              sensitive = true
+              text = "FFlags"
 
-                proc clicked() =
-                  app.state = ShellState.FflagEditor
+              proc clicked() =
+                app.state = ShellState.FflagEditor
 
-                  if app.config[].lucem.discordRpc:
-                    try:
-                      app.discord.setActivity(
-                        Activity(
-                          details: "Configuring Lucem",
-                          state: "In the FFlag Editor",
-                          timestamps: ActivityTimestamps(start: epochTime().int64),
-                        )
+                if app.config[].lucem.discordRpc:
+                  try:
+                    app.discord.setActivity(
+                      Activity(
+                        details: "Configuring Lucem",
+                        state: "In the FFlag Editor",
+                        timestamps: ActivityTimestamps(start: epochTime().int64),
                       )
-                    except CatchableError as exc:
-                      warn "shell: failed to set activity: " & exc.msg
+                    )
+                  except CatchableError as exc:
+                    warn "shell: failed to set activity: " & exc.msg
 
         case app.state
         of ShellState.Tweaks:
@@ -224,10 +244,57 @@ method view(app: LucemShellState): Widget =
                   app.customFontPath = text
 
                 proc activate() =
-                  let home = getHomeDir()
-                  let realPath = app.customFontPath.replace("~", home[0 ..< home.len])
-                  app.config[].tweaks.font = realPath
-                  debug "shell: custom font path is set to: " & realPath
+                  let font = app.customFontPath.expandTilde()
+                  if font.len > 0 and not isAccessible(font):
+                    notify("Cannot set custom font", "File not accessible.")
+                    return
+
+                  app.config[].tweaks.font = font
+                  debug "shell: custom font path is set to: " & app.customFontPath
+
+            ActionRow:
+              title = "Custom Sun Texture"
+              subtitle =
+                "For games that do not set a custom sun texture, your specified texture will be shown instead."
+
+              Entry {.addSuffix.}:
+                text = app.sunImgPath
+                placeholder = ""
+
+                proc changed(text: string) =
+                  debug "shell: sun image entry changed: " & text
+                  app.sunImgPath = text
+
+                proc activate() =
+                  let path = app.sunImgPath.expandTilde()
+                  if path.len > 0 and not isAccessible(path):
+                    notify("Cannot set sun texture", "Texture file not accessible.")
+                    return
+
+                  app.config[].tweaks.sun = path
+                  debug "shell: custom sun texture path is set to: " & app.sunImgPath
+
+            ActionRow:
+              title = "Custom Moon Texture"
+              subtitle =
+                "For games that do not set a custom moon texture, your specified texture will be shown instead."
+
+              Entry {.addSuffix.}:
+                text = app.moonImgPath
+                placeholder = ""
+
+                proc changed(text: string) =
+                  debug "shell: moon image entry changed: " & text
+                  app.moonImgPath = text
+
+                proc activate() =
+                  let path = app.moonImgPath.expandTilde()
+                  if path.len > 0 and not isAccessible(path):
+                    notify("Cannot set moon texture", "Texture file not accessible.")
+                    return
+
+                  app.config[].tweaks.moon = path
+                  debug "shell: custom moon texture path is set to: " & app.sunImgPath
 
         of ShellState.Lucem:
           PreferencesGroup:
@@ -284,8 +351,9 @@ method view(app: LucemShellState): Widget =
 
                 proc clicked() =
                   let savedMb = clearCache()
-                  info "shell: cleared out caches and reclaimed " & $savedMb &
-                    " of space."
+                  info "shell: cleared out cache and reclaimed " & $savedMb &
+                    " MB of space."
+                  notify("Cleared API cache", $savedMb & " MB of space was freed.")
 
         of ShellState.FflagEditor:
           PreferencesGroup:
@@ -347,6 +415,8 @@ method view(app: LucemShellState): Widget =
                           proc clicked() =
                             # FIXME: move the line selection and deletion code to src/fflags.nim! this is a total mess!
                             debug "shell: deleting fflag: " & key
+                            app.prevFflagBuff = app.currFflagBuff
+
                             var
                               i = -1
                               line = -1
@@ -374,21 +444,6 @@ method view(app: LucemShellState): Widget =
           PreferencesGroup:
             title = "Client Settings"
             description = "These settings are mostly applied via FFlags."
-
-            ActionRow:
-              title = "APK Version"
-              subtitle = "The version of the APK that Lucem should fetch."
-              Entry {.addSuffix.}:
-                text = app.apkVersionBuff
-                placeholder = "Eg. 2.639.688"
-
-                proc changed(text: string) =
-                  debug "shell: APK version entry changed: " & text
-                  app.apkVersionBuff = text
-
-                proc activate() =
-                  app.config[].client.launcher = app.launcherBuff
-                  debug "shell: APK version is set to: " & app.apkVersionBuff
 
             ActionRow:
               title = "Disable Telemetry"
@@ -441,24 +496,42 @@ method view(app: LucemShellState): Widget =
                         app.showFpsCapBuff
                       debug "shell: " & exc.msg
 
-              ActionRow:
-                title = "Launcher"
-                subtitle =
-                  "Lucem will launch Sober with a specified command. Leave this empty if you don't require it."
-                Entry {.addSuffix.}:
-                  text = app.launcherBuff
-                  placeholder = "Eg. gamemoderun"
+            ActionRow:
+              title = "Launcher"
+              subtitle =
+                "Lucem will launch Sober with a specified command. Leave this empty if you don't require it."
+              Entry {.addSuffix.}:
+                text = app.launcherBuff
+                placeholder = "Eg. gamemoderun"
 
-                  proc changed(text: string) =
-                    debug "shell: launcher entry changed: " & text
-                    app.launcherBuff = text
+                proc changed(text: string) =
+                  debug "shell: launcher entry changed: " & text
+                  app.launcherBuff = text
 
-                  proc activate() =
-                    app.config[].client.launcher = app.launcherBuff
-                    debug "shell: launcher is set to: " & app.launcherBuff
+                proc activate() =
+                  app.config[].client.launcher = app.launcherBuff
+                  debug "shell: launcher is set to: " & app.launcherBuff
 
-        else:
-          discard
+            ActionRow:
+              title = "Polling Delay"
+              subtitle =
+                "Add a tiny delay in milliseconds to the event watcher thread. This barely impacts performance on modern systems."
+
+              Entry {.addSuffix.}:
+                text = app.pollingDelayBuff
+                placeholder = "100 is sufficient for most modern systems"
+
+                proc changed(text: string) =
+                  debug "shell: polling delay entry changed: " & text
+                  app.pollingDelayBuff = text
+
+                proc activate() =
+                  try:
+                    app.config[].lucem.pollingDelay = app.pollingDelayBuff.parseUint()
+                    debug "shell: polling delay is set to: " & app.pollingDelayBuff
+                  except ValueError as exc:
+                    warn "shell: failed to parse polling delay (" & app.pollingDelayBuff &
+                      "): " & exc.msg
 
 proc initLucemShell*(input: Input) {.inline.} =
   info "shell: initializing GTK4 shell"
@@ -478,6 +551,7 @@ proc initLucemShell*(input: Input) {.inline.} =
     gui(
       LucemShell(
         config = addr(config),
+        state = ShellState.Lucem,
         showFpsCapOpt = config.client.fps != 9999,
         showFpsCapBuff = $config.client.fps,
         discordRpcOpt = config.lucem.discordRpc,
@@ -486,7 +560,9 @@ proc initLucemShell*(input: Input) {.inline.} =
         serverLocationOpt = config.lucem.notifyServerRegion,
         customFontPath = config.tweaks.font,
         oldOofSound = config.tweaks.oldOof,
-        apkVersionBuff = config.apk.version,
+        sunImgPath = config.tweaks.sun,
+        moonImgPath = config.tweaks.moon,
+        pollingDelayBuff = $config.lucem.pollingDelay,
         discord = rpc,
       )
     )

@@ -4,7 +4,7 @@
 
 import std/[os, logging, strutils]
 import colored_logger
-import ./[meta, argparser, config, cache_calls]
+import ./[meta, argparser, config, cache_calls, desktop_files, sober_state]
 import ./shell/core
 import ./commands/[init, run, edit_config]
 
@@ -13,18 +13,26 @@ proc showHelp(exitCode: int = 1) {.inline, noReturn.} =
 lucem [command] [arguments]
 
 Commands:
-  init            Install Sober and fetch the Roblox APK
-  fetch-apk       Fetch the Roblox APK
-  install-sober   Install Sober
-  run             Run Sober
-  meta            Get build metadata
-  edit-config     Edit the configuration file
-  clear-cache     Clear the API caches that Lucem maintains
-  shell           Launch the Lucem configuration GUI
-  help            Show this message"""
+  init                      Install Sober
+  run                       Run Sober
+  meta                      Get build metadata
+  edit-config               Edit the configuration file
+  clear-cache               Clear the API caches that Lucem maintains
+  shell                     Launch the Lucem configuration GUI
+  install-desktop-files     Install Lucem's desktop files
+  help                      Show this message
+
+Flags:
+  --verbose, -v              Show additional debug logs, useful for diagnosing issues.
+  --skip-patching, -N        Don't apply your selected patches to Roblox, use this to see if a crash is caused by them. This won't undo patches!
+  --use-sober-rpc, -S        Use Sober's builtin Discord RPC that has Bloxstrap RPC. Lucem will bring this up to 1:1 feature parity soon.
+  --use-sober-patching, -P   Use Sober's patches (bring back old oof) instead of Lucem's. There's no need to use this since Lucem already works just as well.
+"""
   quit(exitCode)
 
 proc showMeta() {.inline, noReturn.} =
+  let state = loadSoberState()
+
   echo """
 Lucem $1
 Copyright (C) 2024 Trayambak Rai
@@ -32,6 +40,7 @@ This software is licensed under the MIT license.
 
 * Compiled with Nim $2
 * Compiled on $3
+* Roblox client version $6
 
 [ $4 ]
 
@@ -47,7 +56,7 @@ in place to prevent such abuse. The Lucem developers or anyone involved with the
     NimVersion,
     CompileDate & ' ' & CompileTime,
     when defined(release): "Release Build" else: "Development Build",
-    LicenseString,
+    LicenseString, state.v1.appVersion
   ]
 
 proc main() {.inline.} =
@@ -55,12 +64,15 @@ proc main() {.inline.} =
   setLogFilter(lvlInfo)
 
   let input = parseInput()
-  info "lucem@" & Version & " is now starting up!"
 
   if input.enabled("verbose", "v"):
     setLogFilter(lvlAll)
 
   let config = parseConfig(input)
+
+  if config.apk.version.len > 0:
+    warn "lucem: you have set up an APK version in the configuration - that feature is now deprecated as Sober now has a built-in APK fetcher."
+    warn "lucem: feel free to remove it."
 
   case input.command
   of "meta":
@@ -69,11 +81,7 @@ proc main() {.inline.} =
     showHelp(0)
   of "init":
     initializeSober(input)
-    initializeRoblox(input, config)
-  of "fetch-apk":
-    initializeRoblox(input, config)
-  of "install-sober":
-    initializeSober(input)
+    createLucemDesktopFile()
   of "edit-config":
     if existsEnv("EDITOR"):
       let editor = getEnv("EDITOR")
@@ -83,15 +91,18 @@ proc main() {.inline.} =
     else:
       warn "lucem: you have not specified an editor in your environment variables."
 
-      for editor in ["nano", "vim", "nvim", "emacs", "vi"]:
+      for editor in ["nano", "vscode", "vim", "nvim", "emacs", "vi", "ed"]:
         warn "lucem: trying editor `" & editor & '`'
         editConfiguration(editor)
 
     # validate the config on-the-go
-    updateConfig(config)
+    updateConfig(input, config)
   of "run":
-    updateConfig(config)
-    runRoblox(config)
+    info "lucem@" & Version & " is now starting up!"
+    updateConfig(input, config)
+    runRoblox(input, config)
+  of "install-desktop-files":
+    createLucemDesktopFile()
   of "clear-cache":
     let savedMb = clearCache()
     info "lucem: cleared cache calls to reclaim " & $savedMb & " MB of space"

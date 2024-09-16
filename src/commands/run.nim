@@ -1,19 +1,18 @@
-## Run the Roblox client, update FFlags and optionally, provide Discord RPC.
+## Run the Roblox client, update FFlags and optionally, provide Discord RPC and other features.
 ## Copyright (C) 2024 Trayambak Rai
 import std/[os, logging, strutils, json, times, locks]
-import discord_rpc
+import colored_logger, discord_rpc
 import ../api/[games, thumbnails, ipinfo]
-import ../patches/[bring_back_oof, patch_fonts]
+import ../patches/[bring_back_oof, patch_fonts, sun_and_moon_textures]
 import ../shell/loading_screen
-import ../[config, flatpak, common, meta, sugar, notifications, fflags]
-import colored_logger
+import ../[argparser, config, flatpak, common, meta, sugar, notifications, fflags, log_file, sober_state]
 
 const FFlagsFile* =
   "$1/.var/app/$2/data/sober/exe/ClientSettings/ClientAppSettings.json"
 
 let fflagsFile = FFlagsFile % [getHomeDir(), SOBER_APP_ID]
 
-proc updateConfig*(config: Config) =
+proc updateConfig*(input: Input, config: Config) =
   info "lucem: updating config"
   if not fileExists(fflagsFile):
     error "lucem: could not open pre-existing FFlags file. Run `lucem init` first."
@@ -28,9 +27,15 @@ proc updateConfig*(config: Config) =
     info "lucem: disabling telemetry FFlags"
   else:
     warn "lucem: enabling telemetry FFlags. This is not recommended!"
-
-  enableOldOofSound(config.tweaks.oldOof)
-  setClientFont(config.tweaks.font)
+  
+  if not input.enabled("skip-patching", "N"):
+    enableOldOofSound(config.tweaks.oldOof)
+    patchSoberState(input)
+    setClientFont(config.tweaks.font)
+    setSunTexture(config.tweaks.sun)
+    setMoonTexture(config.tweaks.moon)
+  else:
+    info "lucem: skipping patching (--skip-patching or -S was provided)"
 
   for flag in [
     "FFlagDebugDisableTelemetryEphemeralCounter",
@@ -138,10 +143,11 @@ proc onServerIpRevealed*(config: Config, line: string) =
     notify(
       "Server Location",
       "This server is located in $1, $2, $3" % [data.city, data.region, data.country],
+      10000,
     )
   else:
     warn "lucem: failed to get server location data!"
-    notify("Server Location", "Failed to fetch server location data.")
+    notify("Server Location", "Failed to fetch server location data.", 10000)
 
 proc onGameLeave*(config: Config, discord: Option[DiscordRPC]) =
   debug "lucem: left experience"
@@ -159,6 +165,16 @@ proc onGameLeave*(config: Config, discord: Option[DiscordRPC]) =
     )
   )
 
+proc onBloxstrapRpc*(config: Config, discord: Option[DiscordRPC], line: string) =
+  debug "lucem: trying to extract BloxstrapRPC payload from line"
+  debug "lucem: " & line
+  let payload = line.split("[FLog::Output] [BloxstrapRPC]")
+
+  if payload.len < 2:
+    warn "lucem: failed to obtain BloxstrapRPC JSON payload as split results in one or less element."
+    warn "lucem: " & line
+    return
+
 proc eventWatcher*(
     args:
       tuple[
@@ -166,10 +182,18 @@ proc eventWatcher*(
         slock: ptr Lock,
         discord: Option[DiscordRPC],
         config: Config,
+        input: Input
       ]
 ) =
   addHandler newColoredLogger()
-  debug "lucem: this is the event watcher thread, running at thread ID " & $getThreadId()
+  setLogFilter(lvlInfo)
+  var verbose = false
+  
+  if args.input.enabled("verbose", "v"):
+    verbose = true
+    setLogFilter(lvlAll)
+
+  info "lucem: this is the event watcher thread, running at thread ID " & $getThreadId()
 
   var
     line = 0
@@ -178,7 +202,7 @@ proc eventWatcher*(
     hasntStarted = true
 
   while hasntStarted or flatpakRunning(SOBER_APP_ID):
-    let logFile = readFile("/tmp/sober.log").splitLines()
+    let logFile = readFile(getSoberLogPath()).splitLines()
 
     if logFile.len - 1 < line:
       continue
@@ -187,10 +211,11 @@ proc eventWatcher*(
     if data.len < 1:
       inc line
       continue
+    
+    if verbose or not defined(release):
+      echo data
 
-    # debug "$2" % [$line, data]
-
-    if data.contains("[JNI] OnLoad: ... Done"):
+    if data.contains("OnLoad: ... Done"):
       debug "lucem: this is the event watcher thread - Sober has been initialized! Acquiring lock to loading screen state pointer and setting it to `WaitingForRoblox`"
 
       withLock args.slock[]:
@@ -198,7 +223,7 @@ proc eventWatcher*(
 
       debug "lucem: released loading screen state pointer lock"
 
-    if data.contains("[FLog::SingleSurfaceApp] setStage: (stage:LuaApp)"):
+    if data.contains("[FLog::Graphics] Vulkan: creating framebuffer"):
       debug "lucem: this is the event watcher thread - Roblox has initialized a surface! Acquiring lock to loading screen state pointer and setting it to `Done`"
 
       withLock args.slock[]:
@@ -217,20 +242,28 @@ proc eventWatcher*(
     if data.contains("[FLog::Output] Connecting to UDMUX server"):
       onServerIpRevealed(args.config, data)
 
+    if data.contains("[FLog::Output] [BloxstrapRPC]"):
+      onBloxstrapRpc(args.config, args.discord, data)
+
     if data.contains("[FLog::Network] Client:Disconnect") or
-        data.contains("[FLog::SingleSurfaceApp] handleGameWillClose"):
+        data.contains("[FLog::SingleSurfaceApp] handleGameWillClose") or
+        data.contains("[FLog::Network] Connection lost - Cannot contact server/client"):
       onGameLeave(args.config, args.discord)
 
+    sleep(args.config.lucem.pollingDelay.int)
     hasntStarted = false
     inc line
 
+  withLock args.slock[]:
+    args.state[] = Exited
+
   info "lucem: Sober seems to have exited - we'll stop here too. Adios!"
 
-proc runRoblox*(config: Config) =
+proc runRoblox*(input: Input, config: Config) =
   var startingTime = epochTime()
   info "lucem: running Roblox via Sober"
 
-  writeFile("/tmp/sober.log", newString(0))
+  writeFile(getSoberLogPath(), newString(0))
   var discord: Option[DiscordRPC]
 
   if config.lucem.discordRpc:
@@ -257,7 +290,6 @@ proc runRoblox*(config: Config) =
   initLock(slock)
 
   var state {.guard: slock.} = WaitingForLaunch
-  writeFile("/tmp/sober.log", newString(0))
 
   debug "lucem: creating event watcher thread"
   var evThr: Thread[
@@ -266,16 +298,15 @@ proc runRoblox*(config: Config) =
       slock: ptr Lock,
       discord: Option[DiscordRPC],
       config: Config,
+      input: Input
     ]
   ]
-  createThread(evThr, eventWatcher, (addr state, addr slock, discord, config))
+  createThread(evThr, eventWatcher, (addr state, addr slock, discord, config, input))
+  
+  info "lucem: redirecting sober logs to: " & getSoberLogPath()
+  discard flatpakRun(SOBER_APP_ID, getSoberLogPath(), config.client.launcher)
 
-  flatpakRun(SOBER_APP_ID, "/tmp/sober.log", config.client.launcher)
-
-  when defined(lucemExperimentalLoadingScreen):
-    warn "lucem: you are using an EXPERIMENTAL FEATURE (loading screens)! Please do not report any bugs that you encounter!"
-    warn "lucem: loading screens are VERY buggy right now, but they'll be gradually improved!"
-
+  if config.lucem.loadingScreen:
     debug "lucem: creating loading screen GTK4 surface"
     initLoadingScreen(addr state, slock)
 
