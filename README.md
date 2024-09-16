@@ -51,12 +51,13 @@ You will need the following dependencies to compile Lucem:
 ```command
 # dnf install gtk4-devel libadwaita-devel git
 ```
-Fedora currently has no nim package, install nim [here](https://nim-lang.org/install_unix.html)
+Fedora currently has no nim package, install Nim [here](https://nim-lang.org/install_unix.html)
 
 ### Debian
 ```command
-# apt install gtk4 libadwaita-1 git nim
+# apt install gtk4 libadwaita-1 git
 ```
+Debian ships an old version of Nim that is not compatible with Lucem, install Nim [here](https://nim-lang.org/install_unix.html)
 
 The package names are similar for other distributions.
 
