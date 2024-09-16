@@ -1,9 +1,10 @@
 ## Tweak the sun and moon textures
 ## Copyright (C) 2024 Trayambak Rai
 import std/[os, strutils, logging]
+import ../common
 
 const SoberSkyTexturesPath* {.strdefine.} =
-  "$1/.var/app/org.vinegarhq.Sober/data/sober/assets/content/sky/"
+  "$1/.var/app/" & SOBER_APP_ID & "/data/sober/assets/content/sky/"
 
 proc setSunTexture*(path: string) =
   let basePath = SoberSkyTexturesPath % [getHomeDir()]
