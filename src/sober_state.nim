@@ -6,15 +6,15 @@ import jsony
 
 type
   StateV1* = object
-    appVersion*: string = "2.642.635"
-    bringBackOof*: bool = false
-    broughtBackOof*: bool = false
-    enableDiscordRpc*: bool = false
-    fixedAssets*: bool = false
+    app_version*: string = "2.642.635"
+    bring_back_oof*: bool = false
+    brought_back_oof*: bool = false
+    enable_discord_rpc*: bool = false
+    fixed_assets*: bool = false
     fullscreen*: bool = true
 
   StateV2* = object
-    hasSeenOnboarding*: bool = false
+    has_seen_onboarding*: bool = false
     r1Enabled*: bool = false
 
   SoberState* = object
