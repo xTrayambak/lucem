@@ -26,7 +26,7 @@ proc flatpakRunning*(id: string): bool {.inline.} =
 
 proc flatpakRun*(
     id: string, path: string = "/dev/stdout", launcher: string = ""
-) {.inline.} =
+): bool {.inline.} =
   info "flatpak: launching flatpak app \"" & id & '"'
   debug "flatpak: launcher = " & launcher
 
@@ -39,7 +39,7 @@ proc flatpakRun*(
 
   if fork() == 0:
     debug "flatpak: we are the child - launching \"" & id & '"'
-    discard execCmd(launcherExe & " flatpak run " & id & " > " & path)
+    discard execCmdEx(launcherExe & " flatpak run " & id & " > " & path)
     quit(0)
   else:
     debug "flatpak: we are the parent - continuing"
