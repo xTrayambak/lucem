@@ -1,8 +1,8 @@
 ## This file implements `lucem init`
 ## Copyright (C) 2024 Trayambak Rai
 
-import std/[logging, strutils]
-import ../[flatpak, argparser, common]
+import std/[logging]
+import ../[flatpak, argparser]
 
 const SOBER_FLATPAK_URL* {.strdefine: "SoberFlatpakUrl".} =
   "https://sober.vinegarhq.org/sober.flatpakref"

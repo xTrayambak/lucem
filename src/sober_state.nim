@@ -56,7 +56,7 @@ proc loadSoberState*: SoberState =
   except ValueError as exc: deserializationFailure
   except CatchableError as exc: unknownFailure
 
-proc patchSoberState*(input: Input): SoberState =
+proc patchSoberState*(input: Input) =
   var state = loadSoberState()
 
   if not input.enabled("use-sober-rpc", "S"):

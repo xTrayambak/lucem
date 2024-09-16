@@ -298,9 +298,10 @@ proc runRoblox*(input: Input, config: Config) =
       slock: ptr Lock,
       discord: Option[DiscordRPC],
       config: Config,
+      input: Input
     ]
   ]
-  createThread(evThr, eventWatcher, (addr state, addr slock, discord, config))
+  createThread(evThr, eventWatcher, (addr state, addr slock, discord, config, input))
   
   info "lucem: redirecting sober logs to: " & getSoberLogPath()
   discard flatpakRun(SOBER_APP_ID, getSoberLogPath(), config.client.launcher)
