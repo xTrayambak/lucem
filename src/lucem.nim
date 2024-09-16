@@ -19,7 +19,14 @@ Commands:
   edit-config     Edit the configuration file
   clear-cache     Clear the API caches that Lucem maintains
   shell           Launch the Lucem configuration GUI
-  help            Show this message"""
+  help            Show this message
+
+Flags:
+  --verbose, -v              Show additional debug logs, useful for diagnosing issues.
+  --skip-patching, -N        Don't apply your selected patches to Roblox, use this to see if a crash is caused by them. This won't undo patches!
+  --use-sober-rpc, -S        Use Sober's builtin Discord RPC that has Bloxstrap RPC. Lucem will bring this up to 1:1 feature parity soon.
+  --use-sober-patching, -P   Use Sober's patches (bring back old oof) instead of Lucem's. There's no need to use this since Lucem already works just as well.
+"""
   quit(exitCode)
 
 proc showMeta() {.inline, noReturn.} =

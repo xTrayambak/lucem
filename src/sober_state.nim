@@ -24,7 +24,7 @@ type
 func getSoberStatePath*: string {.inline.} =
   getHomeDir() / ".var" / "app" / SOBER_APP_ID / "data" / "sober" / "state"
 
-proc loadSoberState*: SoberState {.raises: [].} =
+proc loadSoberState*: SoberState =
   ## Load Sober's state JSON file.
   ## This function is guaranteed to succeed.
   debug "lucem: loading sober's internal state"
@@ -42,6 +42,11 @@ proc loadSoberState*: SoberState {.raises: [].} =
     warn "lucem: failed to read sober's internal state: " & exc.msg
     warn "lucem: falling back to lucem's preferred configuration"
     return default(SoberState)
+
+  template unknownFailure =
+    warn "lucem: an unknown error occured during reading sober's internal state: " & exc.msg
+    warn "lucem: falling back to lucem's preferred configuration"
+    return default(SoberState)
   
   try:
     return fromJson(readFile(getSoberStatePath()), SoberState)
@@ -49,6 +54,7 @@ proc loadSoberState*: SoberState {.raises: [].} =
   except OSError as exc: readFailure
   except IOError as exc: readFailure
   except ValueError as exc: deserializationFailure
+  except CatchableError as exc: unknownFailure
 
 proc patchSoberState*(input: Input): SoberState =
   var state = loadSoberState()
@@ -68,3 +74,5 @@ proc patchSoberState*(input: Input): SoberState =
   else:
     warn "lucem: you have explicitly stated that you wish to use Sober's oof sound patcher."
     warn "lucem: we already provide this feature, but if you choose to use Sober's patcher, do not report any bugs that arise from this to us."
+
+  writeFile(getSoberStatePath(), toJson(state))
