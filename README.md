@@ -44,9 +44,7 @@ Lucem requires a working Nim toolchain which can be installed via [choosenim](ht
 
 Run the following commands to compile Lucem.
 ```command
-$ git clone https://github.com/xTrayambak/lucem.git
-$ cd lucem
-$ nimble install
+$ nimble install https://github.com/xTrayambak/lucem
 ```
 
 # Submitting bug reports
