@@ -30,7 +30,7 @@ proc updateConfig*(input: Input, config: Config) =
   
   if not input.enabled("skip-patching", "N"):
     enableOldOofSound(config.tweaks.oldOof)
-    patchSoberState(input)
+    patchSoberState(input, config)
     setClientFont(config.tweaks.font)
     setSunTexture(config.tweaks.sun)
     setMoonTexture(config.tweaks.moon)

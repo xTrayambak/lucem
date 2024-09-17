@@ -1,7 +1,7 @@
 ## Manage Sober's state
 ## Copyright (C) 2024 Trayambak Rai
 import std/[os, logging]
-import ./[common, argparser]
+import ./[common, argparser, config]
 import jsony
 
 type
@@ -56,7 +56,7 @@ proc loadSoberState*: SoberState =
   except ValueError as exc: deserializationFailure
   except CatchableError as exc: unknownFailure
 
-proc patchSoberState*(input: Input) =
+proc patchSoberState*(input: Input, config: Config) =
   var state = loadSoberState()
 
   if not input.enabled("use-sober-rpc", "S"):
@@ -74,5 +74,11 @@ proc patchSoberState*(input: Input) =
   else:
     warn "lucem: you have explicitly stated that you wish to use Sober's oof sound patcher."
     warn "lucem: we already provide this feature, but if you choose to use Sober's patcher, do not report any bugs that arise from this to us."
+
+  state.v2.r1_enabled = config.client.apkUpdates
+  if state.v2.r1_enabled:
+    debug "lucem: enabling apk updates"
+  else:
+    debug "lucem: disabling apk updates"
 
   writeFile(getSoberStatePath(), toJson(state))
