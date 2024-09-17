@@ -17,6 +17,7 @@ type
     launcher*: string = ""
     telemetry*: bool = false
     fflags*: string
+    apkUpdates*: bool = true
 
   Tweaks* = object
     oldOof*: bool = false
@@ -47,6 +48,7 @@ sun = ""
 
 [client]
 fps = 60
+apk_updates = true
 fflags = """ &
     "\"\"\"\"\"\""
 

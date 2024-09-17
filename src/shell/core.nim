@@ -58,6 +58,8 @@ viewable LucemShell:
   discord:
     DiscordRPC
 
+  automaticApkUpdates: bool
+
   pollingDelayBuff:
     string
 
@@ -533,6 +535,16 @@ method view(app: LucemShellState): Widget =
                     warn "shell: failed to parse polling delay (" & app.pollingDelayBuff &
                       "): " & exc.msg
 
+            ActionRow:
+              title = "Automatic APK Updates"
+              subtitle = "If enabled, Sober will automatically fetch the latest versions of Roblox's APK for you from the Play Store."
+              CheckButton {.addSuffix.}:
+                state = app.automaticApkUpdates
+
+                proc changed(state: bool) =
+                  app.automaticApkUpdates = state
+                  app.config[].client.apkUpdates = state
+
 proc initLucemShell*(input: Input) {.inline.} =
   info "shell: initializing GTK4 shell"
   info "shell: libadwaita version: v" & $AdwVersion[0] & '.' & $AdwVersion[1]
@@ -563,6 +575,7 @@ proc initLucemShell*(input: Input) {.inline.} =
         sunImgPath = config.tweaks.sun,
         moonImgPath = config.tweaks.moon,
         pollingDelayBuff = $config.lucem.pollingDelay,
+        automaticApkUpdates = config.client.apkUpdates,
         discord = rpc,
       )
     )
