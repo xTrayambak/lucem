@@ -15,7 +15,7 @@ type
 
   StateV2* = object
     has_seen_onboarding*: bool = false
-    r1Enabled*: bool = false
+    r1_enabled*: bool = false
 
   SoberState* = object
     v1*: StateV1 = default(StateV1)
