@@ -6,7 +6,7 @@ import std/[os, logging, strutils]
 import colored_logger
 import ./[meta, argparser, config, cache_calls, desktop_files, sober_state]
 import ./shell/core
-import ./commands/[init, run, edit_config]
+import ./commands/[init, run, edit_config, explain]
 
 proc showHelp(exitCode: int = 1) {.inline, noReturn.} =
   echo """
@@ -82,6 +82,10 @@ proc main() {.inline.} =
   of "init":
     initializeSober(input)
     createLucemDesktopFile()
+  of "explain":
+    input
+      .generateQuestion()
+      .explain()
   of "edit-config":
     if existsEnv("EDITOR"):
       let editor = getEnv("EDITOR")
