@@ -8,6 +8,10 @@ Please keep in mind that while Lucem is fully open source software, Sober is pro
 ![A demo of Lucem's nice looking GTK4 based settings menu](screenshots/settings_gui_3.jpg)
 ![A demo of Lucem's nice looking GTK4 based settings menu](screenshots/settings_gui_4.jpg)
 
+# Contact/Support
+You can open issues for bugs. \
+We now have a Discord server! You can join it [here](https://discord.gg/Z5m3n9fjcU)
+
 # Disclaimer, in big bold letters.
 Lucem does not allow you to bypass the (reasonable and justified) restrictions the Vinegar team has put on Sober's ability to load APKs that are modified.
 
