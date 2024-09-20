@@ -200,9 +200,19 @@ proc eventWatcher*(
     startedPlayingAt = 0.0
     startingTime = 0.0
     hasntStarted = true
+    
+    soberIsRunning = false
+    ticksUntilSoberRunCheck = 0
 
-  while hasntStarted or flatpakRunning(SOBER_APP_ID):
+  while hasntStarted or soberIsRunning:
     let logFile = readFile(getSoberLogPath()).splitLines()
+
+    if ticksUntilSoberRunCheck < 1:
+      debug "lucem: checking if sober is still running"
+      soberIsRunning = soberRunning()
+      ticksUntilSoberRunCheck = 5000
+
+    dec ticksUntilSoberRunCheck
 
     if logFile.len - 1 < line:
       continue
