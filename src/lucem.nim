@@ -2,9 +2,9 @@
 ##
 ## Copyright (C) 2024 Trayambak Rai
 
-import std/[os, logging, strutils]
-import colored_logger
-import ./[meta, argparser, config, cache_calls, desktop_files, sober_state]
+import std/[os, logging, strutils, terminal]
+import colored_logger, nimgl/vulkan
+import ./[meta, argparser, config, cache_calls, desktop_files, sober_state, gpu_info]
 import ./shell/core
 import ./commands/[init, run, edit_config, explain]
 
@@ -16,10 +16,12 @@ Commands:
   init                      Install Sober
   run                       Run Sober
   meta                      Get build metadata
+  list-gpus                 List all GPUs on this system
   edit-config               Edit the configuration file
   clear-cache               Clear the API caches that Lucem maintains
   shell                     Launch the Lucem configuration GUI
   install-desktop-files     Install Lucem's desktop files
+  explain                   Get documentation on a Lucem configuration value or command
   help                      Show this message
 
 Flags:
@@ -27,6 +29,7 @@ Flags:
   --skip-patching, -N        Don't apply your selected patches to Roblox, use this to see if a crash is caused by them. This won't undo patches!
   --use-sober-rpc, -S        Use Sober's builtin Discord RPC that has Bloxstrap RPC. Lucem will bring this up to 1:1 feature parity soon.
   --use-sober-patching, -P   Use Sober's patches (bring back old oof) instead of Lucem's. There's no need to use this since Lucem already works just as well.
+  --dont-check-vulkan        Don't try to initialize Vulkan to ensure that Sober can run on your GPU.
 """
   quit(exitCode)
 
@@ -41,6 +44,7 @@ This software is licensed under the MIT license.
 * Compiled with Nim $2
 * Compiled on $3
 * Roblox client version $6
+* Protocol: $7
 
 [ $4 ]
 
@@ -56,13 +60,19 @@ in place to prevent such abuse. The Lucem developers or anyone involved with the
     NimVersion,
     CompileDate & ' ' & CompileTime,
     when defined(release): "Release Build" else: "Development Build",
-    LicenseString, state.v1.appVersion
+    LicenseString, state.v1.appVersion, $autodetectWindowingBackend()
   ]
+
+proc listGpus(inst: VkInstance) =
+  let gpus = inst.getAllGPUs()
+
+  info "Found " & $gpus.len & (if gpus.len == 1: " GPU" else: " GPUs" & " that support Vulkan.")
+  for gpu in gpus:
+    stdout.styledWriteLine(fgRed, "-", resetStyle, " ", styleBright, gpu, resetStyle)
 
 proc main() {.inline.} =
   addHandler(newColoredLogger())
   setLogFilter(lvlInfo)
-
   let input = parseInput()
 
   if input.enabled("verbose", "v"):
@@ -103,10 +113,17 @@ proc main() {.inline.} =
     updateConfig(input, config)
   of "run":
     info "lucem@" & Version & " is now starting up!"
+    if input.enabled("dont-check-vulkan"):
+      info "lucem: --dont-check-vulkan is enabled, ignoring Vulkan initialization test."
+    else:
+      discard initVulkan()
+
     updateConfig(input, config)
     runRoblox(input, config)
   of "install-desktop-files":
     createLucemDesktopFile()
+  of "list-gpus":
+    listGpus(initVulkan())
   of "clear-cache":
     let savedMb = clearCache()
     info "lucem: cleared cache calls to reclaim " & $savedMb & " MB of space"
