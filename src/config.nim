@@ -3,6 +3,26 @@ import toml_serialization
 import ./[argparser, sugar]
 
 type
+  WindowingBackend* {.pure.} = enum
+    X11
+    Wayland
+
+func `$`*(backend: WindowingBackend): string {.inline.} =
+  case backend
+  of WindowingBackend.Wayland: "Wayland"
+  of WindowingBackend.X11: "X11"
+
+proc autodetectWindowingBackend*: WindowingBackend {.inline.} =
+  case getEnv("XDG_SESSION_TYPE")
+  of "wayland":
+    return WindowingBackend.Wayland
+  of "x11":
+    return WindowingBackend.X11
+  else:
+    warn "lucem: XDG_SESSION_TYPE was set to \"" & getEnv("XDG_SESSION_TYPE") & "\"; defaulting to X11"
+    return WindowingBackend.X11
+
+type
   APKConfig* = object
     version*: string = ""
 
@@ -15,6 +35,7 @@ type
   ClientConfig* = object
     fps*: int = 60
     launcher*: string = ""
+    backend: string
     telemetry*: bool = false
     fflags*: string
     apkUpdates*: bool = true
@@ -30,6 +51,20 @@ type
     lucem*: LucemConfig
     tweaks*: Tweaks
     client*: ClientConfig
+
+proc backend*(config: Config): WindowingBackend =
+  if config.client.backend.len < 1:
+    debug "lucem: backend name was not set, defaulting to autodetection"
+    return autodetectWindowingBackend()
+
+  case config.client.backend.toLowerAscii()
+  of "wayland", "wl", "waeland":
+    return WindowingBackend.Wayland
+  of "x11", "xorg", "bloat", "garbage":
+    return WindowingBackend.X11
+  else:
+    warn "lucem: invalid backend name \"" & config.client.backend & "\"; using autodetection"
+    return autodetectWindowingBackend()
 
 const
   DefaultConfig* =

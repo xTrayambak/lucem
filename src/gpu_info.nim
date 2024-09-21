@@ -1,7 +1,6 @@
 ## Gather information about the GPU that will be used to render Rob lock
 ## Copyright (C) 2024 Trayambak Rai
-import std/[os, logging, strutils]
-import ./meta
+import std/[logging]
 import nimgl/vulkan
 
 type
