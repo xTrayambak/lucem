@@ -21,7 +21,7 @@ proc flatpakInstall*(id: string, user: bool = true): bool {.inline, discardable.
     info "flatpak: successfully installed \"" & id & "\"!"
     true
 
-proc soberRunning*: bool {.inline.} =
+proc soberRunning*(): bool {.inline.} =
   execCmdEx("pidof sober").output.len > 2
 
 proc flatpakRun*(

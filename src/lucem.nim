@@ -60,13 +60,16 @@ in place to prevent such abuse. The Lucem developers or anyone involved with the
     NimVersion,
     CompileDate & ' ' & CompileTime,
     when defined(release): "Release Build" else: "Development Build",
-    LicenseString, state.v1.appVersion, $autodetectWindowingBackend()
+    LicenseString,
+    state.v1.appVersion,
+    $autodetectWindowingBackend(),
   ]
 
 proc listGpus(inst: VkInstance) =
   let gpus = inst.getAllGPUs()
 
-  info "Found " & $gpus.len & (if gpus.len == 1: " GPU" else: " GPUs" & " that support Vulkan.")
+  info "Found " & $gpus.len &
+    (if gpus.len == 1: " GPU" else: " GPUs" & " that support Vulkan.")
   for gpu in gpus:
     stdout.styledWriteLine(fgRed, "-", resetStyle, " ", styleBright, gpu, resetStyle)
 
@@ -93,9 +96,7 @@ proc main() {.inline.} =
     initializeSober(input)
     createLucemDesktopFile()
   of "explain":
-    input
-      .generateQuestion()
-      .explain()
+    input.generateQuestion().explain()
   of "edit-config":
     if existsEnv("EDITOR"):
       let editor = getEnv("EDITOR")

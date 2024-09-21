@@ -2,24 +2,24 @@ import std/[os, logging, strutils]
 import toml_serialization
 import ./[argparser, sugar]
 
-type
-  WindowingBackend* {.pure.} = enum
-    X11
-    Wayland
+type WindowingBackend* {.pure.} = enum
+  X11
+  Wayland
 
 func `$`*(backend: WindowingBackend): string {.inline.} =
   case backend
   of WindowingBackend.Wayland: "Wayland"
   of WindowingBackend.X11: "X11"
 
-proc autodetectWindowingBackend*: WindowingBackend {.inline.} =
+proc autodetectWindowingBackend*(): WindowingBackend {.inline.} =
   case getEnv("XDG_SESSION_TYPE")
   of "wayland":
     return WindowingBackend.Wayland
   of "x11":
     return WindowingBackend.X11
   else:
-    warn "lucem: XDG_SESSION_TYPE was set to \"" & getEnv("XDG_SESSION_TYPE") & "\"; defaulting to X11"
+    warn "lucem: XDG_SESSION_TYPE was set to \"" & getEnv("XDG_SESSION_TYPE") &
+      "\"; defaulting to X11"
     return WindowingBackend.X11
 
 type
@@ -63,7 +63,8 @@ proc backend*(config: Config): WindowingBackend =
   of "x11", "xorg", "bloat", "garbage":
     return WindowingBackend.X11
   else:
-    warn "lucem: invalid backend name \"" & config.client.backend & "\"; using autodetection"
+    warn "lucem: invalid backend name \"" & config.client.backend &
+      "\"; using autodetection"
     return autodetectWindowingBackend()
 
 const

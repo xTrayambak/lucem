@@ -58,7 +58,8 @@ viewable LucemShell:
   discord:
     DiscordRPC
 
-  automaticApkUpdates: bool
+  automaticApkUpdates:
+    bool
 
   pollingDelayBuff:
     string
@@ -537,7 +538,8 @@ method view(app: LucemShellState): Widget =
 
             ActionRow:
               title = "Automatic APK Updates"
-              subtitle = "If enabled, Sober will automatically fetch the latest versions of Roblox's APK for you from the Play Store."
+              subtitle =
+                "If enabled, Sober will automatically fetch the latest versions of Roblox's APK for you from the Play Store."
               CheckButton {.addSuffix.}:
                 state = app.automaticApkUpdates
 

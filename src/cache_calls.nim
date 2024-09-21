@@ -19,7 +19,7 @@ proc createCacheDir() {.inline.} =
 
 proc storeState*[T](prop: string, val: T) {.inline.} =
   let serialized = toJson(val)
-  debug "cache_calls: storing state property: " & prop & " = " & serialized 
+  debug "cache_calls: storing state property: " & prop & " = " & serialized
 
   writeFile(getCacheDir() / "lucem" / "state" / prop & ".lucem", serialized)
 

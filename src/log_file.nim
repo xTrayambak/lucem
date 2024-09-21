@@ -2,7 +2,7 @@
 ## Copyright (C) 2024 Trayambak Rai
 import std/[os]
 
-proc getLucemDir*: string {.inline.} =
+proc getLucemDir*(): string {.inline.} =
   let tmp = getEnv("XDG_RUNTIME_DIR", "/tmp")
 
   if not dirExists(tmp / "lucem"):
@@ -10,5 +10,5 @@ proc getLucemDir*: string {.inline.} =
 
   tmp / "lucem"
 
-proc getSoberLogPath*: string {.inline.} =
+proc getSoberLogPath*(): string {.inline.} =
   getLucemDir() / "sober.log"

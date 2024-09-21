@@ -21,10 +21,10 @@ type
     v1*: StateV1 = default(StateV1)
     v2*: StateV2 = default(StateV2)
 
-func getSoberStatePath*: string {.inline.} =
+func getSoberStatePath*(): string {.inline.} =
   getHomeDir() / ".var" / "app" / SOBER_APP_ID / "data" / "sober" / "state"
 
-proc loadSoberState*: SoberState =
+proc loadSoberState*(): SoberState =
   ## Load Sober's state JSON file.
   ## This function is guaranteed to succeed.
   debug "lucem: loading sober's internal state"
@@ -33,28 +33,34 @@ proc loadSoberState*: SoberState =
     error "lucem: falling back to lucem's preferred configuration"
     return default(SoberState)
 
-  template deserializationFailure =
+  template deserializationFailure() =
     warn "lucem: failed to deserialize sober's internal state: " & exc.msg
     warn "lucem: falling back to lucem's preferred configuration"
     return default(SoberState)
 
-  template readFailure =
+  template readFailure() =
     warn "lucem: failed to read sober's internal state: " & exc.msg
     warn "lucem: falling back to lucem's preferred configuration"
     return default(SoberState)
 
-  template unknownFailure =
-    warn "lucem: an unknown error occured during reading sober's internal state: " & exc.msg
+  template unknownFailure() =
+    warn "lucem: an unknown error occured during reading sober's internal state: " &
+      exc.msg
     warn "lucem: falling back to lucem's preferred configuration"
     return default(SoberState)
-  
+
   try:
     return fromJson(readFile(getSoberStatePath()), SoberState)
-  except JsonError as exc: deserializationFailure
-  except OSError as exc: readFailure
-  except IOError as exc: readFailure
-  except ValueError as exc: deserializationFailure
-  except CatchableError as exc: unknownFailure
+  except JsonError as exc:
+    deserializationFailure
+  except OSError as exc:
+    readFailure
+  except IOError as exc:
+    readFailure
+  except ValueError as exc:
+    deserializationFailure
+  except CatchableError as exc:
+    unknownFailure
 
 proc patchSoberState*(input: Input, config: Config) =
   var state = loadSoberState()
@@ -66,7 +72,7 @@ proc patchSoberState*(input: Input, config: Config) =
     warn "lucem: you have explicitly stated that you wish to use Sober's Discord RPC feature."
     warn "lucem: do not report any RPC bugs that arise from this to us, report them to the VinegarHQ team instead."
     state.v1.enableDiscordRpc = true
-  
+
   if not input.enabled("use-sober-patching", "P"):
     debug "lucem: disabling sober's builtin patching"
     state.v1.bringBackOof = false

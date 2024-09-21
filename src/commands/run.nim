@@ -3,9 +3,14 @@
 import std/[os, logging, strutils, json, times, locks]
 import colored_logger, discord_rpc
 import ../api/[games, thumbnails, ipinfo]
-import ../patches/[bring_back_oof, patch_fonts, sun_and_moon_textures, windowing_backend]
+import
+  ../patches/[bring_back_oof, patch_fonts, sun_and_moon_textures, windowing_backend]
 import ../shell/loading_screen
-import ../[argparser, config, flatpak, common, meta, sugar, notifications, fflags, log_file, sober_state]
+import
+  ../[
+    argparser, config, flatpak, common, meta, sugar, notifications, fflags, log_file,
+    sober_state,
+  ]
 
 const FFlagsFile* =
   "$1/.var/app/$2/data/sober/exe/ClientSettings/ClientAppSettings.json"
@@ -27,7 +32,7 @@ proc updateConfig*(input: Input, config: Config) =
     info "lucem: disabling telemetry FFlags"
   else:
     warn "lucem: enabling telemetry FFlags. This is not recommended!"
-  
+
   if not input.enabled("skip-patching", "N"):
     enableOldOofSound(config.tweaks.oldOof)
     setWindowingBackend(config.backend())
@@ -183,13 +188,13 @@ proc eventWatcher*(
         slock: ptr Lock,
         discord: Option[DiscordRPC],
         config: Config,
-        input: Input
+        input: Input,
       ]
 ) =
   addHandler newColoredLogger()
   setLogFilter(lvlInfo)
   var verbose = false
-  
+
   if args.input.enabled("verbose", "v"):
     verbose = true
     setLogFilter(lvlAll)
@@ -201,7 +206,7 @@ proc eventWatcher*(
     startedPlayingAt = 0.0
     startingTime = 0.0
     hasntStarted = true
-    
+
     soberIsRunning = false
     ticksUntilSoberRunCheck = 0
 
@@ -222,7 +227,7 @@ proc eventWatcher*(
     if data.len < 1:
       inc line
       continue
-    
+
     if verbose or not defined(release):
       echo data
 
@@ -309,11 +314,11 @@ proc runRoblox*(input: Input, config: Config) =
       slock: ptr Lock,
       discord: Option[DiscordRPC],
       config: Config,
-      input: Input
+      input: Input,
     ]
   ]
   createThread(evThr, eventWatcher, (addr state, addr slock, discord, config, input))
-  
+
   info "lucem: redirecting sober logs to: " & getSoberLogPath()
   discard flatpakRun(SOBER_APP_ID, getSoberLogPath(), config.client.launcher)
 

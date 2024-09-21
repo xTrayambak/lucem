@@ -3,12 +3,11 @@
 import std/[logging]
 import nimgl/vulkan
 
-type
-  GPU* = string
+type GPU* = string
 
 proc getAllGPUs*(instance: VkInstance): seq[GPU] =
   debug "lucem: checking GPU devices"
-  
+
   var deviceCount: uint32
   let enumRes = $vkEnumeratePhysicalDevices(instance, deviceCount.addr, nil)
   debug "lucem: vkEnumeratePhysicalDevices(): " & enumRes
@@ -29,7 +28,7 @@ proc getAllGPUs*(instance: VkInstance): seq[GPU] =
 
     result &= move(name)
 
-proc initVulkan*: VkInstance =
+proc initVulkan*(): VkInstance =
   info "lucem: trying to initialize Vulkan..."
 
   if not vkInit():
@@ -55,7 +54,7 @@ proc initVulkan*: VkInstance =
     enabledLayerCount = 0,
     ppEnabledLayerNames = nil,
     enabledExtensionCount = 0,
-    ppEnabledExtensionNames = nil
+    ppEnabledExtensionNames = nil,
   )
 
   if vkCreateInstance(instanceCreateInfo.addr, nil, result.addr) != VkSuccess:
