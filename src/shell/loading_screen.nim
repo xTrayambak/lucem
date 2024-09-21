@@ -13,9 +13,6 @@ viewable LoadingScreen:
   state:
     ptr LoadingState
 
-  scheduledDeath:
-    bool
-
   slock:
     Lock
 
@@ -28,7 +25,6 @@ method view*(app: LoadingScreenState): Widget =
     withLock app.slock:
       if app.state[] == Done:
         debug "shell: loading screen is done, hiding surface"
-        app.scheduledDeath = true
         gtk_widget_hide(app.unwrapInternalWidget())
       elif app.state[] == Exited:
         debug "shell: roblox exited, we're quitting"
@@ -49,4 +45,4 @@ method view*(app: LoadingScreenState): Widget =
           useMarkup = true
 
 proc initLoadingScreen*(state: ptr LoadingState, lock: Lock) {.inline.} =
-  adw.brew(gui(LoadingScreen(state = state, slock = lock, scheduledDeath = false)))
+  adw.brew(gui(LoadingScreen(state = state, slock = lock)))
