@@ -3,7 +3,7 @@
 import std/[os, logging, strutils, json, times, locks]
 import colored_logger, discord_rpc
 import ../api/[games, thumbnails, ipinfo]
-import ../patches/[bring_back_oof, patch_fonts, sun_and_moon_textures]
+import ../patches/[bring_back_oof, patch_fonts, sun_and_moon_textures, windowing_backend]
 import ../shell/loading_screen
 import ../[argparser, config, flatpak, common, meta, sugar, notifications, fflags, log_file, sober_state]
 
@@ -30,6 +30,7 @@ proc updateConfig*(input: Input, config: Config) =
   
   if not input.enabled("skip-patching", "N"):
     enableOldOofSound(config.tweaks.oldOof)
+    setWindowingBackend(config.backend())
     patchSoberState(input, config)
     setClientFont(config.tweaks.font)
     setSunTexture(config.tweaks.sun)

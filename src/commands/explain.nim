@@ -1,6 +1,6 @@
 ## Provide docs for the TOML configuration
 ## Copyright (C) 2024 Trayambak Rai
-import std/[logging, strutils, tables, terminal]
+import std/[logging, strutils, terminal]
 import ../argparser
 
 type
