@@ -14,6 +14,25 @@ proc createCacheDir() {.inline.} =
   if not existsOrCreateDir(getCacheDir() / "lucem"):
     debug "cache_calls: creating cache directory"
 
+  if not existsOrCreateDir(getCacheDir() / "lucem" / "state"):
+    debug "cache_calls: creating state directory"
+
+proc storeState*[T](prop: string, val: T) {.inline.} =
+  let serialized = toJson(val)
+  debug "cache_calls: storing state property: " & prop & " = " & serialized 
+
+  writeFile(getCacheDir() / "lucem" / "state" / prop & ".lucem", serialized)
+
+proc getState*[T](prop: string, kind: typedesc[T], fallback: T): T =
+  if not fileExists(getCacheDir() / "lucem" / "state" / prop & ".lucem"):
+    debug "cache_calls: state property doesn't exist, using fallback"
+    return fallback
+
+  try:
+    return readFile(getCacheDir() / "lucem" / "state" / prop & ".lucem").fromJson(kind)
+  except jsony.JsonError as exc:
+    warn "cache_calls: failed to read state property \"" & prop & "\": " & exc.msg
+
 proc clearCache*(): float =
   var sizeMb: int
   debug "cache_calls: clearing cache"
