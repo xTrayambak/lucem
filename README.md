@@ -42,6 +42,19 @@ Both OTFs and TTFs are supported.
 font = "/path/to/your/font.ttf"
 ```
 
+### Replace sun and moon
+```toml
+sun = "/path/to/sun.jpeg"
+moon = "/path/to/moon.jpeg"
+```
+
+### Force X11 or Wayland to be used
+This one goes in the `client` section!
+```toml
+[client]
+backend = "x11" # or "wayland", "wl". This is case insensitive.
+```
+
 # Installation
 ## Building from source
 You will need the following dependencies to compile Lucem:
