@@ -38,6 +38,10 @@ proc explainCommand*(question: Question) =
 
 proc explainConfig*(question: Question) =
   assert question.kind == Configuration
+  template noDocs() {.dirty.} =
+    error "lucem: no documentation exists for " & question.category & ':' & question.name
+    quit(1)
+
   case question.category
   of "apk":
     stdout.styledWriteLine(
@@ -143,11 +147,11 @@ proc explainConfig*(question: Question) =
       )
 
       stdout.styledWriteLine(styleBright, "TYPE", resetStyle)
-      stdout.styledWriteLine("\t", fgGreen, "boolean", resetStyle)
+      stdout.styledWriteLine("\t", fgGreen, "unsigned integer", resetStyle)
       stdout.write '\n'
 
       stdout.styledWriteLine(styleBright, "DEFAULT VALUE", resetStyle)
-      stdout.styledWriteLine("\t", fgGreen, "0", resetStyle)
+      stdout.styledWriteLine("\t", fgGreen, "100", resetStyle)
       stdout.write '\n'
 
       stdout.styledWriteLine(styleBright, "DESCRIPTION", resetStyle)
@@ -157,9 +161,284 @@ proc explainConfig*(question: Question) =
         styleItalic, "very", resetStyle, " weak CPUs to save on resources.",
       )
     else:
-      error "lucem: no documentation exists for " & question.category & ':' &
-        question.name
-      quit(1)
+      noDocs
+  of "tweaks":
+    case question.name
+    of "oldoof":
+      stdout.styledWriteLine(
+        repeat(' ', int(terminalWidth() / 2)),
+        fgGreen,
+        "tweaks",
+        resetStyle,
+        ":",
+        fgYellow,
+        "oldOof",
+        resetStyle,
+      )
+
+      stdout.styledWriteLine(styleBright, "TYPE", resetStyle)
+      stdout.styledWriteLine("\t", fgGreen, "boolean", resetStyle)
+      stdout.write '\n'
+
+      stdout.styledWriteLine(styleBright, "DEFAULT VALUE", resetStyle)
+      stdout.styledWriteLine("\t", fgGreen, "true", resetStyle)
+      stdout.write '\n'
+
+      stdout.styledWriteLine(styleBright, "DESCRIPTION", resetStyle)
+      stdout.styledWriteLine(
+        "\t",
+        "This setting lets you bring back the old \"Oof!\" sound, which was recently replaced to the \"Eurgh\" sound by Roblox due to copyright issues.",
+        "\n\tYou can revert this by setting the value to ", fgGreen, "false",
+        resetStyle, ".",
+      )
+    of "moon":
+      stdout.styledWriteLine(
+        repeat(' ', int(terminalWidth() / 2)),
+        fgGreen,
+        "tweaks",
+        resetStyle,
+        ":",
+        fgYellow,
+        "moon",
+        resetStyle,
+      )
+
+      stdout.styledWriteLine(styleBright, "TYPE", resetStyle)
+      stdout.styledWriteLine("\t", fgGreen, "string", resetStyle)
+      stdout.write '\n'
+
+      stdout.styledWriteLine(styleBright, "DEFAULT VALUE", resetStyle)
+      stdout.styledWriteLine("\t", fgGreen, "Not set by default.", resetStyle)
+      stdout.write '\n'
+
+      stdout.styledWriteLine(styleBright, "DESCRIPTION", resetStyle)
+      stdout.styledWriteLine(
+        "\t",
+        "This setting lets you override Roblox's moon texture, granted that the game you're playing doesn't use a custom one.",
+        "\n\tYou can revert the changes by leaving this option empty (or not defining it at all)",
+      )
+    of "sun":
+      stdout.styledWriteLine(
+        repeat(' ', int(terminalWidth() / 2)),
+        fgGreen,
+        "tweaks",
+        resetStyle,
+        ":",
+        fgYellow,
+        "sun",
+        resetStyle,
+      )
+
+      stdout.styledWriteLine(styleBright, "TYPE", resetStyle)
+      stdout.styledWriteLine("\t", fgGreen, "string", resetStyle)
+      stdout.write '\n'
+
+      stdout.styledWriteLine(styleBright, "DEFAULT VALUE", resetStyle)
+      stdout.styledWriteLine("\t", fgGreen, "Not set by default.", resetStyle)
+      stdout.write '\n'
+
+      stdout.styledWriteLine(styleBright, "DESCRIPTION", resetStyle)
+      stdout.styledWriteLine(
+        "\t",
+        "This setting lets you override Roblox's sun texture, granted that the game you're playing doesn't use a custom one.",
+        "\n\tYou can revert the changes by leaving this option empty (or not defining it at all)",
+      )
+    of "font":
+      stdout.styledWriteLine(
+        repeat(' ', int(terminalWidth() / 2)),
+        fgGreen,
+        "tweaks",
+        resetStyle,
+        ":",
+        fgYellow,
+        "font",
+        resetStyle,
+      )
+
+      stdout.styledWriteLine(styleBright, "TYPE", resetStyle)
+      stdout.styledWriteLine("\t", fgGreen, "string", resetStyle)
+      stdout.write '\n'
+
+      stdout.styledWriteLine(styleBright, "DEFAULT VALUE", resetStyle)
+      stdout.styledWriteLine("\t", fgGreen, "Not set by default.", resetStyle)
+      stdout.write '\n'
+
+      stdout.styledWriteLine(styleBright, "DESCRIPTION", resetStyle)
+      stdout.styledWriteLine(
+        "\t", "This setting lets you override all of Roblox's fonts with your own.",
+        "\n\tYou can revert the changes by leaving this option empty (or not defining it at all)",
+      )
+    else:
+      noDocs
+  of "client":
+    case question.name
+    of "fps":
+      stdout.styledWriteLine(
+        repeat(' ', int(terminalWidth() / 2)),
+        fgGreen,
+        "client",
+        resetStyle,
+        ":",
+        fgYellow,
+        "fps",
+        resetStyle,
+      )
+
+      stdout.styledWriteLine(styleBright, "TYPE", resetStyle)
+      stdout.styledWriteLine("\t", fgGreen, "integer", resetStyle)
+      stdout.write '\n'
+
+      stdout.styledWriteLine(styleBright, "DEFAULT VALUE", resetStyle)
+      stdout.styledWriteLine("\t", fgGreen, "60", resetStyle)
+      stdout.write '\n'
+
+      stdout.styledWriteLine(styleBright, "DESCRIPTION", resetStyle)
+      stdout.styledWriteLine(
+        "\t",
+        "This setting lets you override all of Roblox's default framerate cap of 60 to anything you want, or disable it altogether.",
+      )
+    of "launcher":
+      stdout.styledWriteLine(
+        repeat(' ', int(terminalWidth() / 2)),
+        fgGreen,
+        "client",
+        resetStyle,
+        ":",
+        fgYellow,
+        "launcher",
+        resetStyle,
+      )
+
+      stdout.styledWriteLine(styleBright, "TYPE", resetStyle)
+      stdout.styledWriteLine("\t", fgGreen, "string", resetStyle)
+      stdout.write '\n'
+
+      stdout.styledWriteLine(styleBright, "DEFAULT VALUE", resetStyle)
+      stdout.styledWriteLine("\t", fgGreen, "Not set by default.", resetStyle)
+      stdout.write '\n'
+
+      stdout.styledWriteLine(styleBright, "DESCRIPTION", resetStyle)
+      stdout.styledWriteLine(
+        "\t",
+        "This setting lets you run Roblox (Sober) with a particular launcher, like ",
+        styleBright, "gamemoderun", resetStyle, ".",
+      )
+    of "backend":
+      stdout.styledWriteLine(
+        repeat(' ', int(terminalWidth() / 2)),
+        fgGreen,
+        "client",
+        resetStyle,
+        ":",
+        fgYellow,
+        "backend",
+        resetStyle,
+      )
+
+      stdout.styledWriteLine(styleBright, "TYPE", resetStyle)
+      stdout.styledWriteLine("\t", fgGreen, "string", resetStyle)
+      stdout.write '\n'
+
+      stdout.styledWriteLine(styleBright, "DEFAULT VALUE", resetStyle)
+      stdout.styledWriteLine(
+        "\t", fgGreen, "Autodetected by Lucem using the ", resetStyle, styleBright,
+        "XDG_SESSION_TYPE", resetStyle, fgGreen, " environment variable.", resetStyle,
+      )
+      stdout.write '\n'
+
+      stdout.styledWriteLine(styleBright, "DESCRIPTION", resetStyle)
+      stdout.styledWriteLine(
+        "\t",
+        "This setting lets you force Roblox (Sober) to either run with the Wayland windowing backend or the X11 windowing backend.",
+        "\n\tIf you leave this empty, Lucem automatically detects which backend would be the best for you.",
+        "\n\tValid options are:\n", fgRed, "\t-", resetStyle, styleBright, " x11\n",
+        resetStyle, fgRed, "\t-", resetStyle, styleBright, " wayland\n", resetStyle,
+      )
+    of "telemetry":
+      stdout.styledWriteLine(
+        repeat(' ', int(terminalWidth() / 2)),
+        fgGreen,
+        "client",
+        resetStyle,
+        ":",
+        fgYellow,
+        "telemetry",
+        resetStyle,
+      )
+
+      stdout.styledWriteLine(styleBright, "TYPE", resetStyle)
+      stdout.styledWriteLine("\t", fgGreen, "boolean", resetStyle)
+      stdout.write '\n'
+
+      stdout.styledWriteLine(styleBright, "DEFAULT VALUE", resetStyle)
+      stdout.styledWriteLine("\t", fgGreen, "false", resetStyle)
+      stdout.write '\n'
+
+      stdout.styledWriteLine(styleBright, "DESCRIPTION", resetStyle)
+      stdout.styledWriteLine(
+        "\t",
+        "This setting attempts to disable most of the telemetry FFlags that the Roblox client exposes. It does not guarantee to make your Roblox experience 100% private, but it is recommended to be set to ",
+        fgGreen, "false", resetStyle, " in order to disable these flags.",
+      )
+    of "fflags":
+      stdout.styledWriteLine(
+        repeat(' ', int(terminalWidth() / 2)),
+        fgGreen,
+        "client",
+        resetStyle,
+        ":",
+        fgYellow,
+        "fflags",
+        resetStyle,
+      )
+
+      stdout.styledWriteLine(styleBright, "TYPE", resetStyle)
+      stdout.styledWriteLine("\t", fgGreen, "string of key-value pairs", resetStyle)
+      stdout.write '\n'
+
+      stdout.styledWriteLine(styleBright, "DEFAULT VALUE", resetStyle)
+      stdout.styledWriteLine("\t", fgGreen, "Empty by default.", resetStyle)
+      stdout.write '\n'
+
+      stdout.styledWriteLine(styleBright, "DESCRIPTION", resetStyle)
+      stdout.styledWriteLine(
+        "\t",
+        "This string lets you define FFlags that will be applied to Roblox upon launch. You must use the key-value syntax like this:",
+        fgRed, "-", resetStyle, " ", fgGreen, "FFlagName", resetStyle, styleBright, "=",
+        resetStyle, fgYellow, "\"my string value\"", resetStyle, fgRed, "-", resetStyle,
+        " ", fgGreen, "FFlagName", resetStyle, styleBright, "=", resetStyle, fgGreen,
+        "1337", resetStyle, fgRed, "-", resetStyle, " ", fgGreen, "FFlagName",
+        resetStyle, styleBright, "=", resetStyle, fgBlue, "false", resetStyle,
+        "If you do not understand this, it's best to use the GUI FFlag editor that the Lucem shell provides, as it instantly validates everything and shows you",
+        " friendly error messages if you make a mistake.",
+      )
+    of "apkupdates":
+      stdout.styledWriteLine(
+        repeat(' ', int(terminalWidth() / 2)),
+        fgGreen,
+        "client",
+        resetStyle,
+        ":",
+        fgYellow,
+        "apkUpdates",
+        resetStyle,
+      )
+
+      stdout.styledWriteLine(styleBright, "TYPE", resetStyle)
+      stdout.styledWriteLine("\t", fgGreen, "boolean", resetStyle)
+      stdout.write '\n'
+
+      stdout.styledWriteLine(styleBright, "DEFAULT VALUE", resetStyle)
+      stdout.styledWriteLine("\t", fgGreen, "true", resetStyle)
+      stdout.write '\n'
+
+      stdout.styledWriteLine(styleBright, "DESCRIPTION", resetStyle)
+      stdout.styledWriteLine(
+        "\t",
+        "This is a shorthand way of modifying Sober's state to check for Roblox APK updates upon startup. It is recommended that you keep this enabled.",
+      )
+    else:
+      noDocs
   else:
     error "lucem: no documentation exists for category \"" & question.category & '"'
     quit(1)
