@@ -172,6 +172,7 @@ proc onGameLeave*(config: Config, discord: Option[DiscordRPC]) =
   )
 
 proc onBloxstrapRpc*(config: Config, discord: Option[DiscordRPC], line: string) =
+  assert false
   debug "lucem: trying to extract BloxstrapRPC payload from line"
   debug "lucem: " & line
   let payload = line.split("[FLog::Output] [BloxstrapRPC]")

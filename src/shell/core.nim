@@ -518,7 +518,7 @@ method view(app: LucemShellState): Widget =
             ActionRow:
               title = "Polling Delay"
               subtitle =
-                "Add a tiny delay in milliseconds to the event watcher thread. This barely impacts performance on modern systems."
+                "Add a tiny delay in seconds to the event watcher thread. This barely impacts performance on modern systems."
 
               Entry {.addSuffix.}:
                 text = app.pollingDelayBuff
