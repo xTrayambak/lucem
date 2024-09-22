@@ -9,6 +9,7 @@ Lucem now stands at around 2.3K lines of code. This update did a whole lot of ho
 ## Bug Fixes
 * Serialization issue, this might've been causing Sober to be rendered unusable until it is force resetted in some very specific scenarios, see issue #8
 * We no longer spam `flatpak ps` to check if Sober is running, which'd cause the system to run out of memory if you played for long durations (4-5 hours), depending on how much RAM you have.
+* Temporarily disabled the loading screen for everyone as the new Sober update seems to completely break it.
 
 ## New Features
 * You can now directly force Sober to use either X11 or Wayland with the `client:backend` TOML configuration entry.

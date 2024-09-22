@@ -323,9 +323,11 @@ proc runRoblox*(input: Input, config: Config) =
   info "lucem: redirecting sober logs to: " & getSoberLogPath()
   discard flatpakRun(SOBER_APP_ID, getSoberLogPath(), config.client.launcher)
 
-  if config.lucem.loadingScreen:
+  #[ if config.lucem.loadingScreen:
     debug "lucem: creating loading screen GTK4 surface"
-    initLoadingScreen(addr state, slock)
+    initLoadingScreen(addr state, slock) ]#
+  if config.lucem.loadingScreen:
+    warn "lucem: the loading screen is currently malfunctioning after the new Sober update. It'll be fixed soon. Sorry! :("
 
   debug "lucem: loading screen has ended, waiting for event watcher thread to exit or die."
   evThr.joinThread()
