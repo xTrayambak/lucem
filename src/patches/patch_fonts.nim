@@ -6,7 +6,7 @@ import ../common
 const SoberFontsPath* {.strdefine.} =
   "$1/.var/app/" & SOBER_APP_ID & "/data/sober/assets/content/fonts/"
 
-proc setClientFont*(fontPath: string) =
+proc setClientFont*(fontPath: string, exclude: seq[string]) =
   let basePath = SoberFontsPath % [getHomeDir()]
   if fontPath.len > 0:
     debug "lucem: patching client font to `" & fontPath & '`'
@@ -29,6 +29,9 @@ proc setClientFont*(fontPath: string) =
       if file.contains("lucem_patched"):
         continue
       let splitted = file.splitFile()
+
+      if file.splitPath().tail in exclude:
+        info "lucem: font file \"" & file & "\" is in the exclusion list, not overriding it."
 
       moveFile(file, basePath / "old_roblox_fonts" / splitted.name & splitted.ext)
       copyFile(fontPath, file)

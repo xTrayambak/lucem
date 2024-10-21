@@ -37,7 +37,7 @@ proc updateConfig*(input: Input, config: Config) =
     enableOldOofSound(config.tweaks.oldOof)
     setWindowingBackend(config.backend())
     patchSoberState(input, config)
-    setClientFont(config.tweaks.font)
+    setClientFont(config.tweaks.font, config.tweaks.excludeFonts)
     setSunTexture(config.tweaks.sun)
     setMoonTexture(config.tweaks.moon)
   else:

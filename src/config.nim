@@ -45,6 +45,7 @@ type
     moon*: string = ""
     sun*: string = ""
     font*: string = ""
+    excludeFonts*: seq[string] = @["RobloxEmoji.ttf", "TwemojiMozilla.ttf"]
 
   Config* = object
     apk*: APKConfig
@@ -84,6 +85,7 @@ oldOof = true
 moon = ""
 sun = ""
 font = ""
+excludeFonts = ["RobloxEmoji.ttf"]
 
 [client]
 fps = 9999
