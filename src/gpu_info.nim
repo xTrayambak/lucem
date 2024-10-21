@@ -28,6 +28,10 @@ proc getAllGPUs*(instance: VkInstance): seq[GPU] =
 
     result &= move(name)
 
+proc deinitVulkan*(instance: VkInstance) =
+  info "lucem: destroying Vulkan instance"
+  vkDestroyInstance(instance, nil)
+
 proc initVulkan*(): VkInstance =
   info "lucem: trying to initialize Vulkan..."
 

@@ -93,8 +93,7 @@ launcher = ""
 telemetry = false
 fflags = "\n"
 apkUpdates = true
-""" &
-    "\"\"\"\"\"\""
+"""
 
   ConfigLocation* {.strdefine: "LucemConfigLocation".} = "$1/.config/lucem/"
 

@@ -117,14 +117,16 @@ proc main() {.inline.} =
     if input.enabled("dont-check-vulkan"):
       info "lucem: --dont-check-vulkan is enabled, ignoring Vulkan initialization test."
     else:
-      discard initVulkan()
+      deinitVulkan(initVulkan())
 
     updateConfig(input, config)
     runRoblox(input, config)
   of "install-desktop-files":
     createLucemDesktopFile()
   of "list-gpus":
-    listGpus(initVulkan())
+    let instance = initVulkan()
+    listGpus(instance)
+    deinitVulkan(instance)
   of "clear-cache":
     let savedMb = clearCache()
     info "lucem: cleared cache calls to reclaim " & $savedMb & " MB of space"
