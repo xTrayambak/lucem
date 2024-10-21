@@ -7,6 +7,7 @@ const SoberSkyTexturesPath* {.strdefine.} =
   "$1/.var/app/" & SOBER_APP_ID & "/data/sober/assets/content/sky/"
 
 proc setSunTexture*(path: string) =
+  var path = deepCopy(path)
   let basePath = SoberSkyTexturesPath % [getHomeDir()]
 
   if fileExists(basePath / "lucem_patched_sun") and
@@ -16,9 +17,13 @@ proc setSunTexture*(path: string) =
 
   if path.len > 0:
     debug "lucem: patching sun texture to: " & path
-    if not fileExists(path):
+    if not fileExists(path) and not symlinkExists(path):
       error "lucem: cannot find file: " & path & " as a substitute for the sun texture!"
       quit(1)
+
+    if symlinkExists(path):
+      path = expandSymlink(path)
+      debug "lucem: resolving symlink to: " & path
 
     moveFile(basePath / "sun.jpg", basePath / "sun.jpg.old")
     copyFile(path, basePath / "sun.jpg")
