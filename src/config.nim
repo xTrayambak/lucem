@@ -70,22 +70,28 @@ proc backend*(config: Config): WindowingBackend =
 const
   DefaultConfig* =
     """
+[apk]
+version = ""
+
 [lucem]
 discord_rpc = true
-loading_screen = true
 notify_server_region = true
-polling_delay = 100
+loading_screen = true
+polling_delay = 0
 
 [tweaks]
-oldOof = false
-font = ""
+oldOof = true
 moon = ""
 sun = ""
+font = ""
 
 [client]
-fps = 60
-apk_updates = true
-fflags = """ &
+fps = 9999
+launcher = ""
+telemetry = false
+fflags = "\n"
+apkUpdates = true
+""" &
     "\"\"\"\"\"\""
 
   ConfigLocation* {.strdefine: "LucemConfigLocation".} = "$1/.config/lucem/"
