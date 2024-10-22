@@ -31,7 +31,8 @@ proc setClientFont*(fontPath: string, exclude: seq[string]) =
       let splitted = file.splitFile()
 
       if file.splitPath().tail in exclude:
-        info "lucem: font file \"" & file & "\" is in the exclusion list, not overriding it."
+        info "lucem: font file \"" & file &
+          "\" is in the exclusion list, not overriding it."
         continue
 
       moveFile(file, basePath / "old_roblox_fonts" / splitted.name & splitted.ext)
