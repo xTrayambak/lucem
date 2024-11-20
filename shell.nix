@@ -12,6 +12,7 @@ mkShell {
   	gtk4.dev
 	libadwaita.dev
 	pkg-config
+	simdutf
   	openssl.dev
   ];
 }
