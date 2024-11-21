@@ -46,12 +46,17 @@ type
     sun*: string = ""
     font*: string = ""
     excludeFonts*: seq[string] = @["RobloxEmoji.ttf", "TwemojiMozilla.ttf"]
+  
+  DaemonConfig* = object
+    port*: uint = 9898
 
   Config* = object
     apk*: APKConfig
     lucem*: LucemConfig
     tweaks*: Tweaks
     client*: ClientConfig
+
+    daemon*: DaemonConfig
 
 proc backend*(config: Config): WindowingBackend =
   if config.client.backend.len < 1:

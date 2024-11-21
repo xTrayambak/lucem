@@ -1,15 +1,16 @@
 ## Run the Roblox client, update FFlags and optionally, provide Discord RPC and other features.
 ## Copyright (C) 2024 Trayambak Rai
-import std/[os, logging, strutils, json, times, locks]
-import colored_logger, discord_rpc
+import std/[os, logging, strutils, json, times, locks, sets]
+import pkg/[colored_logger, discord_rpc, netty, jsony, pretty]
 import ../api/[games, thumbnails, ipinfo]
 import
   ../patches/[bring_back_oof, patch_fonts, sun_and_moon_textures, windowing_backend]
 import ../shell/loading_screen
+import ../proto
 import
   ../[
     argparser, config, flatpak, common, meta, sugar, notifications, fflags, log_file,
-    sober_state,
+    sober_state
   ]
 
 const FFlagsFile* =
@@ -60,101 +61,6 @@ proc updateConfig*(input: Input, config: Config) =
 
   writeFile(fflagsFile, serialized)
 
-proc onGameJoin*(
-    config: Config, data: string, discord: Option[DiscordRPC], startedAt: float
-) =
-  var
-    foundBeginningOfJson = false
-    jdata: string
-
-  for c in data:
-    if not foundBeginningOfJson:
-      if c == '{':
-        foundBeginningOfJson = true
-        jdata &= c
-
-      continue
-    else:
-      jdata &= c
-
-  debug "lucem: join metadata: " & jdata
-
-  if config.lucem.discordRpc and *discord:
-    let
-      placeId = $parseJson(jdata)["placeId"].getInt()
-      universeId = getUniverseFromPlace(placeId)
-      client = &discord
-
-      gameData = getGameDetail(universeId)
-      thumbnail = getGameIcon(universeId)
-
-    if !gameData:
-      warn "lucem: failed to fetch game data; RPC will not be set."
-      return
-
-    if !thumbnail:
-      warn "lucem: failed to fetch game thumbnail; RPC will not be set."
-      return
-
-    let
-      data = &gameData
-      icon = &thumbnail
-
-    info "lucem: Joined game!"
-    info "Name: " & data.name
-    info "Description: " & data.description
-    info "Price: " & $(if *data.price: &data.price else: 0'i64) & " robux"
-    info "Developer: "
-    info "  Name: " & data.creator.name
-    info "  Verified: " & $data.creator.hasVerifiedBadge
-
-    client.setActivity(
-      Activity(
-        details: "Playing " & data.name,
-        state: "by " & data.creator.name,
-        assets: some(
-          ActivityAssets(
-            largeImage: icon.imageUrl, largeText: "Sober + Lucem v" & Version
-          )
-        ),
-        timestamps: ActivityTimestamps(start: startedAt.int64),
-      )
-    )
-
-proc onServerIpRevealed*(config: Config, line: string) =
-  if not config.lucem.notifyServerRegion:
-    return
-
-  var
-    buffer: string
-    pos = -1
-
-  debug "lucem: server IP line buffer: " & line
-
-  while pos < line.len - 1:
-    inc pos
-
-    if buffer.endsWith("UDMUX server "):
-      break
-
-    buffer &= line[pos]
-
-  debug "lucem: server IP line buffer stopped before splitting at: " & $pos
-  let serverIp = line[pos ..< line.len].split(',')[0].split(':')[0]
-    # discard port, we don't need it.
-  debug "lucem: server IP is: " & serverIp
-
-  if (let ipinfo = getIpInfo(serverIp); *ipinfo):
-    let data = &ipinfo
-    notify(
-      "Server Location",
-      "This server is located in $1, $2, $3" % [data.city, data.region, data.country],
-      10000,
-    )
-  else:
-    warn "lucem: failed to get server location data!"
-    notify("Server Location", "Failed to fetch server location data.", 10000)
-
 proc onGameLeave*(config: Config, discord: Option[DiscordRPC]) =
   debug "lucem: left experience"
 
@@ -183,24 +89,29 @@ proc onBloxstrapRpc*(config: Config, discord: Option[DiscordRPC], line: string) 
     return
 
 proc eventWatcher*(
-    args:
-      tuple[
-        state: ptr LoadingState,
-        slock: ptr Lock,
-        discord: Option[DiscordRPC],
-        config: Config,
-        input: Input,
-      ]
+  config: Config,
+  input: Input
 ) =
-  addHandler newColoredLogger()
-  setLogFilter(lvlInfo)
   var verbose = false
 
-  if args.input.enabled("verbose", "v"):
+  let port =
+    if (let opt = input.flag("port"); *opt):
+      parseUint(&opt)
+    else:
+      config.daemon.port
+
+  if input.enabled("verbose", "v"):
     verbose = true
     setLogFilter(lvlAll)
 
-  info "lucem: this is the event watcher thread, running at thread ID " & $getThreadId()
+  var reactor = newReactor()
+  debug "lucem: connecting to lucemd at port " & $port
+  var server = reactor.connect("localhost", int port)
+
+  template send[T](data: T) =
+    let serialized = data.serialize()
+    debug "lucem: sending to daemon: " & serialized
+    reactor.send(server, serialized)
 
   var
     line = 0
@@ -212,16 +123,20 @@ proc eventWatcher*(
     ticksUntilSoberRunCheck = 0
 
   while hasntStarted or soberIsRunning:
+    #debug "lucem: ticking reactor"
+    reactor.tick()
+
     let logFile = readFile(getSoberLogPath()).splitLines()
 
     if ticksUntilSoberRunCheck < 1:
-      debug "lucem: checking if sober is still running"
+      # debug "lucem: checking if sober is still running"
       soberIsRunning = soberRunning()
       ticksUntilSoberRunCheck = 5000
 
     dec ticksUntilSoberRunCheck
 
     if logFile.len - 1 < line:
+      # echo "woops (" & $line & "): " & $logFile
       continue
 
     let data = logFile[line]
@@ -229,50 +144,51 @@ proc eventWatcher*(
       inc line
       continue
 
-    if verbose or not defined(release):
-      echo data
-
-    if data.contains("OnLoad: ... Done"):
-      debug "lucem: this is the event watcher thread - Sober has been initialized! Acquiring lock to loading screen state pointer and setting it to `WaitingForRoblox`"
-
-      withLock args.slock[]:
-        args.state[] = WaitingForRoblox
-
-      debug "lucem: released loading screen state pointer lock"
-
-    if data.contains("[FLog::Graphics] Vulkan: creating framebuffer"):
-      debug "lucem: this is the event watcher thread - Roblox has initialized a surface! Acquiring lock to loading screen state pointer and setting it to `Done`"
-
-      withLock args.slock[]:
-        args.state[] = Done
-
-      debug "lucem: released loading screen state pointer lock"
+    #[if verbose or not defined(release):
+      echo data]#
 
     if data.contains(
-      "[FLog::GameJoinUtil] GameJoinUtil::joinGamePostStandard: URL: https://gamejoin.roblox.com/v1/join-game BODY:"
+      "[FLog::GameJoinUtil] GameJoinUtil::joinGamePostStandard"
     ):
       startedPlayingAt = epochTime()
       startingTime = startedPlayingAt
 
-      onGameJoin(args.config, data, args.discord, startedPlayingAt)
+      info "lucem: joined game"
 
-    if data.contains("[FLog::Output] Connecting to UDMUX server"):
-      onServerIpRevealed(args.config, data)
+      send(
+        Packet(
+          magic: mgOnGameJoin,
+          arguments: @[
+            %* data
+          ]
+        )
+      )
 
-    if data.contains("[FLog::Output] [BloxstrapRPC]"):
-      onBloxstrapRpc(args.config, args.discord, data)
+      # onGameJoin(args.config, data, args.discord, startedPlayingAt)
+
+    if data.contains("[FLog::Network] UDMUX Address ="):
+      let str = data.split(" = ")[1].split(",")[0]
+
+      echo str
+      send(
+        Packet(
+          magic: mgOnServerIp,
+          arguments: @[
+            %* str
+          ]
+        )
+      )
+
+    #[if data.contains("[FLog::Output] [BloxstrapRPC]"):
+      onBloxstrapRpc(args.config, args.discord, data)]#
 
     if data.contains("[FLog::Network] Client:Disconnect") or
-        data.contains("[FLog::SingleSurfaceApp] handleGameWillClose") or
         data.contains("[FLog::Network] Connection lost - Cannot contact server/client"):
-      onGameLeave(args.config, args.discord)
+      discard#onGameLeave(config)
 
-    sleep(args.config.lucem.pollingDelay.int)
+    # sleep(config.lucem.pollingDelay.int)
     hasntStarted = false
     inc line
-
-  withLock args.slock[]:
-    args.state[] = Exited
 
   info "lucem: Sober seems to have exited - we'll stop here too. Adios!"
 
@@ -281,56 +197,13 @@ proc runRoblox*(input: Input, config: Config) =
   info "lucem: running Roblox via Sober"
 
   writeFile(getSoberLogPath(), newString(0))
-  var discord: Option[DiscordRPC]
-
-  if config.lucem.discordRpc:
-    info "lucem: connecting to Discord RPC"
-    var client = newDiscordRPC(DiscordRpcId.int64)
-
-    try:
-      discard client.connect()
-
-      client.setActivity(
-        Activity(
-          details: "Playing Roblox with Lucem (Sober)",
-          state: "In the Roblox app",
-          timestamps: ActivityTimestamps(start: startingTime.int64),
-        )
-      )
-
-      discord = some(move(client))
-    except CatchableError as exc:
-      warn "lucem: unable to connect to Discord RPC: " & exc.msg
-
-  debug "lucem: initialize lock that guards `LoadingState` pointer"
-  var slock: Lock
-  initLock(slock)
-
-  var state {.guard: slock.} = WaitingForLaunch
-
-  debug "lucem: creating event watcher thread"
-  var evThr: Thread[
-    tuple[
-      state: ptr LoadingState,
-      slock: ptr Lock,
-      discord: Option[DiscordRPC],
-      config: Config,
-      input: Input,
-    ]
-  ]
-  createThread(evThr, eventWatcher, (addr state, addr slock, discord, config, input))
 
   info "lucem: redirecting sober logs to: " & getSoberLogPath()
   discard flatpakRun(SOBER_APP_ID, getSoberLogPath(), config.client.launcher)
+  
+  eventWatcher(input = input, config = config)
 
-  #[ if config.lucem.loadingScreen:
-    debug "lucem: creating loading screen GTK4 surface"
-    initLoadingScreen(addr state, slock) ]#
   if config.lucem.loadingScreen:
     warn "lucem: the loading screen is currently malfunctioning after the new Sober update. It'll be fixed soon. Sorry! :("
 
-  debug "lucem: loading screen has ended, waiting for event watcher thread to exit or die."
-  evThr.joinThread()
-
-  debug "lucem: event watcher thread has exited."
   quit(0)

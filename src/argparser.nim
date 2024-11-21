@@ -1,6 +1,6 @@
 ## Argument parser for Lucem, based on `std/parseopt`
 ## Copyright (C) 2024 Trayambak Rai
-import std/[os, parseopt, logging, tables]
+import std/[os, parseopt, logging, tables, strutils]
 import ./[sugar]
 
 type Input* = object
@@ -51,7 +51,7 @@ proc parseInput*(): Input {.inline.} =
         debug "argparser: found argument: " & parser.key
         input.arguments &= parser.key
 
-  if input.command.len < 1:
+  if input.command.len < 1 and not getAppFilename().contains("lucemd"): # lucemd doesn't need a command
     error "lucem: expected command, got none. Run `lucem help` for more information."
     quit(1)
 
