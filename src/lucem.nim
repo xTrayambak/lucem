@@ -4,7 +4,7 @@
 
 import std/[os, logging, strutils, terminal]
 import colored_logger, nimgl/vulkan
-import ./[meta, argparser, config, cache_calls, desktop_files, sober_state, gpu_info]
+import ./[meta, argparser, config, cache_calls, desktop_files, sober_state, gpu_info, systemd]
 import ./shell/core
 import ./commands/[init, run, edit_config, explain]
 
@@ -13,7 +13,7 @@ proc showHelp(exitCode: int = 1) {.inline, noReturn.} =
 lucem [command] [arguments]
 
 Commands:
-  init                      Install Sober
+  init                      Install Sober and initialize Lucem's internals
   run                       Run Sober
   meta                      Get build metadata
   list-gpus                 List all GPUs on this system
@@ -95,6 +95,9 @@ proc main() {.inline.} =
   of "init":
     initializeSober(input)
     createLucemDesktopFile()
+    installSystemdService()
+  of "install-systemd-service":
+    installSystemdService()
   of "explain":
     input.generateQuestion().explain()
   of "edit-config":
