@@ -6,7 +6,7 @@ description = "A small wrapper over Sober that provides quality of life improvem
 license = "MIT"
 srcDir = "src"
 backend = "cpp"
-bin = @["lucem", "lucemd"]
+bin = @["lucem", "lucemd", "lucem_overlay"]
 
 # Dependencies
 
@@ -23,3 +23,5 @@ requires "netty >= 0.2.1"
 requires "simdutf >= 5.5.0"
 
 requires "curly >= 1.1.1"
+requires "nanovg >= 0.4.0"
+requires "siwin >= 0.9.2"
