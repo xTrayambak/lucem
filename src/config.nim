@@ -89,10 +89,8 @@ proc backend*(config: Config): WindowingBackend =
 const
   DefaultConfig* =
     """
-[apk]
-version = ""
-
 [lucem]
+discord_rpc = true
 notify_server_region = true
 loading_screen = true
 polling_delay = 0
