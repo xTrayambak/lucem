@@ -9,7 +9,7 @@ type
     app_version*: string = "2.642.635"
     bring_back_oof*: bool = false
     brought_back_oof*: bool = false
-    enable_discord_rpc*: bool = false
+    enable_discord_rpc*: bool = true
     fixed_assets*: bool = false
     fullscreen*: bool = true
 
@@ -64,13 +64,8 @@ proc loadSoberState*(): SoberState =
 
 proc patchSoberState*(input: Input, config: Config) =
   var state = loadSoberState()
-
-  if not input.enabled("use-sober-rpc", "S"):
-    debug "lucem: disabling sober's builtin RPC module"
-    state.v1.enableDiscordRpc = false
-  else:
-    warn "lucem: you have explicitly stated that you wish to use Sober's Discord RPC feature."
-    warn "lucem: do not report any RPC bugs that arise from this to us, report them to the VinegarHQ team instead."
+  
+  if config.lucem.discord_rpc:
     state.v1.enableDiscordRpc = true
 
   if not input.enabled("use-sober-patching", "P"):

@@ -31,7 +31,7 @@ type
     version*: string = ""
 
   LucemConfig* = object
-    discord_rpc*: bool = true
+    discord_rpc*: bool = false
     notify_server_region*: bool = true
     loading_screen*: bool = true
     polling_delay*: uint = 100
@@ -93,7 +93,6 @@ const
 version = ""
 
 [lucem]
-discord_rpc = true
 notify_server_region = true
 loading_screen = true
 polling_delay = 0
@@ -104,6 +103,16 @@ moon = ""
 sun = ""
 font = ""
 excludeFonts = ["RobloxEmoji.ttf"]
+
+[daemon]
+port = 9898
+
+[overlay]
+width = 600
+height = 200
+headingSize = 32
+descriptionSize = 18
+anchors = "top-right"
 
 [client]
 fps = 9999

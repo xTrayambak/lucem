@@ -1,7 +1,7 @@
 ## Run the Roblox client, update FFlags and optionally, provide Discord RPC and other features.
 ## Copyright (C) 2024 Trayambak Rai
 import std/[os, logging, strutils, json, times, locks, sets]
-import pkg/[colored_logger, discord_rpc, netty, jsony, pretty]
+import pkg/[colored_logger, netty, jsony, pretty]
 import ../api/[games, thumbnails, ipinfo]
 import
   ../patches/[bring_back_oof, patch_fonts, sun_and_moon_textures, windowing_backend]

@@ -27,7 +27,6 @@ Commands:
 Flags:
   --verbose, -v              Show additional debug logs, useful for diagnosing issues.
   --skip-patching, -N        Don't apply your selected patches to Roblox, use this to see if a crash is caused by them. This won't undo patches!
-  --use-sober-rpc, -S        Use Sober's builtin Discord RPC that has Bloxstrap RPC. Lucem will bring this up to 1:1 feature parity soon.
   --use-sober-patching, -P   Use Sober's patches (bring back old oof) instead of Lucem's. There's no need to use this since Lucem already works just as well.
   --dont-check-vulkan        Don't try to initialize Vulkan to ensure that Sober can run on your GPU.
 """
