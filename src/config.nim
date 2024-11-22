@@ -23,6 +23,10 @@ proc autodetectWindowingBackend*(): WindowingBackend {.inline.} =
     return WindowingBackend.X11
 
 type
+  Renderer* {.pure.} = enum
+    Vulkan
+    OpenGL
+
   APKConfig* = object
     version*: string = ""
 
@@ -35,6 +39,7 @@ type
   ClientConfig* = object
     fps*: int = 60
     launcher*: string = ""
+    renderer*: Renderer = Renderer.Vulkan
     backend: string
     telemetry*: bool = false
     fflags*: string

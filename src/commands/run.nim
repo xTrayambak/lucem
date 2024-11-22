@@ -199,7 +199,7 @@ proc runRoblox*(input: Input, config: Config) =
   writeFile(getSoberLogPath(), newString(0))
 
   info "lucem: redirecting sober logs to: " & getSoberLogPath()
-  discard flatpakRun(SOBER_APP_ID, getSoberLogPath(), config.client.launcher)
+  discard flatpakRun(SOBER_APP_ID, getSoberLogPath(), config.client.launcher, config)
   
   eventWatcher(input = input, config = config)
 

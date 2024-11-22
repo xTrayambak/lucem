@@ -2,6 +2,7 @@
 ## Copyright (C) 2024 Trayambak Rai
 
 import std/[os, osproc, posix, logging, strutils]
+import ./[config]
 
 proc flatpakInstall*(id: string, user: bool = true): bool {.inline, discardable.} =
   if findExe("flatpak").len < 1:
@@ -25,7 +26,8 @@ proc soberRunning*(): bool {.inline.} =
   execCmdEx("pidof sober").output.len > 2
 
 proc flatpakRun*(
-    id: string, path: string = "/dev/stdout", launcher: string = ""
+  id: string, path: string = "/dev/stdout", launcher: string = "",
+  config: Config
 ): bool {.inline.} =
   info "flatpak: launching flatpak app \"" & id & '"'
   debug "flatpak: launcher = " & launcher
@@ -39,7 +41,12 @@ proc flatpakRun*(
 
   if fork() == 0:
     debug "flatpak: we are the child - launching \"" & id & '"'
-    discard execCmdEx(launcherExe & " flatpak run " & id & " > " & path)
+    var cmd = launcherExe & " \"flatpak run " & id
+
+    if config.client.renderer == Renderer.OpenGL:
+      debug "flatpak: forcing Sober to use OpenGL"
+      cmd &= " --opengl "
+    discard execCmdEx(cmd & " > " & path & '"')
     quit(0)
   else:
     debug "flatpak: we are the parent - continuing"
