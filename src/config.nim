@@ -55,12 +55,20 @@ type
   DaemonConfig* = object
     port*: uint = 9898
 
+  OverlayConfig* = object
+    width*: uint = 600
+    height*: uint = 200
+    headingSize*: float = 32f
+    descriptionSize*: float = 18f
+    font*: Option[string] = none(string)
+    anchors*: string = "top-right"
+
   Config* = object
     apk*: APKConfig
     lucem*: LucemConfig
     tweaks*: Tweaks
     client*: ClientConfig
-
+    overlay*: OverlayConfig
     daemon*: DaemonConfig
 
 proc backend*(config: Config): WindowingBackend =
