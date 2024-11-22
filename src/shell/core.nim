@@ -5,7 +5,6 @@ import std/[os, strutils, json, logging, posix, osproc, times]
 import owlkettle, owlkettle/adw
 import
   ../[config, argparser, cache_calls, fflags, meta, notifications, desktop_files, fs]
-import discord_rpc
 
 type ShellState* {.pure.} = enum
   Client
@@ -54,9 +53,6 @@ viewable LucemShell:
 
   prevFflagBuff:
     string
-
-  discord:
-    DiscordRPC
 
   automaticApkUpdates:
     bool
@@ -146,36 +142,12 @@ method view(app: LucemShellState): Widget =
               proc clicked() =
                 app.state = ShellState.Lucem
 
-                if app.config[].lucem.discordRpc:
-                  try:
-                    app.discord.setActivity(
-                      Activity(
-                        details: "Configuring Lucem",
-                        state: "In the Features Menu",
-                        timestamps: ActivityTimestamps(start: epochTime().int64),
-                      )
-                    )
-                  except CatchableError as exc:
-                    warn "shell: failed to set activity: " & exc.msg
-
             Button:
               sensitive = true
               text = "Client"
 
               proc clicked() =
                 app.state = ShellState.Client
-
-                if app.config[].lucem.discordRpc:
-                  try:
-                    app.discord.setActivity(
-                      Activity(
-                        details: "Configuring Lucem",
-                        state: "In the Client Settings Menu",
-                        timestamps: ActivityTimestamps(start: epochTime().int64),
-                      )
-                    )
-                  except CatchableError as exc:
-                    warn "shell: failed to set activity: " & exc.msg
 
             Button:
               sensitive = true
@@ -184,36 +156,12 @@ method view(app: LucemShellState): Widget =
               proc clicked() =
                 app.state = ShellState.Tweaks
 
-                if app.config[].lucem.discordRpc:
-                  try:
-                    app.discord.setActivity(
-                      Activity(
-                        details: "Configuring Lucem",
-                        state: "In the Tweaks & Patches Menu",
-                        timestamps: ActivityTimestamps(start: epochTime().int64),
-                      )
-                    )
-                  except CatchableError as exc:
-                    warn "shell: failed to set activity: " & exc.msg
-
             Button:
               sensitive = true
               text = "FFlags"
 
               proc clicked() =
                 app.state = ShellState.FflagEditor
-
-                if app.config[].lucem.discordRpc:
-                  try:
-                    app.discord.setActivity(
-                      Activity(
-                        details: "Configuring Lucem",
-                        state: "In the FFlag Editor",
-                        timestamps: ActivityTimestamps(start: epochTime().int64),
-                      )
-                    )
-                  except CatchableError as exc:
-                    warn "shell: failed to set activity: " & exc.msg
 
         case app.state
         of ShellState.Tweaks:
@@ -315,18 +263,6 @@ method view(app: LucemShellState): Widget =
                 proc changed(state: bool) =
                   app.discordRpcOpt = not app.discordRpcOpt
                   app.config[].lucem.discordRpc = app.discordRpcOpt
-
-                  if not app.discordRpcOpt:
-                    try:
-                      app.discord.closeActivityRequest(DiscordRpcId.int64)
-                        # FIXME: no workie.
-                    except CatchableError as exc:
-                      debug "shell: discord.closeActivityRequest() failed: " & exc.msg
-                  else:
-                    try:
-                      discard app.discord.connect()
-                    except CatchableError as exc:
-                      debug "shell: discord.connect() failed: " & exc.msg
 
                   debug "shell: discord rpc option state: " &
                     $app.config[].lucem.discordRpc
@@ -551,15 +487,6 @@ proc initLucemShell*(input: Input) {.inline.} =
   info "shell: initializing GTK4 shell"
   info "shell: libadwaita version: v" & $AdwVersion[0] & '.' & $AdwVersion[1]
   var config = parseConfig(input)
-  var rpc = newDiscordRPC(DiscordRpcId.int64)
-
-  if config.lucem.discordRpc:
-    debug "shell: connecting to Discord RPC"
-
-    try:
-      discard rpc.connect()
-    except CatchableError as exc:
-      warn "shell: failed to connect to Discord: " & exc.msg
 
   adw.brew(
     gui(
@@ -578,7 +505,6 @@ proc initLucemShell*(input: Input) {.inline.} =
         moonImgPath = config.tweaks.moon,
         pollingDelayBuff = $config.lucem.pollingDelay,
         automaticApkUpdates = config.client.apkUpdates,
-        discord = rpc,
       )
     )
   )

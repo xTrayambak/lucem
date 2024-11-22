@@ -1,14 +1,14 @@
-## notify-send wrapper
 ## Copyright (C) 2024 Trayambak Rai
-import std/[os, osproc, logging, strutils]
+import std/[os, osproc, logging, strutils, posix, base64]
 import ./sugar
 
-proc notify*(
+proc notifyFallback*(
     heading: string,
     description: string,
     expireTime: uint64 = 240000,
     icon: Option[string] = none(string),
 ) =
+  debug "notifications: using libnotify fallback... (cringe guhnome user detected)"
   debug "notifications: preparing notify-send command"
   debug "notifications: heading = $1, description = $2, expireTime = $3" %
     [heading, description, $expireTime]
@@ -36,3 +36,26 @@ proc notify*(
   else:
     warn "notifications: notify-send exited with abnormal exit code (" & $code & ')'
     warn "notifications: command was: " & cmd
+
+proc notify*(
+  heading: string,
+  description: string,
+  expireTime: uint64 = 240000,
+  icon: Option[string] = none(string)
+) =
+  var worker = findExe("lucem_overlay")
+  if getEnv("XDG_CURRENT_DESKTOP") == "GNOME" or (defined(release) and worker.len < 1):
+    warn "notifications: we're either on GNOME or the lucem overlay binary is missing, something went horribly wrong!"
+    notifyFallback(heading, description, expireTime, icon)
+    return
+  
+  let pid = fork()
+
+  if worker.len < 1 and not defined(release):
+    worker = "./lucem_overlay"
+
+  if pid == 0:
+    let cmd = worker & " --heading:\"" & heading.encode() & "\" --description:\"" & description.encode() & "\" --expire-time:" & $(expireTime.int / 1000) & ' ' & (if *icon: "--icon:" & &icon else: "")
+    debug "notifications: executing command: " & cmd
+    discard execCmd(cmd)
+    quit(0)

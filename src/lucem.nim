@@ -4,7 +4,7 @@
 
 import std/[os, logging, strutils, terminal]
 import colored_logger, nimgl/vulkan
-import ./[meta, argparser, config, cache_calls, desktop_files, sober_state, gpu_info]
+import ./[meta, argparser, config, cache_calls, desktop_files, sober_state, gpu_info, systemd]
 import ./shell/core
 import ./commands/[init, run, edit_config, explain]
 
@@ -13,7 +13,7 @@ proc showHelp(exitCode: int = 1) {.inline, noReturn.} =
 lucem [command] [arguments]
 
 Commands:
-  init                      Install Sober
+  init                      Install Sober and initialize Lucem's internals
   run                       Run Sober
   meta                      Get build metadata
   list-gpus                 List all GPUs on this system
@@ -27,7 +27,6 @@ Commands:
 Flags:
   --verbose, -v              Show additional debug logs, useful for diagnosing issues.
   --skip-patching, -N        Don't apply your selected patches to Roblox, use this to see if a crash is caused by them. This won't undo patches!
-  --use-sober-rpc, -S        Use Sober's builtin Discord RPC that has Bloxstrap RPC. Lucem will bring this up to 1:1 feature parity soon.
   --use-sober-patching, -P   Use Sober's patches (bring back old oof) instead of Lucem's. There's no need to use this since Lucem already works just as well.
   --dont-check-vulkan        Don't try to initialize Vulkan to ensure that Sober can run on your GPU.
 """
@@ -95,6 +94,9 @@ proc main() {.inline.} =
   of "init":
     initializeSober(input)
     createLucemDesktopFile()
+    installSystemdService()
+  of "install-systemd-service":
+    installSystemdService()
   of "explain":
     input.generateQuestion().explain()
   of "edit-config":

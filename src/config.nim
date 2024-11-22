@@ -23,11 +23,15 @@ proc autodetectWindowingBackend*(): WindowingBackend {.inline.} =
     return WindowingBackend.X11
 
 type
+  Renderer* {.pure.} = enum
+    Vulkan
+    OpenGL
+
   APKConfig* = object
     version*: string = ""
 
   LucemConfig* = object
-    discord_rpc*: bool = true
+    discord_rpc*: bool = false
     notify_server_region*: bool = true
     loading_screen*: bool = true
     polling_delay*: uint = 100
@@ -35,6 +39,7 @@ type
   ClientConfig* = object
     fps*: int = 60
     launcher*: string = ""
+    renderer*: Renderer = Renderer.Vulkan
     backend: string
     telemetry*: bool = false
     fflags*: string
@@ -46,12 +51,25 @@ type
     sun*: string = ""
     font*: string = ""
     excludeFonts*: seq[string] = @["RobloxEmoji.ttf", "TwemojiMozilla.ttf"]
+  
+  DaemonConfig* = object
+    port*: uint = 9898
+
+  OverlayConfig* = object
+    width*: uint = 600
+    height*: uint = 200
+    headingSize*: float = 32f
+    descriptionSize*: float = 18f
+    font*: Option[string] = none(string)
+    anchors*: string = "top-right"
 
   Config* = object
     apk*: APKConfig
     lucem*: LucemConfig
     tweaks*: Tweaks
     client*: ClientConfig
+    overlay*: OverlayConfig
+    daemon*: DaemonConfig
 
 proc backend*(config: Config): WindowingBackend =
   if config.client.backend.len < 1:
@@ -71,9 +89,6 @@ proc backend*(config: Config): WindowingBackend =
 const
   DefaultConfig* =
     """
-[apk]
-version = ""
-
 [lucem]
 discord_rpc = true
 notify_server_region = true
@@ -86,6 +101,16 @@ moon = ""
 sun = ""
 font = ""
 excludeFonts = ["RobloxEmoji.ttf"]
+
+[daemon]
+port = 9898
+
+[overlay]
+width = 600
+height = 200
+headingSize = 32
+descriptionSize = 18
+anchors = "top-right"
 
 [client]
 fps = 9999
