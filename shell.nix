@@ -8,6 +8,15 @@ mkShell {
   	openssl.dev
 	curl.dev
 	simdutf
+	xorg.libX11
+	xorg.libXcursor.dev
+	xorg.libXrender
+	xorg.libXext
+	libxkbcommon
+	libGL.dev
+	wayland
+	wayland-protocols
+	wayland-scanner.dev
   ];
 
   LD_LIBRARY_PATH = lib.makeLibraryPath [

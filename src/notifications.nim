@@ -53,6 +53,7 @@ proc notify*(
 
   if pid == 0:
     discard execCmd(
-      worker & " --heading:" & heading.encode() & " --description:" & description.encode() & " --expireTime:" & $expireTime & ' ' &
+      worker & " --heading:" & heading.encode() & " --description:" & description.encode() & " --expireTime:" & $(expireTime.int / 1000) & ' ' &
       (if *icon: "--icon:" & &icon else: "")
     )
+    quit(0)
