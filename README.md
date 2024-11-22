@@ -23,7 +23,7 @@ If you really cheat on Roblox, I'd say you should reconsider your life decisions
 - GTK4-based FFlag editor that is easy to use
 - Rich presence
 - Server region notifier
-- If you're not a fan of GUIs, we provide a nifty configuration file that does the same thing! (located at `~/.config/lucem/config.toml`)
+- If you're not a fan of GUIs, we provide a nifty configuration file that does the same thing! (located at `~/.config/lucem/config.toml`, or you can run `lucem edit-config`!)
 - Managing Sober
 
 Whilst not a feature you use directly, Lucem also caches API calls whenever it can in order to save bandwidth and resources.
@@ -112,6 +112,16 @@ $ lucem meta
 ## Clearing API caches
 ```command
 $ lucem clear-cache
+```
+
+## Installing Desktop File
+```command
+$ lucem install-desktop-file
+```
+
+## Installing Systemd Service (run as user, not root!)
+```command
+$ lucem install-systemd-service
 ```
 
 # Troubleshooting
