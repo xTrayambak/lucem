@@ -2,7 +2,6 @@
 ## Copyright (C) 2024 Trayambak Rai
 import std/[json, options, logging, base64]
 import pkg/[jsony, netty]
-# import pkg/simdutf/base64
 
 type
   Magic* = enum

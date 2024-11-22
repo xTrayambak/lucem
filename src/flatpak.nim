@@ -40,13 +40,21 @@ proc flatpakRun*(
     warn "flatpak: ignoring for now."
 
   if fork() == 0:
+    var file = posix.open(path, O_WRONLY or O_CREAT or O_TRUNC, 0644)
+    assert(file >= 0)
+
     debug "flatpak: we are the child - launching \"" & id & '"'
-    var cmd = launcherExe & " \"flatpak run " & id
+    var cmd = launcherExe & " flatpak run " & id
 
     if config.client.renderer == Renderer.OpenGL:
       debug "flatpak: forcing Sober to use OpenGL"
-      cmd &= " --opengl "
-    discard execCmdEx(cmd & " > " & path & '"')
+      cmd &= " --opengl"
+
+    debug "flatpak: final command: " & cmd
+    if dup2(file, STDOUT_FILENO) < 0:
+      error "lucem: dup2() for stdout failed: " & $strerror(errno)
+
+    discard execCmd(cmd)
     quit(0)
   else:
     debug "flatpak: we are the parent - continuing"

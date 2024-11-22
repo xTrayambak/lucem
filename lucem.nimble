@@ -5,7 +5,7 @@ author = "xTrayambak"
 description = "A small wrapper over Sober that provides quality of life improvements"
 license = "MIT"
 srcDir = "src"
-backend = "cpp"
+backend = "c"
 bin = @["lucem", "lucemd", "lucem_overlay"]
 
 # Dependencies
@@ -19,7 +19,6 @@ requires "discord_rpc >= 0.2.0"
 requires "owlkettle >= 3.0.0"
 requires "nimgl >= 1.3.2"
 requires "netty >= 0.2.1"
-requires "simdutf >= 5.5.0"
 requires "curly >= 1.1.1"
 requires "nanovg >= 0.4.0"
 requires "siwin#9ce9aa3efa84f55bbf3d29ef0517b2411d08a357"

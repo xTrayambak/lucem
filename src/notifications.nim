@@ -1,6 +1,5 @@
 ## Copyright (C) 2024 Trayambak Rai
-import std/[os, osproc, logging, strutils, posix]
-import pkg/simdutf/base64
+import std/[os, osproc, logging, strutils, posix, base64]
 import ./sugar
 
 proc notifyFallback*(
@@ -44,16 +43,19 @@ proc notify*(
   expireTime: uint64 = 240000,
   icon: Option[string] = none(string)
 ) =
-  let worker = findExe("lucem_overlay")
-  if getEnv("XDG_CURRENT_DESKTOP") == "GNOME" or worker.len < 1:
+  var worker = findExe("lucem_overlay")
+  if getEnv("XDG_CURRENT_DESKTOP") == "GNOME" or (defined(release) and worker.len < 1):
+    warn "notifications: we're either on GNOME or the lucem overlay binary is missing, something went horribly wrong!"
     notifyFallback(heading, description, expireTime, icon)
     return
   
   let pid = fork()
 
+  if worker.len < 1 and not defined(release):
+    worker = "./lucem_overlay"
+
   if pid == 0:
-    discard execCmd(
-      worker & " --heading:" & heading.encode() & " --description:" & description.encode() & " --expireTime:" & $(expireTime.int / 1000) & ' ' &
-      (if *icon: "--icon:" & &icon else: "")
-    )
+    let cmd = worker & " --heading:\"" & heading.encode() & "\" --description:\"" & description.encode() & "\" --expire-time:" & $(expireTime.int / 1000) & ' ' & (if *icon: "--icon:" & &icon else: "")
+    debug "notifications: executing command: " & cmd
+    discard execCmd(cmd)
     quit(0)

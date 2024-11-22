@@ -7,7 +7,6 @@ mkShell {
 	pkg-config
   	openssl.dev
 	curl.dev
-	simdutf
 	xorg.libX11
 	xorg.libXcursor.dev
 	xorg.libXrender
@@ -24,7 +23,6 @@ mkShell {
 	libadwaita.dev
 	pkg-config
 	curl.dev
-	simdutf
   	openssl.dev
   ];
 }

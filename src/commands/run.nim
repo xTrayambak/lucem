@@ -101,7 +101,7 @@ proc eventWatcher*(
     let logFile = readFile(getSoberLogPath()).splitLines()
 
     if ticksUntilSoberRunCheck < 1:
-      debug "lucem: checking if sober is still running"
+      # debug "lucem: checking if sober is still running"
       soberIsRunning = soberRunning()
       ticksUntilSoberRunCheck = 5000
 
@@ -115,11 +115,11 @@ proc eventWatcher*(
       inc line
       continue
 
-    if verbose or not defined(release):
-      echo data
+    if verbose:
+      data.echo
 
     if data.contains(
-      "[FLog::GameJoinUtil] GameJoinUtil::joinGamePostStandard"
+      "[FLog::GameJoinUtil] GameJoinUtil::joinGamePostStandard: URL: https://gamejoin.roblox.com/v1/join-game BODY:"
     ):
       startedPlayingAt = epochTime()
       startingTime = startedPlayingAt
@@ -137,6 +137,8 @@ proc eventWatcher*(
 
     if data.contains("[FLog::Network] UDMUX Address ="):
       let str = data.split(" = ")[1].split(",")[0]
+
+      info "lucem: server IP: " & str
 
       send(
         Packet(
@@ -166,8 +168,5 @@ proc runRoblox*(input: Input, config: Config) =
   discard flatpakRun(SOBER_APP_ID, getSoberLogPath(), config.client.launcher, config)
   
   eventWatcher(input = input, config = config)
-
-  if config.lucem.loadingScreen:
-    warn "lucem: the loading screen is currently malfunctioning after the new Sober update. It'll be fixed soon. Sorry! :("
 
   quit(0)

@@ -1,7 +1,7 @@
 ## Lucem Overlay
 ## Copyright (C) 2024 Trayambak Rai
 
-import std/[os, logging, strutils, importutils, times]
+import std/[os, logging, strutils, importutils, base64, times]
 import ./[argparser, sugar, config, internal_fonts]
 import pkg/[siwin, opengl, nanovg, colored_logger, vmath]
 import pkg/siwin/platforms/wayland/[window, windowOpengl]
@@ -38,7 +38,7 @@ proc draw*(overlay: var Overlay) =
     GL_STENCIL_BUFFER_BIT)
 
   overlay.vg.beginFrame(overlay.size.x.cfloat, overlay.size.y.cfloat, 1f) # TODO: fractional scaling support
-  overlay.vg.roundedRect(0, 0, overlay.size.x.cfloat, overlay.size.y.cfloat, 16f)
+  overlay.vg.roundedRect(0, 0, overlay.size.x.cfloat - 16f, overlay.size.y.cfloat, 16f)
   overlay.vg.fillColor(rgba(0.3, 0.3, 0.3, 0.8))
   overlay.vg.fill()
   
@@ -68,8 +68,8 @@ proc initOverlay*(input: Input) {.noReturn.} =
   ]:
     if (let maybeOpt = input.flag(opt); *maybeOpt):
       case opt
-      of "heading": overlay.heading = &maybeOpt
-      of "description": overlay.description = &maybeOpt
+      of "heading": overlay.heading = decode(&maybeOpt)
+      of "description": overlay.description = decode(&maybeOpt)
       of "expire-time": overlay.expireTime = parseFloat(&maybeOpt)
     else:
       error "overlay: expected flag: " & opt
