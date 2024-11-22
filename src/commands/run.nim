@@ -61,33 +61,6 @@ proc updateConfig*(input: Input, config: Config) =
 
   writeFile(fflagsFile, serialized)
 
-proc onGameLeave*(config: Config, discord: Option[DiscordRPC]) =
-  debug "lucem: left experience"
-
-  if !discord:
-    return
-
-  let client = &discord
-
-  client.setActivity(
-    Activity(
-      details: "Playing Roblox with Lucem (Sober)",
-      state: "In the Roblox app",
-      timestamps: ActivityTimestamps(start: epochTime().int64),
-    )
-  )
-
-proc onBloxstrapRpc*(config: Config, discord: Option[DiscordRPC], line: string) =
-  assert false
-  debug "lucem: trying to extract BloxstrapRPC payload from line"
-  debug "lucem: " & line
-  let payload = line.split("[FLog::Output] [BloxstrapRPC]")
-
-  if payload.len < 2:
-    warn "lucem: failed to obtain BloxstrapRPC JSON payload as split results in one or less element."
-    warn "lucem: " & line
-    return
-
 proc eventWatcher*(
   config: Config,
   input: Input
@@ -123,20 +96,18 @@ proc eventWatcher*(
     ticksUntilSoberRunCheck = 0
 
   while hasntStarted or soberIsRunning:
-    #debug "lucem: ticking reactor"
     reactor.tick()
 
     let logFile = readFile(getSoberLogPath()).splitLines()
 
     if ticksUntilSoberRunCheck < 1:
-      # debug "lucem: checking if sober is still running"
+      debug "lucem: checking if sober is still running"
       soberIsRunning = soberRunning()
       ticksUntilSoberRunCheck = 5000
 
     dec ticksUntilSoberRunCheck
 
     if logFile.len - 1 < line:
-      # echo "woops (" & $line & "): " & $logFile
       continue
 
     let data = logFile[line]
@@ -144,8 +115,8 @@ proc eventWatcher*(
       inc line
       continue
 
-    #[if verbose or not defined(release):
-      echo data]#
+    if verbose or not defined(release):
+      echo data
 
     if data.contains(
       "[FLog::GameJoinUtil] GameJoinUtil::joinGamePostStandard"
@@ -164,12 +135,9 @@ proc eventWatcher*(
         )
       )
 
-      # onGameJoin(args.config, data, args.discord, startedPlayingAt)
-
     if data.contains("[FLog::Network] UDMUX Address ="):
       let str = data.split(" = ")[1].split(",")[0]
 
-      echo str
       send(
         Packet(
           magic: mgOnServerIp,
@@ -179,12 +147,9 @@ proc eventWatcher*(
         )
       )
 
-    #[if data.contains("[FLog::Output] [BloxstrapRPC]"):
-      onBloxstrapRpc(args.config, args.discord, data)]#
-
     if data.contains("[FLog::Network] Client:Disconnect") or
         data.contains("[FLog::Network] Connection lost - Cannot contact server/client"):
-      discard#onGameLeave(config)
+      continue
 
     # sleep(config.lucem.pollingDelay.int)
     hasntStarted = false
@@ -193,7 +158,6 @@ proc eventWatcher*(
   info "lucem: Sober seems to have exited - we'll stop here too. Adios!"
 
 proc runRoblox*(input: Input, config: Config) =
-  var startingTime = epochTime()
   info "lucem: running Roblox via Sober"
 
   writeFile(getSoberLogPath(), newString(0))
