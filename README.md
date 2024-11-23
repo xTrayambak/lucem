@@ -72,9 +72,17 @@ Fedora currently has no nim package, install Nim [here](https://nim-lang.org/ins
 
 ### Debian
 ```command
-# apt install gtk4 libadwaita-1 git
+# apt install gtk4 libadwaita-1-0 libadwaita-1-dev git
 ```
 Debian ships an old version of Nim that is not compatible with Lucem, install Nim [here](https://nim-lang.org/install_unix.html)
+
+### NixOS
+There's no Nix flake yet.
+```command
+$ git clone https://github.com/xTrayambak/lucem
+$ cd lucem
+$ nix-shell
+```
 
 The package names are similar for other distributions.
 
