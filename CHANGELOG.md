@@ -1,3 +1,18 @@
+# Lucem 2.0.1 is here!
+Yay. This is a hotfix release and you should update to it ASAP!
+
+**NOTICE**: Please run `lucem init` upon installing this release!
+
+## Fixed Bugs
+* Editing the configuration with `lucem shell` would result in your configuration getting borked
+
+## Thank you to all these people :3
+* The Sober team for creating Sober (plox open source it so that I can rewrite it in Nim :3)
+* adverbialsatz for reporting the bug
+
+## Installation
+Run `nimble install https://github.com/xTrayambak/lucem` in your terminal. Remember, this requires a Nim toolchain with version 2.0 or higher.
+
 # Lucem 2.0.0 is here!
 Yay.
 
@@ -13,9 +28,9 @@ Lucem stands at 2.4K lines of code.
 * Lucem now has an overlay on platforms that support it (KDE, Hyprland, Sway, Cosmic, or basically anything that isn't GNOME)
 * Lucem now defaults to using Sober's RPC implementation as it is better. `lucem:discord_rpc` still works as intended.
 
-# Thank you to all of these people :3
+## Thank you to all of these people :3
 * The Sober team for creating Sober (plox open source it so that I can rewrite it in Nim :3)
 * AshtakaOof for beta-testing the early rewrite builds
 
-# Installation
+## Installation
 Run `nimble install https://github.com/xTrayambak/lucem` in your terminal. Remember, this requires a Nim toolchain with version 2.0 or higher.
