@@ -1,6 +1,6 @@
 # Package
 
-version = "2.0.1"
+version = "2.0.2"
 author = "xTrayambak"
 description = "A small wrapper over Sober that provides quality of life improvements"
 license = "MIT"
