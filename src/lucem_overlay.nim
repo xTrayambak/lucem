@@ -115,8 +115,8 @@ proc initOverlay*(input: Input) {.noReturn.} =
     nifAntialias
   })
   var data = 
-    if (*config.overlay.font and fileExists(&config.overlay.font)):
-      cast[seq[byte]](readFile(&config.overlay.font))
+    if (config.overlay.font.len > 0 and fileExists(config.overlay.font)):
+      cast[seq[byte]](readFile(config.overlay.font))
     else:
       cast[seq[byte]](IbmPlexSans)
 

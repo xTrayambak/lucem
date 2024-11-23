@@ -60,7 +60,7 @@ type
     height*: uint = 200
     headingSize*: float = 32f
     descriptionSize*: float = 18f
-    font*: Option[string] = none(string)
+    font*: string = ""
     anchors*: string = "top-right"
 
   Config* = object
@@ -100,7 +100,7 @@ oldOof = true
 moon = ""
 sun = ""
 font = ""
-excludeFonts = ["RobloxEmoji.ttf"]
+excludeFonts = ["RobloxEmoji.ttf", "TwemojiMozilla.ttf"]
 
 [daemon]
 port = 9898
@@ -141,4 +141,9 @@ proc parseConfig*(input: Input): Config {.inline.} =
         ConfigLocation % [getHomeDir()] / "config.toml"
     )
 
-  Toml.decode(config, Config)
+  try:
+    Toml.decode(config, Config)
+  except TomlFieldReadingError as exc:
+    warn "lucem: unable to read configuration: " & exc.msg
+    warn "lucem: falling back to internal default configuration: your changes will NOT be respected!"
+    Toml.decode(DefaultConfig, Config)
