@@ -10,7 +10,7 @@ proc flatpakInstall*(id: string, user: bool = true): bool {.inline, discardable.
 
   info "flatpak: install package \"" & id & '"'
   let (output, exitCode) =
-    execCmdEx("flatpak install " & id & (if user: " --user" else: ""))
+    execCmdEx("flatpak install --assumeyes " & id & (if user: " --user" else: ""))
 
   if exitCode != 0 and not output.contains("is already installed"):
     error "flatpak: failed to install package \"" & id &
