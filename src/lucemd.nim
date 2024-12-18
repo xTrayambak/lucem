@@ -1,6 +1,6 @@
 ## Lucem daemon
 ## Copyright (C) 2024 Trayambak Rai
-import std/[logging, strutils, json]
+import std/[os, logging, strutils, json]
 import ./[argparser, config, sugar, proto, notifications]
 import ./api/[games, thumbnails, ipinfo]
 import pkg/[colored_logger, netty, pretty]
@@ -82,6 +82,7 @@ proc onServerIPRevealed*(daemon: var Daemon, ipAddr: string) =
 proc loop*(daemon: var Daemon) =
   info "lucemd: entering loop"
   while not daemon.shouldQuit:
+    sleep(250)
     daemon.reactor.tick()
     for message in daemon.reactor.messages:
       let opacket = message.getPacket()
