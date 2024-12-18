@@ -1,11 +1,11 @@
 ## FFlag "parser"
 ## Copyright (C) 2024 Trayambak Rai
-import std/[json, logging, strutils]
-import ./config
+import std/[json, tables, logging, strutils]
+import ./[sober_config, config]
 
 type FFlagParseError* = object of ValueError
 
-proc parseFFlags*(config: Config, fflags: JsonNode) =
+proc parseFFlags*(config: Config, fflags: var SoberFFlags) =
   if config.client.fflags.len > 0:
     for flag in config.client.fflags.split('\n'):
       let splitted = flag.split('=')

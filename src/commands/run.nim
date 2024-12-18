@@ -1,12 +1,13 @@
 ## Run the Roblox client, update FFlags and optionally, provide Discord RPC and other features.
 ## Copyright (C) 2024 Trayambak Rai
-import std/[os, logging, strutils, json, times, locks, sets]
+import std/[os, logging, strutils, json, tables, times, locks, sets]
 import pkg/[colored_logger, netty, jsony, pretty]
 import ../api/[games, thumbnails, ipinfo]
 import
   ../patches/[bring_back_oof, patch_fonts, sun_and_moon_textures, windowing_backend]
 import ../shell/loading_screen
 import ../proto
+import ../sober_config
 import
   ../[
     argparser, config, flatpak, common, meta, sugar, notifications, fflags, log_file,
@@ -24,10 +25,11 @@ proc updateConfig*(input: Input, config: Config) =
     error "lucem: could not open pre-existing FFlags file. Run `lucem init` first."
     quit(1)
 
-  var fflags = readFile(fflagsFile).parseJson()
+  var sober = getSoberConfig()
 
   info "lucem: target FPS is set to: " & $config.client.fps
-  fflags["DFIntTaskSchedulerTargetFps"] = newJInt(int(config.client.fps))
+  sober.fflags["DFIntTaskSchedulerTargetFps"] = newJInt(int(config.client.fps))
+  sober.useOpengl = config.client.renderer == Renderer.OpenGL
 
   if not config.client.telemetry:
     info "lucem: disabling telemetry FFlags"
@@ -51,15 +53,10 @@ proc updateConfig*(input: Input, config: Config) =
     "FFlagDebugDisableTelemetryV2Event", "FFlagDebugDisableTelemetryV2Stat",
   ]:
     debug "lucem: set flag `" & flag & "` to " & $(not config.client.telemetry)
-    fflags[flag] = newJBool(not config.client.telemetry)
+    sober.fflags[flag] = newJBool(not config.client.telemetry)
 
-  parseFFlags(config, fflags)
-
-  let serialized = pretty(fflags)
-  info "Writing FFlags JSON:"
-  info serialized
-
-  writeFile(fflagsFile, serialized)
+  parseFFlags(config, sober.fflags)
+  sober.saveSoberConfig()
 
 proc eventWatcher*(
   config: Config,

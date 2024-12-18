@@ -39,7 +39,7 @@ proc draw*(overlay: var Overlay) =
 
   overlay.vg.beginFrame(overlay.size.x.cfloat, overlay.size.y.cfloat, 1f) # TODO: fractional scaling support
   overlay.vg.roundedRect(0, 0, overlay.size.x.cfloat - 16f, overlay.size.y.cfloat, 16f)
-  overlay.vg.fillColor(rgba(0.3, 0.3, 0.3, 0.8))
+  overlay.vg.fillColor(rgba(0.1, 0.1, 0.1, 0.6))
   overlay.vg.fill()
   
   overlay.vg.fontFace("heading")

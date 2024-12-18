@@ -1,10 +1,10 @@
 ## Lucem shell
 ## "soon:tm:" - tray
 ## Copyright (C) 2024 Trayambak Rai
-import std/[os, strutils, json, logging, posix, osproc, times]
+import std/[os, strutils, json, logging, posix, tables, osproc, times]
 import owlkettle, owlkettle/adw
 import
-  ../[config, argparser, cache_calls, fflags, meta, notifications, desktop_files, fs]
+  ../[config, argparser, cache_calls, fflags, meta, notifications, desktop_files, fs, sober_config]
 
 type ShellState* {.pure.} = enum
   Client
@@ -61,7 +61,7 @@ viewable LucemShell:
     string
 
 method view(app: LucemShellState): Widget =
-  var parsedFflags = newJObject()
+  var parsedFflags: SoberFFlags
   try:
     parseFflags(app.config[], parsedFflags)
   except FFlagParseError as exc:
