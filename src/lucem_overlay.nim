@@ -103,6 +103,7 @@ proc initOverlay*(input: Input) {.noReturn.} =
 
   overlay.wl.setAnchor(anchors)
   overlay.wl.setExclusiveZone(10000)
+  overlay.wl.m_transparent = true
 
   overlay.config = move(config)
 
