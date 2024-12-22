@@ -90,23 +90,26 @@ method view(app: LucemShellState): Widget =
 
         Button {.addRight.}:
           style = [ButtonFlat]
-          icon = "check-plain-symbolic"
+          icon = "media-floppy-symbolic" # floppy disk as a save icon (system icon)
+          tooltip = "Save the modified configuration"
 
           proc clicked() =
-            debug "shell: save config"
+            debug "shell: updated configuration file"
             app.config[].save()
 
         Button {.addRight.}:
           style = [ButtonFlat]
-          icon = "document-text-symbolic"
+          icon = "view-pin-symbolic"
+          tooltip = "Add desktop entries for Lucem"
 
           proc clicked() =
-            debug "shell: create .desktop files"
+            debug "shell: created .desktop files"
             createLucemDesktopFile()
 
         Button {.addRight.}:
           style = [ButtonFlat]
-          icon = "xbox-controller-symbolic"
+          icon = "input-gaming-symbolic"
+          tooltip = "Save configuration and launch Sober trough Lucem"
 
           proc clicked() =
             debug "shell: save config, exit config editor and launch lucem"
