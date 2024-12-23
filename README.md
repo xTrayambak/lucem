@@ -73,7 +73,7 @@ You will need the following dependencies to compile Lucem:
 ```command
 # dnf install gtk4-devel libadwaita-devel git
 ```
-Fedora currently has no nim package, install Nim [here](https://nim-lang.org/install_unix.html)
+You can get nim from the [Terra](https://terra.fyralabs.com/) repository
 
 ### Debian
 ```command
@@ -142,6 +142,6 @@ $ lucem install-systemd-service
 ## It says `lucem: command not found` after compiling!
 The nimble binary folder is not in your PATH, you can run:
 ```command
-$ export PATH=/home/your_username/.nimble/bin:$PATH
+$ export PATH=$HOME/.nimble/bin:$PATH
 ```
-You will need to add this to your .bashrc to make this permanent.
+Add the export to your .bashrc to make it permanent.
