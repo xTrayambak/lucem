@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="300mm"
+   height="300mm"
+   viewBox="0 0 300 300"
+   version="1.1"
+   id="svg1"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="true"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="mm">
+    <inkscape:page
+       x="0"
+       y="0"
+       width="300"
+       height="300"
+       id="page2"
+       margin="0"
+       bleed="0" />
+  </sodipodi:namedview>
+  <defs
+     id="defs1">
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient23"
+       id="radialGradient26"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-4.6578784,0.65462221,-0.62256082,-4.4297505,30.345854,732.8719)"
+       cx="-35.258564"
+       cy="154.99695"
+       fx="-35.258564"
+       fy="154.99695"
+       r="59.999973" />
+    <linearGradient
+       id="linearGradient23"
+       inkscape:collect="always">
+      <stop
+         style="stop-color:#7964ff;stop-opacity:1;"
+         offset="0"
+         id="stop25" />
+      <stop
+         style="stop-color:#0078ff;stop-opacity:1"
+         offset="1"
+         id="stop24" />
+    </linearGradient>
+    <inkscape:path-effect
+       effect="fillet_chamfer"
+       id="path-effect26"
+       is_visible="true"
+       lpeversion="1"
+       nodesatellites_param="F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 | F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1"
+       radius="0"
+       unit="px"
+       method="auto"
+       mode="F"
+       chamfer_steps="1"
+       flexible="false"
+       use_knot_distance="true"
+       apply_no_radius="true"
+       apply_with_radius="true"
+       only_selected="false"
+       hide_knots="false" />
+  </defs>
+  <g
+     inkscape:label="Lucem"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       id="path25"
+       style="display:inline;fill:url(#radialGradient26);stroke-width:0.264583"
+       inkscape:label="Grapejuice"
+       d="m 7.6798782,0.2547871 c -4.1134501,0 -7.42509349,3.3116434 -7.42509349,7.4250935 V 112.82964 c 0,4.11345 3.31164339,7.42509 7.42509349,7.42509 H 112.82964 c 4.11345,0 7.42509,-3.31164 7.42509,-7.42509 V 82.244801 H 77.087255 66.265443 43.422262 c -2.85726,0 -5.157544,-2.300283 -5.157544,-5.157543 V 53.356293 43.422264 0.2547871 Z m 52.1989818,0 V 38.264721 h 17.208395 c 2.85726,0 5.157544,2.300283 5.157544,5.157543 V 60.630659 H 120.25473 V 7.6798806 c 0,-4.1134501 -3.31164,-7.4250935 -7.42509,-7.4250935 z"
+       sodipodi:nodetypes="sssssscccsscccsccssccssc"
+       transform="matrix(1.9899431,0.570607,-0.570607,1.9899431,64.478249,-4.2853285)"
+       inkscape:export-filename="grapejuice-lucem-ready?.svg"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:original-d="m 7.6798782,0.2547871 c -4.1134501,0 -7.42509349,3.3116434 -7.42509349,7.4250935 V 112.82964 c 0,4.11345 3.31164339,7.42509 7.42509349,7.42509 H 112.82964 c 4.11345,0 7.42509,-3.31164 7.42509,-7.42509 V 82.244801 H 77.087255 66.265443 43.422262 c -2.85726,0 -5.157544,-2.300283 -5.157544,-5.157543 V 53.356293 43.422264 0.2547871 Z m 52.1989818,0 V 38.264721 h 17.208395 c 2.85726,0 5.157544,2.300283 5.157544,5.157543 V 60.630659 H 120.25473 V 7.6798806 c 0,-4.1134501 -3.31164,-7.4250935 -7.42509,-7.4250935 z"
+       inkscape:path-effect="#path-effect26" />
+  </g>
+</svg>

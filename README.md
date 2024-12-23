@@ -1,4 +1,4 @@
-# Lucem
+# <img width="64" src="src/assets/lucem.svg"> Lucem
 Lucem is a small wrapper over [Sober](https://sober.vinegarhq.org) to provide some QoL improvements. \
 Please keep in mind that while Lucem is fully open source software, Sober is proprietary for a very good reason, that being to preserve RoL from 9-year-old skiddies.
 
@@ -23,10 +23,15 @@ If you really cheat on Roblox, I'd say you should reconsider your life decisions
 - GTK4-based FFlag editor that is easy to use
 - Rich presence
 - Server region notifier
+- Game overlay
 - If you're not a fan of GUIs, we provide a nifty configuration file that does the same thing! (located at `~/.config/lucem/config.toml`, or you can run `lucem edit-config`!)
 - Managing Sober
 
 Whilst not a feature you use directly, Lucem also caches API calls whenever it can in order to save bandwidth and resources.
+
+# Icon
+The Lucem icon is made by [AshtakaOOf](https://github.com/AshtakaOOf). It is located [here](src/assets/lucem.svg). \
+You are free to use it wherever you want.
 
 ## Patches
 Lucem provides the following optional patches. All of them go under the `tweaks` section in your configuration.
