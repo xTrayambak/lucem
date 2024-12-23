@@ -46,10 +46,6 @@ proc flatpakRun*(
     debug "flatpak: we are the child - launching \"" & id & '"'
     var cmd = launcherExe & " flatpak run " & id
 
-    if config.client.renderer == Renderer.OpenGL:
-      debug "flatpak: forcing Sober to use OpenGL"
-      cmd &= " --opengl"
-
     debug "flatpak: final command: " & cmd
     if dup2(file, STDOUT_FILENO) < 0:
       error "lucem: dup2() for stdout failed: " & $strerror(errno)
