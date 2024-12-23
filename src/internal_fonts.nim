@@ -1,4 +1,5 @@
-## A fallback font baked into the Lucem binary (IBM Plex Sans)
+## Assets for Lucem, baked directly into the binary
 
 const
   IbmPlexSans* = staticRead("IBMPlexSans-Regular.ttf")
+  LucemIcon* = staticRead("assets/lucem.svg")

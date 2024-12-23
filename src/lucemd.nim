@@ -82,7 +82,7 @@ proc onServerIPRevealed*(daemon: var Daemon, ipAddr: string) =
 proc loop*(daemon: var Daemon) =
   info "lucemd: entering loop"
   while not daemon.shouldQuit:
-    sleep(250)
+    sleep(5)
     daemon.reactor.tick()
     for message in daemon.reactor.messages:
       let opacket = message.getPacket()

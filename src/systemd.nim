@@ -31,3 +31,10 @@ proc installSystemdService* =
   writeFile(servicesDir / "lucem.service", service)
   if execCmd(findExe("systemctl") & " enable lucem.service --user --now") != 0:
     error "lucem: failed to install systemd service for daemon!"
+
+proc relaunchSystemdService* =
+  info "lucem: relaunching systemd service"
+  if execCmd(
+    findExe("systemctl") & " restart lucem.service --user"
+  ) != 0:
+    error "lucem: failed to restart lucem daemon!"

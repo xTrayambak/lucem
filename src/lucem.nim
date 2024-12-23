@@ -97,6 +97,8 @@ proc main() {.inline.} =
     installSystemdService()
   of "install-systemd-service":
     installSystemdService()
+  of "relaunch-daemon":
+    relaunchSystemdService()
   of "explain":
     input.generateQuestion().explain()
   of "edit-config":
