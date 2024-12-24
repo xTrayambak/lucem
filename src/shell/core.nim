@@ -1,10 +1,10 @@
 ## Lucem shell
 ## "soon:tm:" - tray
 ## Copyright (C) 2024 Trayambak Rai
-import std/[os, strutils, json, logging, posix, tables, osproc, times, sequtils, sugar]
-import owlkettle, owlkettle/[playground, adw]
+import std/[os, strutils, json, logging, posix, tables, osproc]
+import owlkettle, owlkettle/adw
 import
-  ../[config, argparser, cache_calls, fflags, meta, notifications, desktop_files, fs, sober_config]
+  ../[config, argparser, cache_calls, fflags, notifications, desktop_files, fs, sober_config]
 
 type ShellState* {.pure.} = enum
   Client
