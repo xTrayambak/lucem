@@ -32,6 +32,7 @@ type
 
   LucemConfig* = object
     discord_rpc*: bool = false
+    auto_updater*: bool = true
     notify_server_region*: bool = true
     loading_screen*: bool = true
     polling_delay*: uint = 100

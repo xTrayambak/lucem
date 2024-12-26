@@ -8,7 +8,7 @@ proc notifyFallback*(
     expireTime: uint64 = 240000,
     icon: Option[string] = none(string),
 ) =
-  debug "notifications: using libnotify fallback... (cringe guhnome user detected)"
+  debug "notifications: using libnotify fallback (cringe guhnome user detected)"
   debug "notifications: preparing notify-send command"
   debug "notifications: heading = $1, description = $2, expireTime = $3" %
     [heading, description, $expireTime]
@@ -56,6 +56,27 @@ proc notify*(
 
   if pid == 0:
     let cmd = worker & " --heading:\"" & heading.encode() & "\" --description:\"" & description.encode() & "\" --expire-time:" & $(expireTime.int / 1000) & ' ' & (if *icon: "--icon:" & &icon else: "")
+    debug "notifications: executing command: " & cmd
+    discard execCmd(cmd)
+    quit(0)
+
+proc presentUpdateAlert*(
+  heading: string,
+  message: string
+) =
+  var worker = findExe("lucem_overlay")
+  if getEnv("XDG_CURRENT_DESKTOP") == "GNOME" or (defined(release) and worker.len < 1):
+    warn "notifications: we're either on GNOME or the lucem overlay binary is missing, something went horribly wrong!"
+    notifyFallback(heading, message, 240000)
+    return
+
+  let pid = fork()
+
+  if worker.len < 1 and not defined(release):
+    worker = "./lucem_overlay"
+
+  if pid == 0:
+    let cmd = worker & " --update-alert --update-heading:\"" & heading.encode() & "\" --update-message:\"" & message.encode() & '"'
     debug "notifications: executing command: " & cmd
     discard execCmd(cmd)
     quit(0)

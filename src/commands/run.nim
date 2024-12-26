@@ -6,8 +6,7 @@ import ../api/[games, thumbnails, ipinfo]
 import
   ../patches/[bring_back_oof, patch_fonts, sun_and_moon_textures, windowing_backend]
 import ../shell/loading_screen
-import ../proto
-import ../sober_config
+import ../[updater, sober_config, proto]
 import
   ../[
     argparser, config, flatpak, common, meta, sugar, notifications, fflags, log_file,
@@ -158,6 +157,7 @@ proc eventWatcher*(
 
 proc runRoblox*(input: Input, config: Config) =
   info "lucem: running Roblox via Sober"
+  runUpdateChecker(config)
 
   writeFile(getSoberLogPath(), newString(0))
 
