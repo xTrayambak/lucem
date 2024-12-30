@@ -412,7 +412,7 @@ method view(app: LucemShellState): Widget =
 
                   proc changed(state: bool) =
                     app.showFpsCapOpt = not app.showFpsCapOpt
-                    app.config[].client.fps = if state: 9999 else: 60
+                    app.config[].client.fps = if state: 60 else: 60
 
                     debug "shell: disable/enable fps cap button state: " &
                       $app.showFpsCapOpt
@@ -515,7 +515,7 @@ proc initLucemShell*(input: Input) {.inline.} =
       LucemShell(
         config = addr(config),
         state = ShellState.Lucem,
-        showFpsCapOpt = config.client.fps != 9999,
+        showFpsCapOpt = config.client.fps != 60,
         showFpsCapBuff = $config.client.fps,
         discordRpcOpt = config.lucem.discordRpc,
         telemetryOpt = config.client.telemetry,
