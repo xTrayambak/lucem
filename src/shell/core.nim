@@ -26,6 +26,11 @@ viewable LucemShell:
   telemetryOpt:
     bool
 
+  backendOpt:
+    seq[string] = @["Wayland", "X11"]
+  backendBuff:
+    int
+
   launcherBuff:
     string
 
@@ -162,7 +167,7 @@ method view(app: LucemShellState): Widget =
               description = "These are some optional tweaks to customize your experience."
 
               ActionRow:
-                title = "Bring Back the Old \"Oof\" Sound"
+                title = "Bring Back the \"Oof\" Sound"
                 subtitle =
                   "This replaces the new \"Eugh\" death sound with the classic \"Oof\" sound."
                 CheckButton {.addSuffix.}:
@@ -177,7 +182,7 @@ method view(app: LucemShellState): Widget =
               ActionRow:
                 title = "Custom Client Font"
                 subtitle =
-                  "Force the Roblox client to use a particular font whenever possible."
+                  "Override the Roblox fonts using your own font, Note: Emojis will not be overriden."
 
                 Entry {.addSuffix.}:
                   text = app.customFontPath
@@ -198,7 +203,7 @@ method view(app: LucemShellState): Widget =
               ActionRow:
                 title = "Custom Sun Texture"
                 subtitle =
-                  "For games that do not set a custom sun texture, your specified texture will be shown instead."
+                  "For games that don't use a custom sun texture, your specified texture will be shown instead."
 
                 Entry {.addSuffix.}:
                   text = app.sunImgPath
@@ -220,7 +225,7 @@ method view(app: LucemShellState): Widget =
               ActionRow:
                 title = "Custom Moon Texture"
                 subtitle =
-                  "For games that do not set a custom moon texture, your specified texture will be shown instead."
+                  "For games that don't use a custom moon texture, your specified texture will be shown instead."
 
                 Entry {.addSuffix.}:
                   text = app.moonImgPath
@@ -265,7 +270,7 @@ method view(app: LucemShellState): Widget =
               ActionRow:
                 title = "Notify the Server Region"
                 subtitle =
-                  "When you join a game, a notification will be sent containing where the server is located."
+                  "When joining a game, a notification will be sent containing the location of the server."
                 CheckButton {.addSuffix.}:
                   state = app.serverLocationOpt
 
@@ -279,7 +284,7 @@ method view(app: LucemShellState): Widget =
               ActionRow:
                 title = "Clear all API caches"
                 subtitle =
-                  "This will clear all the API call caches. Some features might be slower next time you run Lucem."
+                  "This will clear all the API call caches. Some features might be slower the next time you run Lucem."
                 Button {.addSuffix.}:
                   icon = "user-trash-symbolic"
                   style = [ButtonDestructive]
@@ -389,7 +394,7 @@ method view(app: LucemShellState): Widget =
               ActionRow:
                 title = "Disable Telemetry"
                 subtitle =
-                  "Disable all* telemetry that the Roblox client exposes via FFlags."
+                  "Disable the Roblox client telemetry via FFlags. Note: This only enables/disables relevant FFLags."
                 CheckButton {.addSuffix.}:
                   state = app.telemetryOpt
 
@@ -401,7 +406,7 @@ method view(app: LucemShellState): Widget =
 
               ActionRow:
                 title = "Disable FPS cap"
-                subtitle = "Some games might ban you if they detect this."
+                subtitle = "Some games might ban you if they detect this. Note: Games dependent on framerate might misbehave."
                 CheckButton {.addSuffix.}:
                   state = app.showFpsCapOpt
 
@@ -416,10 +421,10 @@ method view(app: LucemShellState): Widget =
               if app.showFpsCapOpt:
                 ActionRow:
                   title = "FPS Cap"
-                  subtitle = "Some games might misbehave."
+                  subtitle = "Change the FPS cap to values Roblox doesn't offer. Avoid using a value above the monitor refresh rate."
                   Entry {.addSuffix.}:
                     text = app.showFpsCapBuff
-                    placeholder = "Eg. 30, 60, 144, etc."
+                    placeholder = "e.g. 30, 60 (default), 144, etc."
 
                     proc changed(text: string) =
                       debug "shell: fps cap entry changed: " & text
@@ -437,13 +442,28 @@ method view(app: LucemShellState): Widget =
                           app.showFpsCapBuff
                         debug "shell: " & exc.msg
 
+              ComboRow:
+                title = "Backend"
+                subtitle =
+                  "Which display server Sober will use, on Wayland X11 will use Xwayland."
+                items = app.backendOpt
+                selected = app.backendBuff
+
+                proc select(selectedIndex: int) =
+                  debug "shell: launcher entry changed: " & app.backendOpt[selectedIndex]
+                  app.backendBuff = selectedIndex
+
+                proc activate() =
+                  app.config[].client.backend = app.backendOpt[app.backendBuff]
+                  debug "shell: backend is set to: " & app.backendOpt[app.backendBuff]
+
               ActionRow:
                 title = "Launcher"
                 subtitle =
-                  "Lucem will launch Sober with a specified command. Leave this empty if you don't require it."
+                  "Lucem will launch Sober with a specified command. This is optional."
                 Entry {.addSuffix.}:
                   text = app.launcherBuff
-                  placeholder = "Eg. gamemoderun"
+                  placeholder = "e.g. gamemoderun"
 
                   proc changed(text: string) =
                     debug "shell: launcher entry changed: " & text
@@ -456,7 +476,7 @@ method view(app: LucemShellState): Widget =
               ActionRow:
                 title = "Polling Delay"
                 subtitle =
-                  "Add a tiny delay in seconds to the event watcher thread. This barely impacts performance on modern systems."
+                  "Add a tiny delay in seconds to the event watcher thread. This is unlikely to impact performance on modern systems."
 
                 Entry {.addSuffix.}:
                   text = app.pollingDelayBuff

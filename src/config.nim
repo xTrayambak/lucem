@@ -40,7 +40,7 @@ type
     fps*: int = 60
     launcher*: string = ""
     renderer*: Renderer = Renderer.Vulkan
-    backend: string
+    backend*: string
     telemetry*: bool = false
     fflags*: string
     apkUpdates*: bool = true
@@ -51,7 +51,7 @@ type
     sun*: string = ""
     font*: string = ""
     excludeFonts*: seq[string] = @["RobloxEmoji.ttf", "TwemojiMozilla.ttf"]
-  
+
   DaemonConfig* = object
     port*: uint = 9898
 
@@ -113,7 +113,7 @@ descriptionSize = 18
 anchors = "top-right"
 
 [client]
-fps = 9999
+fps = 60
 launcher = ""
 telemetry = false
 fflags = "\n"
