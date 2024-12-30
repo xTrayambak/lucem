@@ -113,7 +113,7 @@ descriptionSize = 18
 anchors = "top-right"
 
 [client]
-fps = 9999
+fps = 60
 launcher = ""
 telemetry = false
 fflags = "\n"
