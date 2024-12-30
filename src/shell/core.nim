@@ -26,6 +26,11 @@ viewable LucemShell:
   telemetryOpt:
     bool
 
+  backendOpt:
+    seq[string] = @["Wayland", "X11"]
+  backendBuff:
+    int
+
   launcherBuff:
     string
 
@@ -401,7 +406,7 @@ method view(app: LucemShellState): Widget =
 
               ActionRow:
                 title = "Disable FPS cap"
-                subtitle = "Some games might ban you if they detect this."
+                subtitle = "Some games might ban you if they detect this. Note: Games dependent on framerate might misbehave."
                 CheckButton {.addSuffix.}:
                   state = app.showFpsCapOpt
 
@@ -416,10 +421,10 @@ method view(app: LucemShellState): Widget =
               if app.showFpsCapOpt:
                 ActionRow:
                   title = "FPS Cap"
-                  subtitle = "Some games might misbehave."
+                  subtitle = "Change the FPS cap to values Roblox doesn't offer. Avoid using a value above the monitor refresh rate."
                   Entry {.addSuffix.}:
                     text = app.showFpsCapBuff
-                    placeholder = "Eg. 30, 60, 144, etc."
+                    placeholder = "e.g. 30, 60 (default), 144, etc."
 
                     proc changed(text: string) =
                       debug "shell: fps cap entry changed: " & text
@@ -436,6 +441,21 @@ method view(app: LucemShellState): Widget =
                         debug "shell: fps cap buffer has invalid value: " &
                           app.showFpsCapBuff
                         debug "shell: " & exc.msg
+
+              ComboRow:
+                title = "Backend"
+                subtitle =
+                  "Which display server Sober will use, on Wayland X11 will use Xwayland."
+                items = app.backendOpt
+                selected = app.backendBuff
+
+                proc select(selectedIndex: int) =
+                  debug "shell: launcher entry changed: " & app.backendOpt[selectedIndex]
+                  app.backendBuff = selectedIndex
+
+                proc activate() =
+                  app.config[].client.backend = app.backendOpt[app.backendBuff]
+                  debug "shell: backend is set to: " & app.backendOpt[app.backendBuff]
 
               ActionRow:
                 title = "Launcher"
