@@ -11,14 +11,35 @@ privateAccess(WindowWaylandObj)
 privateAccess(WindowWayland)
 privateAccess(Window)
 
+{.passC: gorge("pkg-config --cflags wayland-client").}
+{.passL: gorge("pkg-config --libs wayland-client").}
+{.passC: gorge("pkg-config --cflags x11").}
+{.passL: gorge("pkg-config --libs x11").}
+{.passC: gorge("pkg-config --cflags xcursor").}
+{.passL: gorge("pkg-config --libs xcursor").}
+{.passC: gorge("pkg-config --cflags xext").}
+{.passL: gorge("pkg-config --libs xext").}
+{.passC: gorge("pkg-config --cflags xkbcommon").}
+{.passL: gorge("pkg-config --libs xkbcommon").}
+{.passC: gorge("pkg-config --cflags gl").}
+{.passL: gorge("pkg-config --libs gl").}
+
 type
+  OverlayState* = enum
+    osOverlay
+    osUpdateAlert
+
   Overlay* = object
     heading*: string
     description*: string
     expireTime*: float
+    state*: OverlayState = osOverlay
+
     icon*: Option[string]
     closed*: bool
     config*: Config
+
+    lucemImage*: Image
 
     vg*: NVGContext
     wl*: WindowWaylandOpengl
@@ -47,13 +68,26 @@ proc draw*(overlay: var Overlay) =
   overlay.vg.textAlign(haLeft, vaTop)
   overlay.vg.fontSize(overlay.config.overlay.headingSize)
   overlay.vg.fillColor(white(255))
-  discard overlay.vg.text(16f, 16f, overlay.heading)
+
+  var icon = cast[seq[byte]](LucemIconPng)
+  overlay.lucemImage = overlay.vg.createImageMem(data = icon)
+
+  if overlay.state == osOverlay:
+    discard overlay.vg.text(16f, 16f, overlay.heading)
+  else:
+    let imgPaint = overlay.vg.imagePattern(16, 16, 60, 60, 0, overlay.lucemImage, 1f)
+    overlay.vg.beginPath()
+    overlay.vg.rect(16, 16, 60, 60)
+    overlay.vg.fillPaint(imgPaint)
+    overlay.vg.fill()
+
+    discard overlay.vg.text(100f, 16f, overlay.heading)
   
   overlay.vg.fontFace("heading")
   overlay.vg.textAlign(haLeft, vaTop)
   overlay.vg.fontSize(overlay.config.overlay.descriptionSize)
   overlay.vg.fillColor(white(255))
-  discard overlay.vg.text(16f, 64f, overlay.description)
+  overlay.vg.textBox(16f, 100f, 512f, overlay.description, nil)
 
   # TODO: icon rendering, even though we don't use them yet
   # but it'd be useful for the future
@@ -62,15 +96,29 @@ proc draw*(overlay: var Overlay) =
 
 proc initOverlay*(input: Input) {.noReturn.} =
   var overlay: Overlay
-  for opt in [
+  
+  let opts = if not input.enabled("update-alert"):
+    @[
       "heading",
       "description",
       "expire-time"
-  ]:
+    ]
+  else:
+    @[
+      "update-heading",
+      "update-message"
+    ]
+
+  overlay.state = if input.enabled("update-alert"):
+    osUpdateAlert
+  else:
+    osOverlay
+  
+  for opt in opts:
     if (let maybeOpt = input.flag(opt); *maybeOpt):
       case opt
-      of "heading": overlay.heading = decode(&maybeOpt)
-      of "description": overlay.description = decode(&maybeOpt)
+      of "heading", "update-heading": overlay.heading = decode(&maybeOpt)
+      of "description", "update-message": overlay.description = decode(&maybeOpt)
       of "expire-time": overlay.expireTime = parseFloat(&maybeOpt)
     else:
       error "overlay: expected flag: " & opt
@@ -92,15 +140,19 @@ proc initOverlay*(input: Input) {.noReturn.} =
   )
   overlay.wl.setKeyboardInteractivity(LayerInteractivityMode.None)
   var anchors: seq[LayerEdge]
-  for value in config.overlay.anchors.split('-'):
-    debug "overlay: got anchor: " & value
-    case value.toLowerAscii()
-    of "left", "l": anchors &= LayerEdge.Left
-    of "right", "r": anchors &= LayerEdge.Right
-    of "top", "up", "u": anchors &= LayerEdge.Top
-    of "bottom", "down", "d": anchors &= LayerEdge.Bottom
-    else:
-      warn "overlay: unhandled anchor: " & value
+
+  if overlay.state == osOverlay:
+    for value in config.overlay.anchors.split('-'):
+      debug "overlay: got anchor: " & value
+      case value.toLowerAscii()
+      of "left", "l": anchors &= LayerEdge.Left
+      of "right", "r": anchors &= LayerEdge.Right
+      of "top", "up", "u": anchors &= LayerEdge.Top
+      of "bottom", "down", "d": anchors &= LayerEdge.Bottom
+      else:
+        warn "overlay: unhandled anchor: " & value
+  else:
+    anchors = @[LayerEdge.Left, LayerEdge.Right, LayerEdge.Top, LayerEdge.Bottom]
 
   overlay.wl.setAnchor(anchors)
   overlay.wl.setExclusiveZone(10000)
@@ -133,6 +185,9 @@ proc initOverlay*(input: Input) {.noReturn.} =
     overlay.draw()
 
   overlay.wl.eventsHandler.onTick = proc(event: TickEvent) =
+    if overlay.expireTime == 0f:
+      return # Infinite alert
+
     let epoch = epochTime()
     let elapsed = epoch - overlay.lastEpoch
 
