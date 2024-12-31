@@ -1,6 +1,6 @@
 ## Lucem auto-updater
 ## Copyright (C) 2024 Trayambak Rai
-import std/[logging]
+import std/[os, osproc, logging, tempfiles, distros, posix]
 import pkg/[semver, jsony]
 import ./[http, argparser, config, sugar, meta, notifications]
 
@@ -81,3 +81,64 @@ proc runUpdateChecker*(config: Config) =
   elif newVer < currVersion:
     warn "lucem: version mismatch (newest release: " & $newVer & ", version this binary was tagged as: " & $currVersion & ')'
     warn "lucem: are you using a development version? :P"
+
+proc updateLucem* =
+  info "lucem: checking for updates"
+  let release = getLatestRelease()
+  
+  if !release:
+    error "lucem: cannot get current release"
+    return
+
+  let currVersion = parseVersion(meta.Version)
+  let newVer = parseVersion((&release).tagName)
+
+  if newVer != currVersion:
+    info "lucem: found new version! (" & $newVer & ')'
+    let wd = getCurrentDir()
+    let tmpDir = createTempDir("lucem-", '-' & $newVer)
+    
+    let git = findExe("git")
+    let nimble = findExe("nimble")
+
+    if nimble.len < 1:
+      error "lucem: cannot find `nimble`!"
+      quit(1)
+
+    if git.len < 1:
+      error "lucem: cannot find `git`!"
+      quit(1)
+    
+    info "lucem: cloning source code"
+    if (let code = execCmd(git & " clone https://github.com/xTrayambak/lucem.git " & tmpDir); code != 0):
+      error "lucem: git exited with non-zero exit code: " & $code
+      quit(1)
+
+    discard chdir(tmpDir.cstring)
+    
+    info "lucem: switching to " & $newVer & " branch"
+    if (let code = execCmd(git & " checkout " & $newVer); code != 0):
+      error "lucem: git exited with non-zero exit code: " & $code
+      quit(1)
+    
+    info "lucem: compiling lucem"
+    if not detectOs(NixOS):
+      if (let code = execCmd(nimble & " install"); code != 0):
+        error "lucem: nimble exited with non-zero exit code: " & $code
+        quit(1)
+    else:
+      info "lucem: Nix environment detected, entering Nix shell"
+      let nix = findExe("nix-shell") & "-shell" # FIXME: for some reason, `nix-shell` returns the `nix` binary instead here. Perhaps a Nim STL bug
+      if nix.len < 1:
+        error "lucem: cannot find `nix-shell`!"
+        quit(1)
+
+      if (let code = execCmd(nix & " --run \"" & nimble & " install\""); code != 0):
+        error "lucem: nix-shell or nimble exited with non-zero exit code: " & $code
+        quit(1)
+
+    info "lucem: updated successfully!"
+    info "Lucem is now at version " & $newVer
+  else:
+    info "lucem: nothing to do."
+    quit(0)
