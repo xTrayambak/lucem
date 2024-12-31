@@ -58,7 +58,7 @@ proc runUpdateChecker*(config: Config) =
     parseVersion(data.tagName).some()
   except semver.ParseError as exc:
     warn "lucem: auto-updater: cannot parse new semver: " & exc.msg & " (" & data.tagName & ')'
-    none(Version)
+    none(semver.Version)
 
   if !newVersion:
     return
