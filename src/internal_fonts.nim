@@ -3,3 +3,4 @@
 const
   IbmPlexSans* = staticRead("IBMPlexSans-Regular.ttf")
   LucemIcon* = staticRead("assets/lucem.svg")
+  LucemIconPng* = staticRead("assets/lucem.png")
