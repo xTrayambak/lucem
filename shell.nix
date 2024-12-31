@@ -13,7 +13,7 @@ mkShell {
 	xorg.libXext
 	libxkbcommon
 	libGL.dev
-	wayland
+	wayland.dev
 	wayland-protocols
 	wayland-scanner.dev
   ];
@@ -24,5 +24,6 @@ mkShell {
 	pkg-config
 	curl.dev
   	openssl.dev
+	wayland.dev
   ];
 }

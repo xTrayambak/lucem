@@ -1,6 +1,6 @@
 # Package
 
-version = "2.0.4"
+version = "2.1.0"
 author = "xTrayambak"
 description = "A small wrapper over Sober that provides quality of life improvements"
 license = "MIT"
@@ -31,3 +31,5 @@ after install:
   echo "\e[1mThanks for installing Lucem!"
   echo "If you run `lucem` in the terminal and no command is found, try running the command below:\e[0m"
   echo "\e[1:32mexport PATH=\"$HOME/.nimble/bin:$PATH\"\e[0m"
+
+requires "semver >= 1.2.3"

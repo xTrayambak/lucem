@@ -4,7 +4,7 @@
 
 import std/[os, logging, strutils, terminal]
 import colored_logger, nimgl/vulkan
-import ./[meta, argparser, config, cache_calls, desktop_files, sober_state, gpu_info, systemd]
+import ./[meta, argparser, config, cache_calls, desktop_files, sober_state, gpu_info, systemd, updater]
 import ./shell/core
 import ./commands/[init, run, edit_config, explain]
 
@@ -17,6 +17,7 @@ Commands:
   run                       Run Sober
   meta                      Get build metadata
   list-gpus                 List all GPUs on this system
+  update                    Check for Lucem updates and install them
   edit-config               Edit the configuration file
   clear-cache               Clear the API caches that Lucem maintains
   shell                     Launch the Lucem configuration GUI
@@ -95,6 +96,10 @@ proc main() {.inline.} =
     initializeSober(input)
     createLucemDesktopFile()
     installSystemdService()
+  of "update":
+    updateLucem()
+  of "check-for-updates":
+    runUpdateChecker(parseConfig(input))
   of "install-systemd-service":
     installSystemdService()
   of "relaunch-daemon":
