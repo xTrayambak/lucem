@@ -14,9 +14,12 @@ Type=Application
 Name=Lucem
 Exec=$1
 Comment=Run Roblox with quality of life fixes
+GenericName=Wrapper around Sober
 Terminal=false
 Categories=Games
 Icon=lucem
+Keywords=roblox
+Categories=Game
 """
 
   SoberGUIDesktopFile* =
@@ -27,8 +30,10 @@ Type=Application
 Name=Lucem Settings
 Exec=$1
 Comment=Configure Lucem as per your needs
+GenericName=Lucem Settings
 Terminal=false
 Categories=Utility
+Keywords=settings
 Icon=lucem
 """
 

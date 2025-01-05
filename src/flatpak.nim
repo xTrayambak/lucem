@@ -32,9 +32,15 @@ proc flatpakRun*(
   info "flatpak: launching flatpak app \"" & id & '"'
   debug "flatpak: launcher = " & launcher
 
-  let launcherExe = findExe(launcher)
+  let launcherExe = 
+    if config.client.resolveExe:
+      debug "flatpak: resolving executable to launcher program: " & launcher
+      findExe(launcher)
+    else:
+      debug "flatpak: user has asked executable path to not be resolved: " & launcher
+      launcher
 
-  if launcherExe.len < 1 and launcher.len > 0:
+  if config.client.resolveExe and launcherExe.len < 1 and launcher.len > 0:
     warn "flatpak: failed to find launcher executable for `" & launcher &
       "`; are you sure that it's in your PATH?"
     warn "flatpak: ignoring for now."
@@ -49,8 +55,11 @@ proc flatpakRun*(
     debug "flatpak: final command: " & cmd
     if dup2(file, STDOUT_FILENO) < 0:
       error "lucem: dup2() for stdout failed: " & $strerror(errno)
+    else:
+      debug "lucem: dup2() successful, sober's logs are now directed at: " & path
 
     discard execCmd(cmd)
+    debug "lucem: sober has exited, forked lucem process is exiting..."
     quit(0)
   else:
     debug "flatpak: we are the parent - continuing"

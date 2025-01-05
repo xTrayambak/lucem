@@ -110,7 +110,7 @@ proc initDaemon*(input: Input, config: Config) =
 
   info "lucemd: initializing reactor at port " & $port
   var daemon: Daemon
-  daemon.reactor = newReactor("localhost", int port)
+  daemon.reactor = newReactor("127.0.0.1", int port)
   daemon.loop()
 
 proc main =

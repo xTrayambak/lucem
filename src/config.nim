@@ -40,6 +40,7 @@ type
   ClientConfig* = object
     fps*: int = 60
     launcher*: string = ""
+    resolve_exe*: bool = true ## Whether Lucem should try to find the absolute path to a launcher binary
     renderer*: Renderer = Renderer.Vulkan
     backend*: string
     telemetry*: bool = false

@@ -75,7 +75,7 @@ proc eventWatcher*(
 
   var reactor = newReactor()
   debug "lucem: connecting to lucemd at port " & $port
-  var server = reactor.connect("localhost", int port)
+  var server = reactor.connect("127.0.0.1", int port)
 
   template send[T](data: T) =
     let serialized = data.serialize()
