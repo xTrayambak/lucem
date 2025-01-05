@@ -1,7 +1,7 @@
 ## Lucem Overlay
 ## Copyright (C) 2024 Trayambak Rai
 
-import std/[os, logging, strutils, importutils, base64, times]
+import std/[os, osproc, logging, strutils, importutils, base64, times]
 import ./[argparser, sugar, config, internal_fonts]
 import pkg/[siwin, opengl, nanovg, colored_logger, vmath]
 import pkg/siwin/platforms/wayland/[window, windowOpengl]
@@ -198,6 +198,16 @@ proc initOverlay*(input: Input) {.noReturn.} =
 
     if overlay.timeSpent >= overlay.expireTime:
       info "overlay: Completed lifetime. Closing!"
+      overlay.wl.close()
+
+  overlay.wl.eventsHandler.onKey = proc(event: KeyEvent) =
+    if overlay.state == osUpdateAlert:
+      case event.key
+      of enter:
+        discard execCmd(findExe("lucem") & " update")
+        overlay.wl.close()
+      else: overlay.wl.close()
+    else:
       overlay.wl.close()
 
   overlay.wl.run()
