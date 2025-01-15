@@ -82,6 +82,9 @@ proc eventWatcher*(
     debug "lucem: sending to daemon: " & serialized
     reactor.send(server, serialized)
 
+    for _ in 0 .. 32:
+      reactor.tick()
+
   var
     line = 0
     startedPlayingAt = 0.0
