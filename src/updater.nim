@@ -2,7 +2,8 @@
 ## Copyright (C) 2024 Trayambak Rai
 import std/[os, osproc, logging, tempfiles, distros, posix]
 import pkg/[semver, jsony]
-import ./[http, argparser, config, sugar, meta, notifications]
+import ./[http, argparser, config, sugar, meta, notifications, desktop_files, systemd]
+import ./commands/init
 
 type
   ReleaseAuthor* = object
@@ -74,13 +75,29 @@ proc runUpdateChecker*(config: Config) =
     info "lucem: found a new release! (" & $newVer & ')'
     presentUpdateAlert(
       "Lucem " & $newVer & " is out!",
-      "A new version of Lucem is out. You are strongly advised to update to this release for bug fixes and other improvements."
+      "A new version of Lucem is out. You are strongly advised to update to this release for bug fixes and other improvements. Press Enter to update. Press any other key to close this dialog.", blocks = true
     )
   elif newVer == currVersion:
     debug "lucem: user is on the latest version of lucem"
   elif newVer < currVersion:
     warn "lucem: version mismatch (newest release: " & $newVer & ", version this binary was tagged as: " & $currVersion & ')'
     warn "lucem: are you using a development version? :P"
+
+proc postUpdatePreparation =
+  info "lucem: beginning post-update preparation"
+
+  debug "lucem: killing any running lucem instances and lucemd"
+
+  # FIXME: Use POSIX APIs for this.
+  discard execCmd("kill $(pidof lucemd)")
+  discard execCmd("kill $(pidof lucem)")
+  
+  debug "lucem: initializing lucem"
+  initializeSober(default(Input))
+  createLucemDesktopFile()
+  installSystemdService()
+
+  info "lucem: completed post-update preparation"
 
 proc updateLucem* =
   info "lucem: checking for updates"
@@ -139,6 +156,8 @@ proc updateLucem* =
 
     info "lucem: updated successfully!"
     info "Lucem is now at version " & $newVer
+
+    postUpdatePreparation()
   else:
     info "lucem: nothing to do."
     quit(0)

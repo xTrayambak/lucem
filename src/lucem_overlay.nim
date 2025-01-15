@@ -87,7 +87,7 @@ proc draw*(overlay: var Overlay) =
   overlay.vg.textAlign(haLeft, vaTop)
   overlay.vg.fontSize(overlay.config.overlay.descriptionSize)
   overlay.vg.fillColor(white(255))
-  overlay.vg.textBox(16f, 100f, 512f, overlay.description, nil)
+  overlay.vg.textBox(16f, 100f, 512f, overlay.description.cstring, nil)
 
   # TODO: icon rendering, even though we don't use them yet
   # but it'd be useful for the future
@@ -138,7 +138,7 @@ proc initOverlay*(input: Input) {.noReturn.} =
     size = overlay.size,
     namespace = "lucem"
   )
-  overlay.wl.setKeyboardInteractivity(LayerInteractivityMode.None)
+  overlay.wl.setKeyboardInteractivity(LayerInteractivityMode.OnDemand)
   var anchors: seq[LayerEdge]
 
   if overlay.state == osOverlay:
@@ -155,7 +155,7 @@ proc initOverlay*(input: Input) {.noReturn.} =
     anchors = @[LayerEdge.Left, LayerEdge.Right, LayerEdge.Top, LayerEdge.Bottom]
 
   overlay.wl.setAnchor(anchors)
-  overlay.wl.setExclusiveZone(10000)
+  # overlay.wl.setExclusiveZone(10000)
   overlay.wl.m_transparent = true
 
   overlay.config = move(config)
@@ -204,7 +204,9 @@ proc initOverlay*(input: Input) {.noReturn.} =
     if overlay.state == osUpdateAlert:
       case event.key
       of enter:
+        overlay.description = "Lucem is updating itself. Please wait."
         discard execCmd(findExe("lucem") & " update")
+        overlay.description = "Done!"
         overlay.wl.close()
       else: overlay.wl.close()
     else:

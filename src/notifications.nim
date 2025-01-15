@@ -62,7 +62,8 @@ proc notify*(
 
 proc presentUpdateAlert*(
   heading: string,
-  message: string
+  message: string,
+  blocks: bool = false
 ) =
   var worker = findExe("lucem_overlay")
   if getEnv("XDG_CURRENT_DESKTOP") == "GNOME" or (defined(release) and worker.len < 1):
@@ -70,7 +71,12 @@ proc presentUpdateAlert*(
     notifyFallback(heading, message, 240000)
     return
 
-  let pid = fork()
+  let pid = if not blocks:
+    debug "notifications: blocks = false, forking process"
+    fork()
+  else:
+    debug "notifications: blocks = true, billions must hang up"
+    0
 
   if worker.len < 1 and not defined(release):
     worker = "./lucem_overlay"
