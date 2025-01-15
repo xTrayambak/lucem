@@ -141,7 +141,7 @@ method view(app: LucemShellState): Widget =
         Button {.addRight.}:
           style = [ButtonFlat]
           icon = "input-gaming-symbolic"
-          tooltip = "Save configuration and launch Sober trough Lucem"
+          tooltip = "Save configuration and launch Sober through Lucem"
 
           proc clicked() =
             debug "shell: save config, exit config editor and launch lucem"
