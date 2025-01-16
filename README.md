@@ -66,18 +66,18 @@ You will need the following dependencies to compile Lucem:
 
 ### Arch
 ```command
-# pacman -S gtk4 libadwaita nim git
+# pacman -S gtk4 libadwaita nim git libcurl
 ```
 
 ### Fedora
 ```command
-# dnf install gtk4-devel libadwaita-devel git
+# dnf install gtk4-devel libadwaita-devel git libcurl-devel
 ```
 You can get nim from the [Terra](https://terra.fyralabs.com/) repository
 
 ### Debian
 ```command
-# apt install gtk4 libadwaita-1-0 libadwaita-1-dev git
+# apt install gtk4 libadwaita-1-0 libadwaita-1-dev git libcurl4-openssl-dev
 ```
 Debian ships an old version of Nim that is not compatible with Lucem, install Nim [here](https://nim-lang.org/install_unix.html)
 

@@ -47,7 +47,13 @@ proc createLucemDesktopFile*() =
     warn "lucem: `" & base &
       "` did not exist prior to this, your system seems to be a bit weird. Lucem has created it itself."
   
-  let iconsPath = getHomeDir() / ".local" / "share" / "icons" / "hicolor" / "scalable"
+  var iconsPath = getHomeDir() / ".local"
+
+  for value in ["share", "icons", "hicolor", "scalable"]:
+    debug "lucem: creating directory " & iconsPath & " if it doesn't exist"
+    discard existsOrCreateDir(iconsPath)
+    iconsPath = iconsPath / value
+
   discard existsOrCreateDir(iconsPath)
   discard existsOrCreateDir(iconsPath / "apps")
   writeFile(iconsPath / "apps" / "lucem.svg", LucemIcon)
