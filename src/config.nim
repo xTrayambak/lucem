@@ -42,7 +42,7 @@ type
     launcher*: string = ""
     resolve_exe*: bool = true ## Whether Lucem should try to find the absolute path to a launcher binary
     renderer*: Renderer = Renderer.Vulkan
-    backend*: string
+    backend*: Option[WindowingBackend]
     telemetry*: bool = false
     fflags*: string
     apkUpdates*: bool = true
@@ -74,7 +74,7 @@ type
     daemon*: DaemonConfig
 
 proc backend*(config: Config): WindowingBackend =
-  if config.client.backend.len < 1:
+  if not *config.client.backend:
     debug "lucem: backend name was not set, defaulting to autodetection"
     return autodetectWindowingBackend()
 

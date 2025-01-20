@@ -3,6 +3,7 @@
 ## Copyright (C) 2024 Trayambak Rai
 import std/[os, strutils, json, logging, posix, tables, osproc]
 import owlkettle, owlkettle/adw
+import pkg/pretty
 import
   ../[config, argparser, cache_calls, fflags, notifications, desktop_files, fs, sober_config]
 
@@ -450,11 +451,16 @@ method view(app: LucemShellState): Widget =
                 selected = app.backendBuff
 
                 proc select(selectedIndex: int) =
-                  debug "shell: launcher entry changed: " & app.backendOpt[selectedIndex]
+                  debug "shell: backend entry changed: " & app.backendOpt[selectedIndex]
                   app.backendBuff = selectedIndex
 
                 proc activate() =
-                  app.config[].client.backend = app.backendOpt[app.backendBuff]
+                  case app.backendOpt[app.backendBuff]
+                  of "Wayland":
+                    app.config[].client.backend = some WindowingBackend.Wayland
+                  of "X11":
+                    app.config[].client.backend = some WindowingBackend.X11
+                  else: assert(off)
                   debug "shell: backend is set to: " & app.backendOpt[app.backendBuff]
 
               ActionRow:
@@ -532,5 +538,6 @@ proc initLucemShell*(input: Input) {.inline.} =
   )
 
   info "lucem: saving configuration changes"
+  print config
   config.save()
   info "lucem: done!"
