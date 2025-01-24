@@ -12,6 +12,7 @@ proc setClientFont*(fontPath: string, exclude: seq[string]) =
     debug "lucem: patching client font to `" & fontPath & '`'
     if not fileExists(fontPath):
       error "lucem: cannot set client font to `" & fontPath & "`: file not found"
+      return
 
     when defined(release):
       if fileExists(basePath / "lucem_patched") and
