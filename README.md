@@ -62,6 +62,12 @@ backend = "x11" # or "wayland", "wl". This is case insensitive.
 ```
 
 # Installation
+## AUR
+If you use Arch, you can install lucem directly from the [AUR](https://aur.archlinux.org/packages/lucem-git) using
+```command
+# yay -S lucem-git
+```
+
 ## Building from source
 You will need the following dependencies to compile Lucem:
 
