@@ -136,7 +136,7 @@ $ lucem clear-cache
 
 ## Installing Desktop File
 ```command
-$ lucem install-desktop-file
+$ lucem install-desktop-files
 ```
 
 ## Installing Systemd Service (run as user, not root!)
