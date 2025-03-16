@@ -1,3 +1,6 @@
+# Notice
+Lucem is being superseded by Equinox (which you can consider Lucem 3), which is a totally different way to run Roblox on Linux. For more information, go to [the EquinoxHQ organization](https://github.com/equinoxhq/equinox). Lucem 2.x is now in maintainance mode until Equinox is out, and after Equinox is released, support for Lucem will be fully dropped.
+
 # <img width="512" src="src/assets/lucem-title.svg">
 Lucem is a small wrapper over [Sober](https://sober.vinegarhq.org) to provide some QoL improvements. \
 Please keep in mind that while Lucem is fully open source software, Sober is proprietary for a very good reason, that being to preserve RoL from 9-year-old skiddies.
