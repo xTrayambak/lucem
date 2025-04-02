@@ -13,6 +13,7 @@
       system:
       let
         pkgs = import nixpkgs { inherit system; };
+        inherit (pkgs) lib;
       in
       {
         packages = rec {
@@ -55,6 +56,39 @@
             ];
           };
           default = lucem;
+        };
+
+        devShells.default = pkgs.mkShell {
+          buildInputs = with pkgs; [
+            nim
+            nimble
+            pkg-config
+            gtk4.dev
+            libadwaita.dev
+            openssl.dev
+            curl.dev
+            libGL.dev
+            xorg.libX11
+            xorg.libXcursor.dev
+            xorg.libXrender
+            xorg.libXext
+            libxkbcommon
+            wayland.dev
+            wayland-protocols
+            wayland-scanner.dev
+          ];
+
+          LD_LIBRARY_PATH = lib.makeLibraryPath (
+            with pkgs;
+            [
+              gtk4.dev
+              libadwaita.dev
+              pkg-config
+              curl.dev
+              openssl.dev
+              wayland.dev
+            ]
+          );
         };
       }
     );
