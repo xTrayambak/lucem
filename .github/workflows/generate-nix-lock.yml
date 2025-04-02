@@ -1,6 +1,9 @@
 name: Generate lock.json
 
-on: push
+on:
+  push:
+    paths:
+      - lucem.nimble
 
 jobs:
   generate:
