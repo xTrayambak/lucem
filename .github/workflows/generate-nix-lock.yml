@@ -1,0 +1,29 @@
+name: Generate lock.json
+
+on:
+  push:
+    paths:
+      - lucem.nimble
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install Nim
+        uses: iffy/install-nim@v5
+      - name: Install nnl
+        run: |
+          nimble install https://github.com/daylinmorgan/nnl
+      - name: Generate lock.json
+        run: |
+          nnl . -o nix/lock.json
+      - name: Push commit
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(nix): update lock.json"
+          file_pattern: "nix/lock.json"
