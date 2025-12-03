@@ -1,33 +1,21 @@
 ## Application code
 ##
-## Copyright (C) 2025 Trayambak Rai (xtrayambak at disroot dot org)
-## Copyright (C) 2025 AshtakaOof
+## Copyright (C) 2025 Trayambak Rai (xtrayambak@disroot.org)
+## Copyright (C) 2025 Ashtaka (adrienwaja@gmail.com)
 import std/[logging, os, options, posix, json, strutils, sequtils, sugar]
 import pkg/owlkettle, pkg/owlkettle/[playground, adw]
 import pkg/[chronicles, shakar]
-import bindings/libadwaita, adw/about, config, resource_loader, store
+#!fmt: off
+import bindings/libadwaita, adw/about,
+       config, resource_loader, store, viewable
+#!fmt: on
+import worker/[launcher, types]
 
 logScope:
   topics = "application"
 
 # I'm thinking it'd be cleaner idk
 const TITLE = "Lucem"
-
-type SettingsState* {.pure.} = enum
-  General
-  Patches
-
-viewable SettingsMenu:
-  collapsed:
-    bool = true
-
-  state:
-    SettingsState
-  selected:
-    int
-
-  config:
-    Config
 
 proc setState(app: SettingsMenuState, state: SettingsState) =
   if app.state == state:
@@ -56,7 +44,8 @@ method view(app: SettingsMenuState): Widget =
             debug "settings: collapsed: " & $app.collapsed
 
         Button {.addLeft.}:
-          icon = "shopping-cart-symbolic" # use tag-symbolic if i can't find a way to theme it to dark mode
+          icon = "shopping-cart-symbolic"
+            # use tag-symbolic if i can't find a way to theme it to dark mode
           style = [ButtonFlat]
 
           proc clicked() =
@@ -244,11 +233,19 @@ proc runLucemApp*() =
   ]
 
   var config = loadConfig()
+  var worker = startWorkerThread()
+
+  worker.comm[].send(WorkerOp.FetchPatchIndex)
 
   adw.brew(
-    gui(SettingsMenu(collapsed = true, config = config)),
+    gui(SettingsMenu(collapsed = true, config = config, worker = worker)),
     startupEvents = events,
     stylesheets = [],
   )
 
   config.save()
+
+  debug "Waiting for worker thread to shut down"
+  worker.comm[].send(WorkerOp.Exit)
+  worker.thread.joinThread()
+  worker.comm[].close()

@@ -19,7 +19,7 @@ Copyright (C) 2025 xTrayambak and the EquinoxHQ Team
         license = meta.License
         licenseType = LicenseGPL_3_0
         developers = @["Trayambak (xTrayambak)"]
-        designers = @["Adrien (AshtakaOOf)"]
+        designers = @["Adrien (Ashtaka)"]
         artists = @[]
         documenters = @[]
         credits = @{"Emotional support (probably)": @["Kirby (k1yrix)"]}

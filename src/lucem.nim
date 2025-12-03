@@ -1,3 +1,7 @@
+## Lucem is a bootstrapper for Sober (Roblox on Linux)
+##
+## Copyright (C) 2025 Trayambak Rai (xtrayambak@disroot.org)
+
 import std/[random, os]
 import pkg/owlkettle, pkg/owlkettle/adw
 import pkg/[chronicles, shakar]

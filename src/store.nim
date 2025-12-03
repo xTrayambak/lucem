@@ -1,7 +1,14 @@
-import pkg/owlkettle, pkg/owlkettle/adw
-import meta, ./bindings/libadwaita
+import pkg/owlkettle, pkg/owlkettle/adw, pkg/[chronicles, pretty]
+import bindings/libadwaita
+import meta, viewable
 
-proc openPatchStore*(app: Viewable) =
+logScope:
+  topics = "patch store"
+
+proc openPatchStore*(app: SettingsMenuState) =
+  debug "Opening patch store"
+  print app.patches
+
   discard app.open:
     gui:
       Window:

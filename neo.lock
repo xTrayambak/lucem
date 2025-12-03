@@ -67,6 +67,12 @@
       "url": "https://github.com/guzba/curly",
       "checksum": "ad5bb9e4fbaa268a4af8c4afcb202b30aeea2bc66cb881d18fcf67708501065e"
     },
+    "pretty": {
+      "version": "0.2.0",
+      "commit": "9e770046c5cdf23d395d6b21c4657345481b1c76",
+      "url": "https://github.com/treeform/pretty",
+      "checksum": "0b453e0a027ce39b01d380ff7643ac55160ba0508f4fa0f402a189ffad5ce92e"
+    },
     "chronicles": {
       "version": "0.12.2",
       "commit": "d48c22c34f16b5cc4a95ba7202671e806b25f13b",
