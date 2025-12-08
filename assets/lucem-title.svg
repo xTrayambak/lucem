@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="420mm"
+   height="130mm"
+   viewBox="0 0 420 130"
+   version="1.1"
+   id="svg1"
+   inkscape:export-filename="lucem-title.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   inkscape:version="1.4 (e7c3feb100, 2024-10-09)"
+   sodipodi:docname="lucem-title.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="true"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="mm"
+     inkscape:zoom="0.35634119"
+     inkscape:cx="739.45984"
+     inkscape:cy="311.49921"
+     inkscape:window-width="1920"
+     inkscape:window-height="1011"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1-2" />
+  <defs
+     id="defs1">
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient23"
+       id="radialGradient26"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-4.6578784,0.65462221,-0.62256082,-4.4297505,30.345854,732.8719)"
+       cx="-35.258564"
+       cy="154.99695"
+       fx="-35.258564"
+       fy="154.99695"
+       r="59.999973" />
+    <linearGradient
+       id="linearGradient23"
+       inkscape:collect="always">
+      <stop
+         style="stop-color:#7964ff;stop-opacity:1;"
+         offset="0"
+         id="stop25" />
+      <stop
+         style="stop-color:#0078ff;stop-opacity:1"
+         offset="1"
+         id="stop24" />
+    </linearGradient>
+    <inkscape:path-effect
+       effect="fillet_chamfer"
+       id="path-effect26"
+       is_visible="true"
+       lpeversion="1"
+       nodesatellites_param="F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 | F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1"
+       radius="0"
+       unit="px"
+       method="auto"
+       mode="F"
+       chamfer_steps="1"
+       flexible="false"
+       use_knot_distance="true"
+       apply_no_radius="true"
+       apply_with_radius="true"
+       only_selected="false"
+       hide_knots="false" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient23"
+       id="radialGradient18"
+       cx="404.04398"
+       cy="89.523529"
+       fx="404.04398"
+       fy="89.523529"
+       r="577.02887"
+       gradientTransform="matrix(-5.0890073,0.3017428,-0.08514412,-1.4359879,3500.5354,116.14548)"
+       gradientUnits="userSpaceOnUse" />
+    <rect
+       x="391.57941"
+       y="46.989532"
+       width="1168.8646"
+       height="503.17957"
+       id="rect15" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient23"
+       id="radialGradient1"
+       cx="404.04398"
+       cy="89.523529"
+       fx="404.04398"
+       fy="89.523529"
+       r="577.02887"
+       gradientTransform="matrix(-5.0890073,0.3017428,-0.08514412,-1.4359879,3500.5354,116.14548)"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <g
+     inkscape:label="Lucem"
+     inkscape:groupmode="layer"
+     id="layer1-2"
+     transform="matrix(1.4938524,0,0,1.4938524,-162.39377,-318.29241)">
+    <path
+       id="path25"
+       style="display:inline;fill:url(#radialGradient26);stroke-width:0.264583"
+       inkscape:label="Grapejuice"
+       d="m 7.6798782,0.2547871 c -4.1134501,0 -7.42509349,3.3116434 -7.42509349,7.4250935 V 112.82964 c 0,4.11345 3.31164339,7.42509 7.42509349,7.42509 H 112.82964 c 4.11345,0 7.42509,-3.31164 7.42509,-7.42509 V 82.244801 H 77.087255 66.265443 43.422262 c -2.85726,0 -5.157544,-2.300283 -5.157544,-5.157543 V 53.356293 43.422264 0.2547871 Z m 52.1989818,0 V 38.264721 h 17.208395 c 2.85726,0 5.157544,2.300283 5.157544,5.157543 V 60.630659 H 120.25473 V 7.6798806 c 0,-4.1134501 -3.31164,-7.4250935 -7.42509,-7.4250935 z"
+       sodipodi:nodetypes="sssssscccsscccsccssccssc"
+       transform="matrix(0.5730869,0.16433002,-0.16433002,0.5730869,127.27724,212.14696)"
+       inkscape:export-filename="L-for-lucem.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:original-d="m 7.6798782,0.2547871 c -4.1134501,0 -7.42509349,3.3116434 -7.42509349,7.4250935 V 112.82964 c 0,4.11345 3.31164339,7.42509 7.42509349,7.42509 H 112.82964 c 4.11345,0 7.42509,-3.31164 7.42509,-7.42509 V 82.244801 H 77.087255 66.265443 43.422262 c -2.85726,0 -5.157544,-2.300283 -5.157544,-5.157543 V 53.356293 43.422264 0.2547871 Z m 52.1989818,0 V 38.264721 h 17.208395 c 2.85726,0 5.157544,2.300283 5.157544,5.157543 V 60.630659 H 120.25473 V 7.6798806 c 0,-4.1134501 -3.31164,-7.4250935 -7.42509,-7.4250935 z"
+       inkscape:path-effect="#path-effect26" />
+    <text
+       xml:space="preserve"
+       transform="matrix(0.16182483,0,0,0.16182483,139.21315,217.12607)"
+       id="text14"
+       style="font-style:italic;font-variant:normal;font-weight:900;font-stretch:normal;font-size:346.667px;font-family:Inter;-inkscape-font-specification:'Inter Heavy Italic';text-align:start;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect15);display:inline;fill:url(#radialGradient18);fill-opacity:1"
+       inkscape:label="Text"
+       x="941.73071"
+       y="0"><tspan
+         x="391.58008"
+         y="367.88104"
+         id="tspan4"><tspan
+           style="baseline-shift:baseline"
+           id="tspan3">Lucem</tspan></tspan></text>
+  </g>
+</svg>

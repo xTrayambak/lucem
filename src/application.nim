@@ -1,7 +1,7 @@
 ## Application code
 ##
 ## Copyright (C) 2025 Trayambak Rai (xtrayambak@disroot.org)
-## Copyright (C) 2025 Ashtaka (adrienwaja@gmail.com)
+## Copyright (C) 2025 AshtakaOOf
 import std/[logging, os, options, posix, json, strutils, sequtils, sugar]
 import pkg/owlkettle, pkg/owlkettle/[playground, adw]
 import pkg/[chronicles, shakar]

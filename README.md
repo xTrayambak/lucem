@@ -3,7 +3,7 @@ This branch contains code for Lucem 3.0, a complete rewrite of Lucem from the gr
 
 **THIS IS EXPERIMENTAL SOFTWARE, USE AT YOUR OWN RISK! We hope to release a testing builds for public consumption soon.**
 
-## <img width="512" src="src/assets/lucem-title.svg">
+## <img width="512" src="assets/lucem-title.svg">
 Lucem is a small wrapper over [Sober](https://sober.vinegarhq.org) to provide some QoL improvements. \
 Please keep in mind that while Lucem is fully open source software, Sober is proprietary for a very good reason, that being to preserve RoL from 9-year-old skiddies.
 
