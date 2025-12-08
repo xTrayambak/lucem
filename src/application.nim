@@ -2,7 +2,7 @@
 ##
 ## Copyright (C) 2025 Trayambak Rai (xtrayambak@disroot.org)
 ## Copyright (C) 2025 AshtakaOOf
-import std/[logging, os, options, posix, json, strutils, sequtils, sugar]
+import std/[os, options, posix, json, strutils, sequtils, sugar]
 import pkg/owlkettle, pkg/owlkettle/[playground, adw]
 import pkg/[chronicles, shakar]
 #!fmt: off
@@ -21,7 +21,8 @@ proc setState(app: SettingsMenuState, state: SettingsState) =
   if app.state == state:
     return
 
-  debug "settings: state=" & $state
+  debug "State has changed", state = state
+
   app.collapsed = true
   app.state = state
 
@@ -41,7 +42,6 @@ method view(app: SettingsMenuState): Widget =
 
           proc clicked() =
             app.collapsed = not app.collapsed
-            debug "settings: collapsed: " & $app.collapsed
 
         Button {.addLeft.}:
           icon = "shopping-cart-symbolic"
